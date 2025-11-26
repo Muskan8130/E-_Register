@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Login - PDF Reader</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /*
+:root{ 
+    --bg1: #0f172a; --bg2: #0b3a5b; --card: rgba(255,255,255,0.06); --glass: rgba(255,255,255,0.06); --accent: #7c5cff; --accent-2: #3be7b5; --muted: rgba(255,255,255,0.75); --glass-border: rgba(255,255,255,0.06);
+     } */
+     body {
+     margin: 0;
+     font-family: 'Inter', system-ui, sans-serif;
+     color: #eaf2ff;
+      background: linear-gradient(135deg, #182848 0%, #4b6cb7 100%);
+     background-attachment: fixed;
+     overflow-x: hidden;
+     min-height: 100vh;
+     display: flex;
+    justify-content: center;
+    align-items: center;
+    }
+    body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at 25% 20%, rgba(0, 200, 255, 0.18), transparent 60%),
+                radial-gradient(circle at 80% 70%, rgba(160, 100, 255, 0.2), transparent 50%);
+    z-index: -1;
+  }
+
+    @keyframes bgmove {
+    from { 
+             background-position: 0% 50%; } to { background-position: 100% 50%; }
+            } 
+    .card { 
+        
+         width: 40%; 
+         max-width: 450px;
+         min-width: 320px; 
+         padding: 2.5rem;
+         background: linear-gradient(135deg, #2c4573 0%, #5384f7 100%); 
+         backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px); 
+         border-radius: 16px;
+         border: 1px solid rgba(255, 255, 255, 0.1);  
+         box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6); text-align: center; color: #e0e0e0; 
+      } 
+       h2 { 
+           margin-bottom: 1.5rem; font-weight: 700; font-size: 1.6rem; letter-spacing: 0.8px; color: #121313; /* Primary color highlight */ text-shadow: 0 0 5px rgba(0, 188, 212, 0.4); 
+        } 
+      .form-row { 
+            display: flex; justify-content: space-between; align-items: center; margin: 1.5rem 0; width: 100%; 
+            } 
+        label { 
+        flex-basis: 30%; text-align: left; font-size: 1rem; font-weight: 600; color: #090909; 
+            } 
+        input { flex-basis: 65%; padding: 0.8rem 1rem; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 10px; background: rgba(255, 255, 255, 0.05); /* Very subtle background */ color: #f5ecec; outline: none; font-size: 0.95rem; transition: border-color 0.3s;
+        }
+        input:focus {
+         border-color: #00bcd4; /* Highlight on focus */ box-shadow: 0 0 8px rgba(0, 188, 212, 0.5); 
+         } /* Login Button - Cyan Theme */
+        button { 
+            width: 100%; padding: 0.8rem; font-size: 1.1rem; margin-top: 2rem; border: none; border-radius: 10px; font-weight: 700; letter-spacing: 1px; background: #337b39; /* Primary color */ color: #d4d4ea; cursor: pointer; transition: 0.3s;
+             }
+        button:hover {
+         background: #1d5836; transform: translateY(-2px) scale(1.01); box-shadow: 0 5px 15px rgba(0, 188, 212, 0.3); 
+         } /* Flash Messages - Dynamic styles from Flask */ 
+        .flash {
+             padding: 0.9rem; border-radius: 10px; margin-top: 0.8rem; font-size: 0.95rem; font-weight: 500; text-align: left; 
+             } 
+        .flash.success { 
+            background: rgba(76, 175, 80, 0.2); color: #4caf50; border: 1px solid #4caf50; 
+            } 
+        .flash.danger { 
+                background: rgba(244, 67, 54, 0.2); color: #f44336; border: 1px solid #f44336; 
+                } /* Responsive adjustments */
+         @media (max-width: 600px) {
+        .card { 
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             margin-left: 400px; padding: 2rem; 
+            }
+        .form-row {
+             flex-direction: column; align-items: flex-start; 
+             }
+         label {
+             margin-bottom: 8px; flex-basis: 100%;
+              } 
+        input { 
+            flex-basis: 100%; width: 100%;
+         } 
+            }
+    /*----------------------Small game----------------------------->*/
+       #playGameBtn {
+      background: #007bff;
+      color: #fff;
+      border: none;
+      padding: 10px 25px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      width: 200px;
+      position: absolute;
+      top: 40px;        /* Move it to top */
+     left: 50%;        /* Center horizontally */
+    transform: translateX(-50%); /* Perfect center alignment */
+    z-index: 1001; 
+    }
+    #playGameBtn:hover {
+      background: #0056b3;
+      transform: translateX(-50%) scale(1.05);
+    }
+
+    /* Modal Styling */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width:100%;
+      height:100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: white;
+      padding: 25px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .close {
+      position: absolute;
+      right: 15px;
+      top: 10px;
+      font-size: 22px;
+      cursor: pointer;
+      color: #333;
+      font-weight: bold;
+    }
+
+    .close:hover {
+      color: #000;
+    }
+
+    #scrambledWord {
+      font-size: 28px;
+      margin: 20px 0;
+      letter-spacing: 2px;
+      font-weight: 600;
+    }
+
+    input {
+      width: 80%;
+      padding: 10px;
+      border: 1px solid #f1eded;
+      color: #000;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-bottom: 15px;
+    }
+
+    #submitBtn {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    #submitBtn:hover {
+      background-color: #1e7e34;
+    }
+
+    #message {
+      font-size: 18px;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+
+    #progress {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #777;
+    }
+ h3{
+  color: #1e7e34;
+ }
+ #scrambledWord{
+  color: #e68888;
+ }
+ /* 🔹 Move Theme Selector to Top Right */
+.theme-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1100;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  padding: 10px 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 150px;
+}
+
+.theme-container label {
+  font-weight: 600;
+  color: #fff;
+}
+
+.theme-container select {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  background-color: rgba(255,255,255,0.2);
+  color: #fff;
+  cursor: pointer;
+}
+
+.theme-container select option {
+  color: #000;
+}
+
+</style>
+</head>
+<>
+   <!-----------------------new theme---------------
+ <div style="margin-bottom: 1rem;">
+  <label for="theme" style="font-weight:600; color:#121313;">Choose Theme:</label>
+  <select id="theme" style="padding: 0.5rem 1rem; border-radius:8px; border:none; outline:none;">
+    <option value="default" selected>Default</option>
+    <option value="light">Light</option>
+    <option value="dark">Dark</option>
+  </select>
+</div>-->
+  <!-- 🔹 Theme Selector (Moved to Top-Right Corner) -->
+  <div class="theme-container">
+    <label for="theme">Theme:</label>
+    <select id="theme">
+      <option value="default" selected>Default</option>
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+    </select>
+  </div>
+
+   <!-----------------------new theme------------------>
+ <!-----------------------new theme------------------>
+  <!----------------------Small game----------------------------->
+  <!--<h2>🔠 Word Scramble Game</h2>-->
+  <button id="playGameBtn">🔠 Word Scramble Game</button>
+
+  <!-- Modal -->
+  <div id="gameModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h3>Unscramble the Word</h3>
+      <div id="scrambledWord">---</div>
+      <input type="text" id="userAnswer" placeholder="Type your answer here">
+      <br>
+      <button id="submitBtn">Submit</button>
+      <div id="message"></div>
+      <div id="progress"></div>
+    </div>
+  </div>
+
+    <!----------------------Small game----------------------------->
+ <div class="card" role="main">
+ <h2>Invoice E-Register</h2>
+ <form method="POST" action="{{ url_for('login_post') }}" autocomplete="off" novalidate>
+ <div class="form-row">
+ <label for="user_id">User ID</label>
+ <input id="user_id" name="user_id" type="text" required autofocus>
+ </div>
+
+ <div class="form-row">
+ <label for="password">Password</label>
+ <input id="password" name="password" type="password" required>
+ </div>
+<button type="submit">Login</button>
+ </form>
+ </div>
+
+
+ <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+
+ 
+
+</body>
+</html>

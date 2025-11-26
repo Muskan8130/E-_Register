@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>User Panel — Invoice E-Reader</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    /* ===== Elegant Blue-Violet Theme ===== */
+    * {
+      box-sizing: border-box;
+      font-family: "Inter", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #eef2ff, #e0e7ff, #c7d2fe);
+      background-attachment: fixed;
+      color: #1e1b4b;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(90deg, #4338ca, #3730a3);
+      color: #fff;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, .15);
+    }
+
+    .user-info {
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .search-bar input {
+      border: none;
+      border-radius: 2rem;
+      padding: .5rem 1rem;
+      width: 250px;
+      outline: none;
+    }
+
+    .logout-btn {
+      background: linear-gradient(90deg, #4f46e5, #3730a3);
+      color: #fff;
+      border: none;
+      border-radius: 2rem;
+      padding: .5rem 1.2rem;
+      font-weight: 600;
+    }
+
+    .logout-btn:hover {
+      background: linear-gradient(90deg, #3730a3, #312e81);
+    }
+
+    /* Table */
+    .table-container {
+      margin: 2rem auto;
+      max-width: 95%;
+    }
+
+    table {
+      background: #fff;
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 6px 15px rgba(67, 56, 202, 0.15);
+    }
+
+    thead {
+      background: linear-gradient(90deg, #4f46e5, #4338ca);
+      color: #fff;
+    }
+
+    tbody tr:hover {
+      background-color: #eef2ff;
+    }
+
+    .btn-sm {
+      border: none;
+      border-radius: .5rem;
+      padding: .35rem .8rem;
+      font-weight: 500;
+    }
+
+    .btn-show {
+      background: #4f46e5;
+      color: #fff;
+    }
+
+    .btn-doc {
+      background: #3730a3;
+      color: #fff;
+    }
+
+    .btn-show:hover {
+      background: #4338ca;
+    }
+
+    .btn-doc:hover {
+      background: #312e81;
+    }
+
+    /* Modal */
+    .modal-content {
+      border-radius: 1rem;
+      border: none;
+      box-shadow: 0 6px 15px rgba(67, 56, 202, .2);
+    }
+
+    .modal-header {
+      background: linear-gradient(90deg, #4f46e5, #4338ca);
+      color: #fff;
+      border-top-left-radius: 1rem;
+      border-top-right-radius: 1rem;
+    }
+    #Back{
+    background-color: rgb(211, 68, 68);
+   
+   } 
+   #globalSearch{
+    width: 300px;
+    margin-top: 20px;
+   }
+  </style>
+</head>
+
+<body>
+  <!-- ===== Header ===== -->
+  <header>
+    <div class="user-info">
+      👤 Logged in as: <span id="username">{{ user.user_id }}</span>
+    </div>
+
+    <div class="d-flex align-items-center gap-3">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <input id="globalSearch" placeholder="Global search..." class="form-control" style="max-width:500px"
+          style="border-radius: 2px rgb(201, 197, 197);">
+      </div>
+      <a id = "Back" class="btn btn-outline-light" href="/master">Back</a>
+    </div>
+  </header>
+
+  <!-- ===== Table ===== -->
+  <div class="card-ui">
+    <small class="muted">Total records: <span id="totalCount">0</span></small>
+  </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Invoice No</th>
+          <th>Item Name</th>
+          <th>Qty</th>
+          <th>Unit Rate</th>
+          <th>GST</th>
+          <th>Total</th>
+          <th>Contact Person</th>
+          <th>Company Name</th>
+          <th>State</th>
+          <th>GST No</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+  </div>
+  </div>
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ url_for('static', filename='js/newinvoices.js') }}">
+   
+  </script>
+</body>
+
+</html>

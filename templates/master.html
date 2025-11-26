@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Master Panel — Invoice E-Reader</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <style>
+    /* ==== Elegant Blue-Violet Dashboard Theme ==== */
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #eaf2ff;
+  background: linear-gradient(135deg, #182848 0%, #4b6cb7 100%);
+  background-attachment: fixed;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Add glowing abstract overlay */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 25% 20%, rgba(0, 200, 255, 0.18), transparent 60%),
+              radial-gradient(circle at 80% 70%, rgba(160, 100, 255, 0.2), transparent 50%);
+  z-index: -1;
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 28px;
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+}
+
+.header h2 {
+  color: #ffffff;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.small-muted {
+  color: rgba(220, 230, 255, 0.7);
+  font-size: 14px;
+}
+
+/* GRID LAYOUT */
+.panel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 22px;
+  padding: 32px;
+}
+
+/* BOX */
+.box {
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  padding: 26px 22px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.box:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
+}
+
+.box h3 {
+  color: #ffffff;
+  margin-bottom: 10px;
+}
+
+.muted {
+  color: rgba(220, 230, 255, 0.75);
+  font-size: 14px;
+}
+
+/* BUTTONS */
+.btn-lg {
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+/* Button Styles */
+#Create{
+  height: 50px;
+  border-radius: 8px;
+}
+.btn-primary {
+  background: linear-gradient(90deg, #23449f, #7f8dff);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(120, 145, 255, 0.4);
+  font-weight: bold;
+  border-radius: 8px;
+  height: 37px;
+}
+.btn-primary:hover {
+  background: linear-gradient(90deg, #6f7eff, #94a1ff);
+  box-shadow: 0 0 15px rgba(160, 180, 255, 0.6);
+  color: black;
+}
+
+.btn-success {
+  background: linear-gradient(90deg, #00c9a7, #00bfa5);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(0, 255, 213, 0.4);
+}
+
+.btn-success:hover {
+  background: linear-gradient(90deg, #6ea8c3, #00d7a8);
+  box-shadow: 0 0 16px rgba(0, 255, 220, 0.5);
+  color: black;
+  font-weight: bold;
+}
+.btn-info{
+  color: white;
+  font-weight: bold;
+  height: 37px;
+  border-radius: 8px;
+}
+.btn-info:hover{
+  background: linear-gradient(90deg, #6ea8c3, #00d7a8);
+  box-shadow: 0 0 16px rgba(0, 255, 220, 0.5);
+  color: #0a0a0a;
+}
+.btn-warning {
+  background: linear-gradient(90deg, #f9a825, #ff7043);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(255, 179, 0, 0.4);
+  font-weight: bold;
+
+}
+.btn-warning:hover {
+  background: linear-gradient(90deg, #ffb300, #ff8a50);
+  box-shadow: 0 0 14px rgba(255, 200, 0, 0.5);
+  color: #0a0a0a;
+}
+#Chart{
+   height: 37px;
+  border-radius: 8px;
+}
+.btn-danger {
+  background: linear-gradient(90deg, #ff5370, #e53935);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(255, 83, 112, 0.4);
+  font-weight: bold;
+  height: 37px;
+  border-radius: 8px;
+}
+.btn-danger:hover {
+  background: linear-gradient(90deg, #ff6f6f, #ff2d55);
+  box-shadow: 0 0 14px rgba(255, 100, 100, 0.6);
+  color: black;
+}
+
+/* USERS SECTION */
+#usersSection {
+  padding: 32px;
+  display: none;
+  animation: fadeIn 0.7s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+  background: rgba(82, 82, 181);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  padding: 18px;
+  backdrop-filter: blur(10px);
+}
+
+/* TABLE */
+.table-dark {
+  background-color: #f9f5f5e1;
+  color: #0d0e0e;
+  border-radius: 12px;
+}
+.table-dark tbody tr td {
+  background-color: rgb(251, 246, 246) !important;
+  color: black !important;
+}
+
+.table thead th {
+  background: rgba(15, 15, 15, 0.1);
+  color: #191a1b;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.table tbody tr:hover {
+  background: rgba(228, 213, 213, 0.08);
+}
+
+/* MODALS */
+.modal-content.bg-dark {
+  background: linear-gradient(135deg, #1e275a, #273b8c);
+  color: #eaffed;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 25px rgba(132, 196, 159, 0.3);
+}
+
+.modal-title {
+  color: #c5ffda;
+  font-weight: 600;
+}
+
+/* INPUT FIELDS */
+.form-control {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #e8efff;
+  transition: all 0.3s ease;
+}
+.form-control:focus {
+  border-color: #88a1ff;
+  box-shadow: 0 0 10px rgba(140, 180, 255, 0.3);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* ALERT BOXES */
+.alert {
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 500;
+}
+
+/* CHART MODAL CANVAS */
+#userChart {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 6px;
+  box-shadow: 0 0 10px rgba(80, 120, 255, 0.2);
+}
+#lockedBtn:hover {
+  background: linear-gradient(90deg, #444, #555) !important;
+}
+/* ========= Locked Button Fix ========= */
+#lockedBtn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 38px !important;
+  line-height: 1 !important;
+  padding: 0 40px !important;
+  font-size: 14px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  width: 200px;
+  margin-left: 5px;
+}
+
+#lockedModal .modal-dialog {
+  max-width: 820px;     /* Enough width for all fields */
+  width: 95%;
+  margin: auto;
+}
+
+#lockedModal .modal-content {
+  border-radius: 14px;
+  border: none;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.28);
+  overflow: hidden;
+}
+
+/* ---------- HEADER ---------- */
+#lockedModal .modal-header {
+  background: #f3f5f9;
+  padding: 14px 22px;
+  border-bottom: 1px solid #d9dce1;
+}
+#lockedModal .modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #222;
+}
+
+/* ---------- BODY ---------- */
+#lockedModal .modal-body {
+  padding: 18px 22px;
+  max-height: 420px;         /* Enough height */
+  overflow-y: auto;          /* Scroll for table */
+  background: #ffffff;
+  border-radius: 0 0 12px 12px;
+}
+
+/* ---------- TABLE ---------- */
+#lockedModal table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #d4d8de;
+}
+
+#lockedModal thead th {
+  background: #eef2f7;
+  color: #333;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #d6d9df;
+}
+
+#lockedModal tbody td {
+  font-size: 14px;
+  padding: 8px 12px;
+  background: white;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+/* Hover effect */
+#lockedModal tbody tr:hover td {
+  background: #fafbff;
+}
+
+  </style>
+  
+</head>
+
+<body>
+  <div class="header">
+    <div>
+      <h2 style="margin:0">Master Panel</h2>
+      <div class="small-muted">Signed in as: {{ master_user }}</div>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center">
+      <button class="btn btn-sm btn-outline-light" id="lockedBtn" style="background-color:#444;">🔒 Locked</button>
+      <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+    </div>
+  </div>
+
+  <div style="padding:22px">
+    <div class="panel-grid">
+      <div class="box">
+        <h3>Create User</h3>
+        <p class="muted">Click to create a new user account</p>
+        <button id="Create" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#createUserModal" >Create
+          User</button>
+      </div>
+
+      <div class="box">
+        <h3>Show All Users</h3>
+        <p class="muted">View, edit, delete users and perform actions</p>
+        <button id="openUsersSection" class="btn btn-success btn-lg">Open Users</button>
+      </div>
+
+      <div class="box">
+        <h3>Admin Panel (All Invoices)</h3>
+        <p class="muted">View invoice data across users — search, export, view docs</p>
+        <a class="btn btn-warning btn-lg" href="{{ url_for('master_invoices_page') }}">Open Admin Panel</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- USERS SECTION -->
+  <div id="usersSection">
+    <div class="card">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <input id="globalSearch" placeholder="Global search..." class="form-control" style="max-width:500px" style="border-radius: 2px rgb(201, 197, 197);">
+      </div>
+      <div class="table-responsive" style="max-height:480px; overflow:auto;">
+        <table class="table table-dark table-hover mb-0">
+          <thead>
+            <tr>
+              <th>S. No</th>
+              <th>User ID</th>
+              <th>Role</th>
+              <th>Created At</th>
+              <th>Last Used</th>
+              <th>Last Action</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="usersTbody"></tbody>
+        </table>
+      </div>
+      </div>
+      </div>
+ 
+
+  <!-- Create User Modal -->
+  <div class="modal fade" id="createUserModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark text-light">
+        <div class="modal-header">
+          <h5 class="modal-title">Create User</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <form id="createUserForm">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">UserID (unique)</label>
+              <input name="userid" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Password</label>
+              <input name="password" type="password" class="form-control" required>
+            </div>
+            <div id="createUserMsg"></div>
+          </div>
+          <div class="modal-footer">
+           <button class="btn btn-primary" type="button" onclick="createUser()">Create</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark text-light">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit User</h5><button type="button" class="btn-close btn-close-white"
+            data-bs-dismiss="modal"></button>
+        </div>
+        <form id="editForm">
+          <div class="modal-body">
+            <input type="hidden" name="id" id="edit_id">
+            <div class="mb-3"><label>Username</label><input name="username" id="edit_username" class="form-control">
+            </div>
+            <div class="mb-3"><label>New Password (leave empty to keep)</label><input name="password" id="edit_password"
+                class="form-control"></div>
+            <div id="editMsg"></div>
+          </div>
+          <div class="modal-footer"><button class="btn btn-primary" type="submit">Save</button></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart Modal -->
+  <div class="modal fade" id="chartModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content bg-dark text-light">
+        <div class="modal-header">
+          <h5 class="modal-title">User Invoice Count</h5><button class="btn-close btn-close-white"
+            data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <canvas id="userChart" width="300" height="300"></canvas>
+          <div id="chartMsg" class="mt-2"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+   <!-- 🔒 Locked Invoices Modal -->
+<div class="modal fade" id="lockedModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Locked Invoices</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped" id="lockedTable">
+            <thead>
+              <tr>
+                <th>Invoice No</th>
+                <th>GST</th>
+                <th>Invoice Date</th>
+                <th>Contact Person</th>
+                <th>State</th>
+                <th>Mobile</th>
+                <th>Email</th>
+              </tr>
+            </thead>
+            <tbody id="lockedBody">
+              <!-- JS will insert rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ url_for('static', filename='js/master.js') }}">
+   
+  </script>
+</body>
+
+</html>

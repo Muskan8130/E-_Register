@@ -1,0 +1,1033 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>User Panel — Invoice Manager</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Google font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  
+
+  <style>
+  
+    :root{
+      --accent1: #6c63ff;
+      --accent2: #7b78f1;
+      --muted: #6b7280;
+      --card-bg: rgba(255,255,255,0.9);
+    }
+    body{
+      margin: 0;
+      font-family: 'Inter', system-ui, sans-serif;
+      color: #eaf2ff;
+      background: linear-gradient(135deg, #182848 0%, #4b6cb7 100%);
+      background-attachment: fixed;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+  body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 25% 20%, rgba(0, 200, 255, 0.18), transparent 60%),
+              radial-gradient(circle at 80% 70%, rgba(160, 100, 255, 0.2), transparent 50%);
+  z-index: -1;
+}
+    .topbar{
+      background: linear-gradient(90deg,var(--accent1),var(--accent2));
+      background: rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+      color: white;
+      padding: 18px 24px;
+      border-radius: 14px;
+      box-shadow: 0 6px 24px rgba(110,107,255,0.14);
+    }
+    .topbar .title{
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+    .user-bubble{
+      background: rgba(255,255,255,0.12);
+      padding: 6px 10px;
+      border-radius: 999px;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      font-weight:600;
+    }
+
+   
+    .panel {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+    /*
+    .controls {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }*/
+    .panel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 22px;
+  padding: 32px;
+}
+    left-controls { display:flex; gap:10px; align-items:center;}
+    .box{
+    background: rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+    padding: 26px 22px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    height: 190px;
+}
+
+.box:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
+}
+.box h3 {
+  color: #efe4e4;
+  margin-bottom: 10px;
+}
+/*
+    .card-ui{
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 6px 18px rgba(27,27,27,0.04);
+    }
+*/
+    table thead th { background: linear-gradient(90deg,#efebeb,#e2e2e7); font-weight:600; }
+    .highlight {
+      background: #fff8d6 !important;
+      animation: pulse 1.2s ease-in-out;
+    }
+    @keyframes pulse{
+      0% { box-shadow: 0 0 0 rgba(255,200,0,0.25); }
+      100% { box-shadow: 0 8px 32px rgba(255,200,0,0); }
+    }
+
+  
+    .btn-accent{
+      background: linear-gradient(90deg, #5869f0, #7f8dff);
+      color: #fff;
+      box-shadow: 0 0 10px rgba(120, 145, 255, 0.4);
+     }
+     .btn-accent:hover{
+      background: linear-gradient(90deg, #6f7eff, #94a1ff);
+    box-shadow: 0 0 15px rgba(160, 180, 255, 0.6);
+    color: black;
+     }
+    .btn-outline-accent{
+      background: linear-gradient(90deg, #00c9a7, #00bfa5);
+      color: #fff;
+      box-shadow: 0 0 10px rgba(0, 255, 213, 0.4);
+    }
+    .btn-outline-accent:hover{
+      background: linear-gradient(90deg, #00e6b4, #00d7a8);
+     box-shadow: 0 0 16px rgba(0, 255, 220, 0.5);
+     color: black;
+    }
+    /* ----------------edite delte show docs show all btn---------------------------------------*/
+.btn-outline-primary, .btn-outline-success, .btn-outline-info, .btn-outline-danger {
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.25s ease;
+}
+
+.btn-outline-primary:hover {
+   background: linear-gradient(90deg, #6f7eff, #94a1ff); color: #fff;
+   }
+.btn-outline-success:hover {
+   background: linear-gradient(90deg, #00e6b4, #00d7a8); color: #e7e3e3;
+   }
+ .btn-outline-info:hover {
+   background: linear-gradient(90deg, #88e2e4, #6cc8ff); color: #fff; 
+   color: black;
+  }
+.btn-outline-danger:hover  {
+   background: linear-gradient(90deg, #ff6b6b, #ff8787); color: #fff; 
+  }
+
+      /* ----------------edite delte show docs show all btn---------------------------------------*/
+   .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .form-label {
+      font-weight:600;
+      color: #333;
+      margin-bottom:6px;
+    }
+   .muted {
+  color: rgba(246, 247, 252, 0.75);
+  font-size: 20px;
+}
+ 
+
+    .file-row { display:flex; gap:8px; align-items:center; }
+    .table-responsive { max-height: 52vh; overflow:auto; }
+
+  
+    @media (max-width: 800px){
+      .two-col { grid-template-columns: 1fr; }
+      .controls { flex-direction: column; align-items:stretch; gap:12px; }
+    }
+    
+    .modal-body{
+      height: 800px;
+      width: 800px;    
+    }
+    .modal-dialog{
+      height: 800px;
+      width: 500px;  
+    }
+
+    .form-control{
+      width: 450px;
+    }
+    .btn-secondary{
+    margin-right: 400px;
+    }
+    h2{
+      color: #ffffff;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .btn-sm{
+      height: 38px;
+      border: 1px solid white;
+      border-radius: 8px;
+      font-weight: 80px;
+      font-size: 16px;
+    }
+    
+    #loggedUserName{
+      margin-left:10px;
+      font-weight: bold;
+    }
+    .me-2 {
+      font-weight: bold;
+    }
+    tr{
+      color: black;
+      background-color: #b43737;
+    }
+    .btn:hover{
+      color: #333;
+    background-color: rgb(201, 229, 231);
+    }
+    #logoutBtn{
+      margin-left: 300px;
+    }
+    .editBtn{
+      background: linear-gradient(90deg, #23449f, #7f8dff);
+     color: #fff;
+     box-shadow: 0 0 10px rgba(120, 145, 255, 0.4);
+    }
+    .showBtn{
+     background: linear-gradient(90deg, #00c9a7, #00bfa5);
+     color: #fff;
+     box-shadow: 0 0 10px rgba(0, 255, 213, 0.4);
+    }
+    
+    .chartBtn{
+     background: linear-gradient(90deg, #f9a825, #ff7043);
+     color: #fff;
+     box-shadow: 0 0 10px rgba(255, 179, 0, 0.4);
+    }
+    .chartBtn:hover{
+     background: linear-gradient(90deg, #dda751, #ff7043);
+    }
+    .deleteBtn{
+      background: linear-gradient(90deg, #ff5370, #e53935);
+     color: #fff;
+     box-shadow: 0 0 10px rgba(255, 83, 112, 0.4);
+    }
+   #modalFile{
+    width: 300px;
+   }
+   /* =======================================
+   🔒 LOCKED MODAL — Perfect Balanced UI
+   ======================================= */
+
+#lockedModal .modal-dialog {
+  max-width: 820px;     /* Enough width for all fields */
+  width: 95%;
+  margin: auto;
+}
+
+#lockedModal .modal-content {
+  border-radius: 14px;
+  border: none;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.28);
+  overflow: hidden;
+}
+
+/* ---------- HEADER ---------- */
+#lockedModal .modal-header {
+  background: #f3f5f9;
+  padding: 14px 22px;
+  border-bottom: 1px solid #d9dce1;
+}
+#lockedModal .modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #222;
+}
+
+/* ---------- BODY ---------- */
+#lockedModal .modal-body {
+  padding: 18px 22px;
+  max-height: 420px;         /* Enough height */
+  overflow-y: auto;          /* Scroll for table */
+  background: #ffffff;
+  border-radius: 0 0 12px 12px;
+}
+
+/* ---------- TABLE ---------- */
+#lockedModal table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #d4d8de;
+}
+
+#lockedModal thead th {
+  background: #eef2f7;
+  color: #333;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #d6d9df;
+}
+
+#lockedModal tbody td {
+  font-size: 14px;
+  padding: 8px 12px;
+  background: white;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+/* Hover effect */
+#lockedModal tbody tr:hover td {
+  background: #fafbff;
+}
+
+/* ---------- UNLOCK BUTTON ---------- */
+.unlockBtn {
+  background: linear-gradient(90deg, #ff5a5a, #ff7676);
+  color: #fff !important;
+  padding: 6px 14px;
+  font-size: 13px;
+  border-radius: 7px;
+  border: none;
+  transition: 0.2s ease-in-out;
+}
+
+.unlockBtn:hover {
+  background: linear-gradient(90deg, #ff3d3d, #ff5d5d);
+  box-shadow: 0 0 8px rgba(255,80,80,0.5);
+}
+
+/* ---------- FOOTER ---------- */
+#lockedModal .modal-footer {
+  padding: 12px 22px;
+  border-top: 1px solid #d9dce1;
+}
+
+
+#lockedBtn:hover {
+  background: linear-gradient(90deg, #444, #555) !important;
+}
+/* ========= Locked Button Fix ========= */
+#lockedBtn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 38px !important;
+  line-height: 1 !important;
+  padding: 0 40px !important;
+  font-size: 14px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  width: 200px;
+  margin-left: 5px;
+}
+
+/* ========= Unlock Button Fix ========= */
+.unlockBtn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 34px !important;
+  line-height: 1 !important;
+  padding: 0 14px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+/* ----------game modal----------------------*/
+/* GAME MODAL COPY FROM LOGIN PAGE */
+#gameModal2 {
+  display: none;
+  position: fixed;
+  z-index: 10000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  justify-content: center;
+  align-items: center;
+}
+
+#gameModal2 .modal-content {
+  background-color: white;
+  padding: 25px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  position: relative;
+}
+
+.close2 {
+  position: absolute;
+  right: 15px;
+  top: 10px;
+  font-size: 22px;
+  cursor: pointer;
+  color: #333;
+}
+
+#scrambledWord2 {
+  font-size: 28px;
+  margin: 20px 0;
+  letter-spacing: 2px;
+  font-weight: 600;
+  color: #e68888;
+}
+
+#userAnswer2 {
+  width: 80%;
+  padding: 10px;
+  border: 1px solid #f1eded;
+  color: #000;
+  border-radius: 8px;
+  font-size: 16px;
+  margin-bottom: 15px;
+}
+
+#submitBtn2 {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+#submitBtn2:hover {
+  background-color: #1e7e34;
+}
+/* 🎮 Word Scramble Game Button (Same as Login Page) */
+.game-btn {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  height: 40px;                    /* SAME size as login page button */
+  display: inline-flex;
+  align-items: center;
+ /* 🎮 Word Scramble Game Button (Same as Login Page) */
+.game-btn {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  height: 40px;                    /* SAME size as login page button */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.game-btn:hover {
+  background: #0056b3;
+  transform: scale(1.05);
+}
+
+  white-space: nowrap;
+}
+
+.game-btn:hover {
+  background: #0056b3;
+  transform: scale(1.05);
+}
+#logoutBtn{
+      margin-left: 1px;
+    }
+
+/* Modal styling */
+.custom-modal {
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0px 8px 30px rgba(0,0,0,0.15);
+}
+
+/* Input styling */
+.custom-input {
+  height: 45px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  padding-left: 12px;
+  transition: 0.3s;
+}
+
+.custom-input:focus {
+  border-color: #0d6efd;
+  box-shadow: 0px 0px 5px rgba(13,110,253,0.3);
+}
+
+/* Dropdown styling */
+.custom-dropdown {
+  max-height: 200px;
+  overflow-y: auto;
+  border-radius: 8px;
+  padding: 0;
+  margin-top: 2px;
+}
+
+.custom-dropdown .dropdown-item {
+  padding: 10px 15px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+
+.custom-dropdown .dropdown-item:hover {
+  background: #e9f3ff;
+  color: #0d6efd;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 576px) {
+  .modal-dialog {
+    max-width: 95% !important;
+    margin: auto;
+  }
+  .custom-input {
+    height: 42px;
+  }
+}
+
+    
+  </style>
+</head>
+<body>
+
+  <!-- Top header -->
+  <div class="topbar d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center gap-3">
+      <div>
+        <h2 style="margin: 0;">User Panel</h2>
+       <div class="me-2 muted small" style="color: hwb(120 96% 3% / 0.963);"style="font-weight:20px;">Signed in as :<span id="loggedUserName"></span></div>
+      </div>
+    </div>
+
+    <div class="d-flex align-items-center gap-3">
+      <div style="width:380px" class="d-flex align-items-center gap-2">
+        <button id="gameBtn" class="game-btn">🔠 Word Scramble Game</button>
+        <button class="btn btn-sm btn-outline-light" id="lockedBtn" style="background-color:#444;">🔒 Locked</button>
+        <a class="btn btn-sm btn-outline-light" id="logoutBtn"   style="background-color: red;" href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel -->
+  <div class="panel">
+
+    <!-- Controls card -->
+     <div style="padding: 22px;">
+      <div class="panel-grid">
+        <div class="box">
+          <h3>Add new invoices</h3>
+           <p class="muted">Add and upload invoices and data in table</p>
+        <button class="btn btn-accent" id="addInvoiceBtn">➕ Add Invoice</button>
+        </div>
+        <div class="box">
+        <h3>Export all excel sheet </h3>
+         <p class="muted">Dowload excel sheet</p>
+        <button class="btn btn-outline-accent" id="exportFullBtn">⬇ Export Full Excel</button>
+        </div>
+        <div class="box">
+          <h3>Select excel data to export</h3>
+          <p class="muted">Download custom excel</p>
+        <button class="btn btn-outline-accent" id="exportCustomBtn">⬇ Export Custom Excel</button>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- Table card -->
+    <div class="card-ui">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+         <input id="globalSearch" class="form-control form-control-sm" placeholder="search here.....">
+        </div>
+        <div>
+          <small class="muted">Total records: <span id="totalCount">0</span></small>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+       <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Invoice No</th>
+                <th>Item Name</th>
+                <th>Qty</th>
+                <th>Unit Rate</th>
+                <th>GST</th>
+                <th>Total</th>
+                <th>Contact Person</th>
+                <th>Company Name</th>
+                <th>State</th>
+                <th>GST No</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Invoice Modal -->
+  <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" style="color: black;" >Upload and Save Excel Invoice</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- file chooser -->
+          <div class="mb-3 file-row">
+            <input id="modalFile" type="file" accept=".xls,.xlsx,.csv" class="form-control">
+            <button id="modalUploadBtn" class="btn btn-accent" id="Upload">Upload & Map Fields</button>
+          </div>
+          <form id="invoiceForm">
+            <!-- File choose button -->
+            <input type="file" id="docInput" accept=".jpg,.jpeg,.pdf" hidden>
+            <label for="docInput" class="btn" style="background-color: #eeebfa;">Choose Doce</label>
+          </form>
+          <div id="modalFileMsg" class="muted small ms-2"></div>
+          <!-- two columns form -->
+          <div class="two-col">
+            <div>
+              <div class="mb-3">
+                <label class="form-label">Invoice No.</label>
+                <input  id="f_invoice_no" name="invoice_no" class="form-control">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Item Name</label>
+                <input id="f_item_name" name="item_name" class="form-control" >
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Qty</label>
+                <input id="f_qty" name="qty" class="form-control" >
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Unit Rate</label>
+                <input id="f_unit_rate" name="unit_rate" class="form-control" >
+              </div>
+              <div class="mb-3">
+                <label class="form-label">IGST</label>
+                <input id="f_igst" name="igst" class="form-control">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">CGST</label>
+                <input id="f_cgst" name="cgst" class="form-control">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">SGST</label>
+                <input id="f_sgst" name="sgst" class="form-control">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Total</label>
+                <input id="f_total" name="total" class="form-control" >
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Contact Person</label>
+                <input id="f_contact_person" name="contact_person" class="form-control" >
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Company Name</label>
+                <input id="f_company_name" name="company_name" class="form-control" >
+              </div>
+              <div class="mb-3">
+                <label class="form-label">State</label>
+                <input id="f_state" name="state" class="form-control" >
+              </div>
+
+            <div>
+              <div class="mb-3">
+                <label class="form-label">GST No.</label>
+                <input id="f_gst_no" name="gst_no" class="form-control" >
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Invoice Date</label>
+                <input id="f_invoice_date" name="invoice_date" class="form-control" >
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Item Description</label>
+                <input id="f_description" name="description" class="form-control" >
+              </div></div>
+              <div class="mb-3">
+                <label class="form-label">Warranty Detail</label>
+                <input id="f_warranty_details" name="warranty_details" class="form-control" >
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Warranty End</label>
+                <input id="f_warranty_end" name="warranty_end" class="form-control">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Warranty Customer Care</label>
+                <input id="f_warranty_cc" name="warranty_cc" class="form-control" >
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Address</label>
+                <input id="f_address" name="address" class="form-control">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">PAN No.</label>
+                <input id="f_pan_no" name="pan_no" class="form-control">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Contact Mobile</label>
+                <input id="f_contact_phone" name="contact_phone" class="form-control" >
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Contact Email</label>
+                <input id="f_contact_email" name="contact_email" class="form-control">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Bank A/C No</label>
+                <input id="f_bank_acc" name="bank_acc" class="form-control" >
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Bank IFSC</label>
+                <input id="f_bank_ifsc" name="bank_ifsc" class="form-control">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Bank Name</label>
+                <input id="f_bank_name" name="bank_name" class="form-control" >
+              </div>
+            </div>
+          </div>
+   
+        </div>
+
+        <div class="modal-footer">
+             <button id="saveModalBtn" type="button" class="btn btn-accent" id="save">Save Invoice</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===========================
+     EDIT INVOICE MODAL (SAFE)
+=========================== -->
+<div class="modal fade" id="editInvoiceModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" style="color: black;">Edit Invoice</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- File Upload for Edit -->
+        <input type="file" id="e_docInput" accept=".jpg,.jpeg,.pdf" hidden>
+        <label for="e_docInput" class="btn" style="background-color:#eeebfa;">Choose Document</label>
+
+        <div class="two-col">
+          <div>
+            <div class="mb-3">
+              <label class="form-label">Invoice No.</label>
+              <input id="e_invoice_no" class="form-control">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Item Name</label>
+              <input id="e_item_name" class="form-control">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Qty</label>
+              <input id="e_qty" class="form-control">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Unit Rate</label>
+              <input id="e_unit_rate" class="form-control">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">IGST</label>
+              <input id="e_igst" class="form-control">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">CGST</label>
+              <input id="e_cgst" class="form-control">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">SGST</label>
+              <input id="e_sgst" class="form-control">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Total</label>
+              <input id="e_total" class="form-control">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Contact Person</label>
+              <input id="e_contact_person" class="form-control">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Company Name</label>
+              <input id="e_company_name" class="form-control">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">State</label>
+              <input id="e_state" class="form-control">
+            </div>
+          </div>
+
+          <div>
+            <div class="mb-3">
+              <label class="form-label">GST No.</label>
+              <input id="e_gst_no" class="form-control">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Invoice Date</label>
+              <input id="e_invoice_date" class="form-control">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Description</label>
+              <input id="e_description" class="form-control">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Warranty Detail</label>
+              <input id="e_warranty_details" class="form-control">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Warranty End</label>
+              <input id="e_warranty_end" class="form-control">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Warranty Customer Care</label>
+              <input id="e_warranty_cc" class="form-control">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Address</label>
+              <input id="e_address" class="form-control">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">PAN No.</label>
+              <input id="e_pan_no" class="form-control">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Contact Mobile</label>
+              <input id="e_contact_phone" class="form-control">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Contact Email</label>
+              <input id="e_contact_email" class="form-control">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Bank A/C No</label>
+              <input id="e_bank_acc" class="form-control">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Bank IFSC</label>
+              <input id="e_bank_ifsc" class="form-control">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Bank Name</label>
+              <input id="e_bank_name" class="form-control">
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button id="editSaveBtn" type="button" class="btn btn-accent">Update Invoice</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+  <!----------------------custum exal model------------------------------>
+
+ <!-- Custom Export Modal -->
+<div class="modal fade" id="customExportModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-3 custom-modal">
+
+      <!-- Modal Header -->
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h4 class="m-0" style="color: #000;">Custom Excel Export</h4>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <p class="text-muted small">Choose start and end rows to export custom Excel data.</p>
+
+      <!-- Start Row -->
+      <label class="fw-semibold" style="color: #000;">Start Row</label>
+      <div class="position-relative">
+        <input type="text" id="startRowInput" class="form-control custom-input" placeholder="Search row...">
+        <div id="startDropdown" 
+             class="dropdown-menu w-100 custom-dropdown" 
+             style="display:none;"></div>
+      </div>
+
+      <br>
+
+      <!-- End Row -->
+      <label class="fw-semibold" style="color: #000;">End Row</label>
+      <div class="position-relative">
+        <input type="text" id="endRowInput" class="form-control custom-input" placeholder="Search row...">
+        <div id="endDropdown" 
+             class="dropdown-menu w-100 custom-dropdown" 
+             style="display:none;"></div>
+      </div>
+
+      <br>
+
+      <!-- Buttons -->
+      <div class="d-flex gap-2 mt-2">
+        <button class="btn btn-accent w-50" id="createCustomExcel">Create Excel</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+  <!-- 🔒 Locked Invoices Modal -->
+<div class="modal fade" id="lockedModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Locked Invoices</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped" id="lockedTable">
+            <thead>
+              <tr>
+                <th>Invoice No</th>
+                <th>GST</th>
+                <th>Invoice Date</th>
+                <th>Contact Person</th>
+                <th>State</th>
+                <th>Mobile</th>
+                <th>Email</th>
+                <th class="text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody id="lockedBody">
+              <!-- JS will insert rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-------------------------------Game  modal---------------------->
+ <div id="gameModal2" class="modal">
+  <div class="modal-content">
+    <span class="close2">&times;</span>
+    <h3 style="color: #1e7e34;">Unscramble the Word</h3>
+    <div id="scrambledWord2">---</div>
+    <input type="text" id="userAnswer2" placeholder="Type your answer" style="margin-left: 30px;">
+    <button id="submitBtn2">Submit</button>
+    <div id="message2"></div>
+    <div id="progress2"></div>
+  </div>
+</div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- SheetJS for Excel parsing/export -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="{{ url_for('static', filename='js/user_panel.js') }}">
+
+   
+  </script>
+</body>
+</html>

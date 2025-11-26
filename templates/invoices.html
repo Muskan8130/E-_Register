@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>All Invoices — Admin</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+  body {
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #eaf2ff;
+  background: linear-gradient(135deg, #182848 0%, #4b6cb7 100%);
+  background-attachment: fixed;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Add glowing abstract overlay */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 25% 20%, rgba(0, 200, 255, 0.18), transparent 60%),
+              radial-gradient(circle at 80% 70%, rgba(160, 100, 255, 0.2), transparent 50%);
+  z-index: -1;
+}
+    .top{
+      display:flex;justify-content:space-between;align-items:center;margin-bottom:12px
+    }
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:14px; border-radius:10px; border:1px solid rgba(255,255,255,0.04)
+    }
+    table thead th{
+      color:#cfe3ff
+    }
+    /* Tbody background & text color change */
+.table-dark tbody tr td {
+  background-color: #ffffff !important;  /* White background */
+  color: #000000 !important;             /* Black text */
+}
+
+    .form-control{
+    margin-top: 24px;
+    margin-right: 16px;
+    border-radius: 14px;
+    height: 42px;
+   }
+   .btn{
+     background:linear-gradient(90deg,#b8b7d3,#9d9acc);
+      color:#625555; 
+      border:none;
+      border-radius:10px;
+      padding:0.5rem 0.8rem; 
+      font-weight:400;
+      margin-right: 40px;
+   }
+   .btn:hover{
+    background:linear-gradient(90deg,#dacc57,#b2b88b); 
+   }
+   table thead th {
+  background-color: rgb(215, 203, 203) !important;
+   color: rgb(18, 17, 17) !important;
+   }
+
+   /* 🔹 Search Bar – Bigger & Fresh Look */
+#globalQ {
+  width: 360px !important;
+  height: 48px;
+  border-radius: 12px;
+  padding: 10px 15px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+#globalQ:focus {
+  box-shadow: 0 0 8px rgba(0, 140, 255, 0.3);
+  border-color: #008cff;
+  background: #f5f9ff;
+}
+
+/* 🔹 BACK Button – Light Red */
+.btn-outline-light {
+  background: linear-gradient(90deg, #ff8a8a, #ff5b5b);
+  color: white !important;
+  border: none !important;
+}
+.btn-outline-light:hover {
+  background: linear-gradient(90deg, #ffb2b2, #ff6f6f);
+  color: black !important;
+}
+
+/* 🔹 View Buttons – Professional & Multi Colors */
+.btn-info, .btn-secondary { 
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  padding: 6px 14px !important;
+  border: none !important;
+  color: white !important;
+}
+
+/* 🟦 View Doc – Blue */
+.btn-info {
+  background: linear-gradient(90deg, #4e79ff, #4ea7ff) !important;
+}
+.btn-info:hover {
+  background: linear-gradient(90deg, #83a6ff, #6fc8ff) !important;
+  color: black !important;
+}
+
+/* 🟪 View More – Purple */
+.btn-secondary {
+  background: linear-gradient(90deg, #a85aff, #be7cff) !important;
+}
+.btn-secondary:hover {
+  background: linear-gradient(90deg, #c08fff, #a173ff) !important;
+  color: black !important;
+}
+/* 🔹 Table rows hover — soft light pink */
+table.table-dark tbody tr:hover {
+  background: rgba(255, 182, 193, 0.6) !important; /* हल्का गुलाबी */
+  color: black !important;  /* text readable रहे */
+}
+/* 🔹 Search Bar Styling */
+#globalQ {
+  width: 350px;              /* 👈 थोड़ा बड़ा */
+  height: 42px;              /* 👈 ऊँचाई बढ़ाई */
+  padding: 10px 16px;        /* अंदर spacing */
+  font-size: 16px;          /* readable text */
+  border-radius: 10px;      /* गोल किनारे */
+  border: 1px solid #b2b2b2;
+  margin-top: 30px;         /* 👈 थोड़ा नीचे */
+  margin-right: 16px;
+  transition: all 0.3s ease;
+}
+
+/* 🔹 Focus style (जब टाइप करो तो glowing effect आए) */
+#globalQ:focus {
+  outline: none;
+  border-color: #5c7cfa;
+  box-shadow: 0 0 8px rgba(92, 124, 250, 0.5);  /* soft glow */
+}
+  </style>
+</head>
+<body>
+  <div class="top">
+    <h3>All Users — Invoice Data</h3>
+    <div>
+      <input id="globalQ" placeholder="search here..." class="form-control" style="display:inline-block;width:300px">
+      <a class="btn btn-outline-light" href="/master"> ⬅ Back</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="table-responsive" style="height:520px; overflow:auto;">
+      <table class="table table-dark table-hover">
+        <thead>
+          <tr>
+            <th>S.No</th>
+            <th>Invoice No</th>
+            <th>Item Name</th>
+            <th>Qty</th>
+            <th>Unit Rate</th>
+            <th>GST</th>
+            <th>Total</th>
+            <th>Contact Person</th>
+            <th>Company Name</th>
+            <th>State</th>
+            <th>GST No</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="invTbody"></tbody>
+      </table>
+    </div>
+
+    <nav><ul class="pagination" id="invPager"></ul></nav>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/invoices.js') }}">
+  
+
+  </script>
+</body>
+</html>
