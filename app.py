@@ -8,24 +8,26 @@ from difflib import get_close_matches
 import traceback
 from datetime import datetime
 from openpyxl.workbook import Workbook
+pip install python-dotenv
+from dotenv import load_dotenv
+load_dotenv()  # Load .env variables
 
 
 
 
 
 app = Flask(__name__)
-app.secret_key = "123"  # change to a secure key in production
+app.secret_key = os.getenv("SECRET_KEY")  # change to a secure key in production
 
 # -----------------------
 # DB CONFIG (adjust pw if needed)
 # -----------------------
 DB_CONFIG = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': 'Muskan@8130',   # your password
-    'database': 'pdfreader'
+    'host': os.getenv("DB_HOST"),
+    'user': os.getenv("DB_USER"),
+    'password': os.getenv("DB_PASSWORD"),
+    'database': os.getenv("DB_NAME")
 }
-
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
