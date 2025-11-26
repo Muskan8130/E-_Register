@@ -8,7 +8,6 @@ from difflib import get_close_matches
 import traceback
 from datetime import datetime
 from openpyxl.workbook import Workbook
-pip install python-dotenv
 from dotenv import load_dotenv
 load_dotenv()  # Load .env variables
 
