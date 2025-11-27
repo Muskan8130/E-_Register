@@ -358,7 +358,7 @@ def get_user_invoice(id):
     cursor = conn.cursor(dictionary=True)  # ✅ use dictionary cursor
 
     cursor.execute("""
-        SELECT invoice_no, item_name, qty, unit_rate,igst,sgst, cgst, total,
+        SELECT id, invoice_no, item_name, qty, unit_rate,igst,sgst, cgst, total,
                contact_person, company_name, state, gst_no
         FROM data
         WHERE user_id = %s
