@@ -7,19 +7,19 @@
     // ===== Populate table =====
     document.addEventListener('DOMContentLoaded', fetchUserRecords);
 
-    async function fetchUserRecords() {
-      try {
-        const res = await fetch(`/get_user_invoice/{{user.user_id}}`);
-        if (!res.ok) {
-          throw new Error('Failed to fetch user records');
-        }
-        const data = await res.json();
-        records = data || [];
-        renderTable(records);
-      } catch (err) {
-        console.error('Error loading data:', err);
-      }
-    }
+async function fetchUserRecords() {
+  try {
+    const res = await fetch(`/get_user_invoice/${USER_ID}`);
+    if (!res.ok) throw new Error('Failed to fetch user records');
+
+    const data = await res.json();
+    records = data || [];
+    renderTable(records);
+
+  } catch (err) {
+    console.error("Error loading data:", err);
+  }
+}
 
 
     document.getElementById("globalSearch").addEventListener("keyup", (e) => {

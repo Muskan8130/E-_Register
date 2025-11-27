@@ -370,7 +370,6 @@ def get_user_invoice(id):
     cursor.close()
     conn.close()
     # ✅ rows is already a list of dictionaries — no need for dict(row)
-    print(rows)
     return jsonify(rows)
 
 @app.route('/api/invoices/search')
