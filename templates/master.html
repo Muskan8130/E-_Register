@@ -334,7 +334,113 @@ body::before {
 #lockedModal tbody tr:hover td {
   background: #fafbff;
 }
+/* ----------game modal----------------------*/
+/* GAME MODAL COPY FROM LOGIN PAGE */
+#gameModal2 {
+  display: none;
+  position: fixed;
+  z-index: 10000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  justify-content: center;
+  align-items: center;
+}
 
+#gameModal2 .modal-content {
+  background-color: white;
+  padding: 25px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  position: relative;
+}
+
+.close2 {
+  position: absolute;
+  right: 15px;
+  top: 10px;
+  font-size: 22px;
+  cursor: pointer;
+  color: #333;
+}
+
+#scrambledWord2 {
+  font-size: 28px;
+  margin: 20px 0;
+  letter-spacing: 2px;
+  font-weight: 600;
+  color: #e68888;
+}
+
+#userAnswer2 {
+  width: 80%;
+  padding: 10px;
+  border: 1px solid #f1eded;
+  color: #000;
+  border-radius: 8px;
+  font-size: 16px;
+  margin-bottom: 15px;
+}
+
+#submitBtn2 {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+#submitBtn2:hover {
+  background-color: #1e7e34;
+}
+/* 🎮 Word Scramble Game Button (Same as Login Page) */
+.game-btn {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  height: 40px;                    /* SAME size as login page button */
+  display: inline-flex;
+  align-items: center;
+ /* 🎮 Word Scramble Game Button (Same as Login Page) */
+.game-btn {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  height: 40px;                    /* SAME size as login page button */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.game-btn:hover {
+  background: #0056b3;
+  transform: scale(1.05);
+}
+
+  white-space: nowrap;
+}
+
+.game-btn:hover {
+  background: #0056b3;
+  transform: scale(1.05);
+}
   </style>
   
 </head>
@@ -346,6 +452,7 @@ body::before {
       <div class="small-muted">Signed in as: {{ master_user }}</div>
     </div>
     <div style="display:flex;gap:12px;align-items:center">
+       <button id="gameBtn" class="game-btn">🔠 Word Scramble Game</button>
       <button class="btn btn-sm btn-outline-light" id="lockedBtn" style="background-color:#444;">🔒 Locked</button>
       <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
     </div>
@@ -499,6 +606,18 @@ body::before {
         </div>
       </div>
     </div>
+  </div>
+</div>
+  <!-------------------------------Game  modal---------------------->
+ <div id="gameModal2" class="modal">
+  <div class="modal-content">
+    <span class="close2">&times;</span>
+    <h3 style="color: #1e7e34;">Unscramble the Word</h3>
+    <div id="scrambledWord2">---</div>
+    <input type="text" id="userAnswer2" placeholder="Type your answer" style="margin-left: 30px;">
+    <button id="submitBtn2">Submit</button>
+    <div id="message2"></div>
+    <div id="progress2"></div>
   </div>
 </div>
 

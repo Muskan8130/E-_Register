@@ -271,3 +271,94 @@ async function loadLockedTable() {
         body.appendChild(tr);
     });
 }
+//--------------------------- game modal----------------------------------------
+/* ========= REAL LOGIN PAGE GAME LOGIC ========= */
+
+const words2 = [
+    "game", "write", "cool", "app", "tree", "type", "free", "submit", "task",
+    "brave", "good", "allow", "audit", "extra", "budget", "profit", "expense",
+    "print", "flow","project", "software", "hardware", "leader", "key", "honest",
+    "search", "tracking", "reverse","manager", "report", "system", "data", 
+    "network", "security", "storage", "backup", "old", "user","password", 
+    "email", "database", "server", "website", "design", "analysis", "testing", 
+    "support", "developer","place", "joker", "update", "logic", "speed", "client", 
+    "provider", "resource","team", "meeting", "schedule", "goal", "objective", 
+    "training", "feedback", "productivity", "innovation","strategy", "planning", 
+    "execution", "leadership", "column", "communication", "market", "sales",
+    "brand", "promotion", "advertisement", "customer", "growth", "target", 
+    "competition", "product","service", "solution", "feature", "quality", "design", 
+    "experience", "review", "rating", "satisfaction","engagement", "trend", 
+    "vision", "mission", "value", "culture", "ethics", "teamwork", "creativity","winner"
+];
+
+let currentIndex2 = 0;
+let scrambled2 = "";
+
+const modal2 = document.getElementById("gameModal2");
+const playBtn2 = document.getElementById("gameBtn");
+const closeBtn2 = document.querySelector(".close2");
+const scrambledWordEl2 = document.getElementById("scrambledWord2");
+const userAnswer2 = document.getElementById("userAnswer2");
+const submitBtn2 = document.getElementById("submitBtn2");
+const messageEl2 = document.getElementById("message2");
+const progressEl2 = document.getElementById("progress2");
+
+function shuffleWord2(word) {
+  const arr = word.split("");
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.join("");
+}
+
+function nextWord2() {
+  if (currentIndex2 >= words2.length) {
+    scrambledWordEl2.textContent = "---";
+    messageEl2.style.color = "#007bff";
+    messageEl2.textContent = "🎉 You solved all the words!";
+    userAnswer2.style.display = "none";
+    submitBtn2.style.display = "none";
+    progressEl2.textContent = `Completed ${words2.length}/${words2.length}`;
+    return;
+  }
+
+  const word = words2[currentIndex2];
+  scrambled2 = shuffleWord2(word);
+  if (scrambled2 === word) scrambled2 = shuffleWord2(word);
+
+  scrambledWordEl2.textContent = scrambled2;
+  userAnswer2.value = "";
+  messageEl2.textContent = "";
+  progressEl2.style.color = "grey";
+  progressEl2.textContent = `Word ${currentIndex2 + 1} of ${words2.length}`;
+  userAnswer2.focus();
+}
+
+submitBtn2.addEventListener("click", () => {
+  const answer = userAnswer2.value.trim().toLowerCase();
+  if (answer === words2[currentIndex2].toLowerCase()) {
+    messageEl2.style.color = "#28a745";
+    messageEl2.textContent = "✅ Correct!";
+    currentIndex2++;
+    setTimeout(nextWord2, 1500);
+  } else {
+    messageEl2.style.color = "#dc3545";
+    messageEl2.textContent = "❌ Wrong!";
+  }
+});
+
+playBtn2.addEventListener("click", () => {
+  modal2.style.display = "flex";
+  currentIndex2 = 0;
+  nextWord2();
+});
+
+closeBtn2.addEventListener("click", () => {
+  modal2.style.display = "none";
+});
+
+window.addEventListener("click", (e) => {
+  if (e.target === modal2) modal2.style.display = "none";
+});
+   
