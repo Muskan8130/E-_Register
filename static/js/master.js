@@ -88,7 +88,10 @@ document.getElementById('editForm').addEventListener('submit', async (e) => {
     const json = await res.json();
     document.getElementById('editMsg').innerHTML =
       json.status === 'ok'
-        ? '<div class="alert alert-success">Saved</div>'
+        ? `<div style="background:#d4edda; color:#155724; padding:10px; 
+               border-radius:8px; border:1px solid #c3e6cb; font-weight:bold;">
+    Saved
+  </div>`
         : `<div class="alert alert-danger">${json.message}</div>`;
 
     setTimeout(() => {
