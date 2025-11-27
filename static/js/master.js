@@ -234,6 +234,13 @@ async function globalSearch() {
   }
 }
 
+// 🔸 Clear old message whenever modal opens
+document.getElementById("createUserModal").addEventListener("show.bs.modal", () => {
+    document.getElementById("createUserMsg").innerHTML = "";   // removes previous success/error
+    document.getElementById("createUserForm").reset();         // optional → clears inputs too
+});
+
+
 document.getElementById("lockedBtn").addEventListener("click", () => {
     let modal = new bootstrap.Modal(document.getElementById("lockedModal"));
     loadLockedTable();
