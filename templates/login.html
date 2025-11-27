@@ -286,6 +286,15 @@
     <!----------------------Small game----------------------------->
  <div class="card" role="main">
  <h2>Invoice E-Register</h2>
+ <!-- 🔴 Error Message Will Show Here -->
+  {% if session.get('flash_message') %}
+    <div class="flash {{ session.get('flash_type', 'danger') }}">
+      {{ session.get('flash_message') }}
+    </div>
+    {% set _ = session.pop('flash_message') %}
+    {% set _ = session.pop('flash_type') %}
+  {% endif %}
+
  <form method="POST" action="{{ url_for('login_post') }}" autocomplete="off" novalidate>
  <div class="form-row">
  <label for="user_id">User ID</label>
