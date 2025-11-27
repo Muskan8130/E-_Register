@@ -966,29 +966,34 @@ def delete_invoice(id):
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # ⭐ Soft delete (unlock/hide)
+        # 📌 Check if record exists and belongs to user
+        cursor.execute("SELECT id FROM data WHERE id = %s AND user_id = %s", (id, user_id))
+        record = cursor.fetchone()
+
+        if not record:
+            return jsonify({"success": False, "error": "Record not found or not allowed"}), 404
+
+        # 🧹 Soft delete (only unlock/hide)
         cursor.execute("""
             UPDATE data
             SET locked = 0
-            WHERE id = %s
-        """, (id,))
-
+            WHERE id = %s AND user_id = %s
+        """, (id, user_id))
         conn.commit()
 
-        # ⭐ Update user activity log
+        # 📝 Update user activity
         cursor.execute("""
             UPDATE users 
             SET last_action = %s,
                 last_used_at = NOW()
             WHERE user_id = %s
         """, ("Deleted invoice", user_id))
-
         conn.commit()
 
         cursor.close()
         conn.close()
 
-        return jsonify({"success": True})
+        return jsonify({"success": True}), 200
 
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
