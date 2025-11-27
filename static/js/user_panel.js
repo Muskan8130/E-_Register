@@ -160,6 +160,16 @@ function renderTable(rows = []) {
   });
 }
 
+/* -----------------view document ------------------*/
+
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.showBtn');
+    if (btn) {
+        const id = btn.dataset.idx;
+        window.open(`/invoice_doc/${id}`, "_blank"); // 🔥 Opens PDF/JPG in new tab
+    }
+});
+
 
     
     /**********************
@@ -186,48 +196,39 @@ function renderTable(rows = []) {
     /**********************
      * Save modal form -> records
      **********************/
-   document.getElementById('saveModalBtn').addEventListener('click', async () => {
+  document.getElementById('saveModalBtn').addEventListener('click', async () => {
 
-  // gather all fields
-  const newRec = {};
+  const formData = new FormData();     // ⛳ Use FormData (not JSON)
+
+  // append all fields
   FIELD_KEYS.forEach(k => {
-    const el = document.getElementById(`f_${k}`);
-    newRec[k] = el ? el.value : '';
+      const el = document.getElementById(`f_${k}`);
+      formData.append(k, el ? el.value : "");
   });
 
-  let res, result;
+  // ⛳ add document file
+  const docFile = document.getElementById("docInput").files[0];
+  if (docFile) formData.append("doc", docFile);
 
   try {
-    res = await fetch('/save', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newRec)
-    });
+      const res = await fetch('/save', {
+          method: "POST",
+          body: formData              // ⛳ Send multipart form data
+      });
 
-    result = await res.json();
+      const result = await res.json();
+
+      if (!res.ok) return alert(result.error || "Save failed");
+
+      alert("Invoice Saved Successfully ✔");
+      addModal.hide();
+      fetchUserRecords();     // refresh table
+
   } catch (err) {
-    alert("❌ Save failed: " + err.message);
-    return;
+      alert("❌ Upload Failed: " + err.message);
   }
-
-  // ⭐ DUPLICATE CHECK ⭐
-  if (res.status === 409) {
-    alert("❌ Invoice number already exists. Please use a different number.");
-    return;   // ❗STOP — don't close modal, don't add to table
-  }
-
-  // ⭐ OTHER ERRORS ⭐
-  if (!res.ok) {
-    alert("❌ " + (result.error || "Unknown error"));
-    return;
-  }
-
-  // ⭐ SUCCESS — now update table & close modal ⭐
-  records.unshift(newRec);
-  renderTable(records);
-  addModal.hide();
-
 });
+
 
     /**********************
      * Table row View All

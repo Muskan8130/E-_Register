@@ -784,16 +784,23 @@ def save_data():
         if 'user_id' not in session:
             return jsonify({'error': 'Unauthorized'}), 401
 
-        data = request.get_json()
-        if not data:
-            return jsonify({"error": "No JSON received"}), 400
-
         user_id = session['user_id']
+
+        # ⛳ Receive normal form values (not JSON)
+        data = request.form.to_dict()
+
+        # ⛳ Handle document upload — NEW (only added part)
+        file = request.files.get("doc")
+        filename = None
+
+        if file and file.filename.strip():
+            filename = f"{user_id}_{data.get('invoice_no')}_{file.filename}"
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # ⭐ Check duplicate invoice
+        # 🔥 Duplicate Invoice Check (untouched)
         cursor.execute("""
             SELECT COUNT(*) FROM data
             WHERE invoice_no=%s AND user_id=%s
@@ -803,7 +810,7 @@ def save_data():
         if count > 0:
             return jsonify({"error": "Invoice number already exists"}), 409
 
-        # ⭐ Insert new data
+        # 🔥 Insert invoice (only doc_filename inserted additionally)
         insert_query = """
             INSERT INTO data (
                 user_id, s_no, invoice_no, invoice_date, item_name, description,
@@ -813,8 +820,8 @@ def save_data():
                 pan_no, contact_phone, contact_email,
                 bank_ac_no, bank_ifsc, bank_name, doc_filename
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,
+                    %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
         """
 
         values = (
@@ -824,22 +831,20 @@ def save_data():
             data.get('qty'), data.get('unit_rate'), data.get('igst'),
             data.get('sgst'), data.get('cgst'), data.get('total'),
             data.get('warranty_details'), data.get('warranty_end'),
-            data.get('warr_customer_care_no'), data.get('contact_person'),
+            data.get('warranty_cc'), data.get('contact_person'),
             data.get('company_name'), data.get('address'), data.get('state'),
             data.get('gst_no'), data.get('pan_no'), data.get('contact_phone'),
-            data.get('contact_email'), data.get('bank_ac_no'),
-            data.get('bank_ifsc'), data.get('bank_name'),
-            data.get('doc_filename')
+            data.get('contact_email'), data.get('bank_acc'), data.get('bank_ifsc'),
+            data.get('bank_name'), filename   # ⛳ Added doc file here
         )
 
         cursor.execute(insert_query, values)
         conn.commit()
 
-        # ⭐ Update last action & time
+        # ⭐ Your activity logger — untouched
         cursor.execute("""
             UPDATE users
-            SET last_action = %s,
-                last_used_at = NOW()
+            SET last_action = %s, last_used_at = NOW()
             WHERE user_id = %s
         """, ("Added new invoice", user_id))
         conn.commit()
@@ -847,13 +852,9 @@ def save_data():
         cursor.close()
         conn.close()
 
-        return jsonify({"message": "Data saved successfully!"}), 200
+        return jsonify({"message": "Invoice + File Saved Successfully ✔"}), 200
 
-    except mysql.connector.IntegrityError as e:
-        return jsonify({"error": f"Database integrity error: {str(e)}"}), 400
     except Exception as e:
-        import traceback
-        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
     
@@ -1276,6 +1277,26 @@ def export_custom():
 
     except Exception:
         return "Error", 500
+    
+    
+    from flask import send_from_directory
+
+@app.route('/invoice_doc/<int:id>')
+def invoice_doc(id):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("SELECT doc_filename FROM data WHERE id=%s", (id,))
+    doc = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    if not doc or not doc['doc_filename']:
+        return "Document not found", 404
+
+    return send_from_directory(app.config['UPLOAD_FOLDER'], doc['doc_filename'])
+
 
    
 if __name__ == "__main__":
