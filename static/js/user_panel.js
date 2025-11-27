@@ -1,7 +1,5 @@
 let records = [];
 
-   loggedUserName.textContent = "{{ user }}";
-
 
     // === All field keys based on your Add Modal form ===
 const FIELD_KEYS = [
@@ -589,7 +587,6 @@ document.getElementById("createCustomExcel").addEventListener("click", async () 
 
   
     /************ LOCKED BUTTON + MODAL TABLE ************/
- const USER_ID = "{{ session['user_id'] }}";
 
 document.getElementById("lockedBtn").addEventListener("click", () => {
     let modal = new bootstrap.Modal(document.getElementById("lockedModal"));
