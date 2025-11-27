@@ -86,19 +86,21 @@ document.getElementById('modalUploadBtn').addEventListener('click', async () => 
 
 document.addEventListener('DOMContentLoaded', fetchUserRecords);
 
-   async function fetchUserRecords() {
+async function fetchUserRecords() {
   try {
     const res = await fetch('/get_user_records');
-    if (!res.ok) {
-      throw new Error('Failed to fetch user records');
-    }
+    const data = await res.json();  // { total: X, rows: [...] }
 
-    const data = await res.json();
-    records = data; 
-    renderTable(data);
+    // ⬇ Show total count
+    document.getElementById("totalCount").textContent = data.total ?? 0;
+
+    // ⬇ Send only rows to table
+    records = data.rows || [];
+    renderTable(records);
 
   } catch (err) {
     console.error('Error loading data:', err);
+    document.getElementById("totalCount").textContent = "0";
     renderTable([]);
   }
 }

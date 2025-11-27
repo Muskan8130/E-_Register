@@ -865,23 +865,25 @@ def get_user_records():
     user_id = session['user_id']
 
     conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)  # ✅ use dictionary cursor
+    cursor = conn.cursor(dictionary=True)
 
     cursor.execute("""
-        SELECT id ,invoice_no, item_name, qty, unit_rate,igst,sgst, cgst, total,
+        SELECT id, invoice_no, item_name, qty, unit_rate, igst, sgst, cgst, total,
                contact_person, company_name, state, gst_no
         FROM data
         WHERE user_id = %s
-        and locked = true
+        AND locked = TRUE
     """, (user_id,))
 
     rows = cursor.fetchall()
 
     cursor.close()
     conn.close()
-    # ✅ rows is already a list of dictionaries — no need for dict(row)
-    return jsonify(rows)
 
+    return jsonify({
+        "total": len(rows),   # 🔥 record count
+        "rows": rows          # 🔥 actual data
+    })
 
 @app.route('/api/invoices')
 def api_invoices():
