@@ -73,7 +73,7 @@ function renderPager() {
 function goto(p) { page = p; fetchInv(); }
 
 async function viewDoc(id) {
-  window.open(`/invoice/doc/${id}, '_blank'`);
+ window.open(`/invoice_doc/${id}`, "_blank");
 }
 
 async function viewMore(id) {

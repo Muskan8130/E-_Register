@@ -99,7 +99,7 @@ async function fetchUserRecords() {
 
       <td class="actions-btns">
         <button class="btn btn-sm btn-info" onclick="viewMore(${r.id})">View More</button>
-        <button class="btn btn-sm btn-warning" onclick="showChart(${r.id})">View Doc</button>
+        <button class="btn btn-sm btn-warning" onclick="viewDoc(${r.id})">View Doc</button>
       </td>
     `;
 
@@ -155,3 +155,9 @@ CREATED AT: ${j.created_at || "—"}
 
       alert(details);
     }
+
+/*-------------view document-----------------*/
+
+async function viewDoc(id) {
+ window.open(`/invoice_doc/${id}`, "_blank");
+}

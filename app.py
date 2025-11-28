@@ -936,26 +936,7 @@ def api_invoice(id):
 
     return jsonify(row)
 
-#--------------get doc ------------------------------------
 
-
-@app.route('/invoice/doc/<int:id>')
-def invoice_doc(id):
-    conn = get_db_connection()
-    cur = conn.cursor(dictionary=True)
-    cur.execute("SELECT doc_filename FROM data WHERE id=%s", (id,))
-    row = cur.fetchone()
-    cur.close()
-    conn.close()
-
-    if not row or not row['doc_filename']:
-        return "Document not found", 404
-
-    path = os.path.join(app.config['UPLOAD_FOLDER'], row['doc_filename'])
-    if not os.path.exists(path):
-        return "File missing on server", 404
-
-    return send_file(path)
 
 
 @app.route('/delete_invoice/<int:id>', methods=['DELETE'])
@@ -1277,9 +1258,6 @@ def export_custom():
 
     except Exception:
         return "Error", 500
-    
-    
-    from flask import send_from_directory
 
 @app.route('/invoice_doc/<int:id>')
 def invoice_doc(id):
