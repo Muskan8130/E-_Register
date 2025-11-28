@@ -1047,14 +1047,40 @@ def get_invoice(id):
     return jsonify(row)
 
 
-
 @app.route("/edit_invoice/<int:id>", methods=["POST"])
 def edit_invoice(id):
-    data = request.json
+
+    data = request.form
+    file = request.files.get("document")   # ← input name from JS
 
     conn = get_db_connection()
-    cursor = conn.cursor()
+    cursor = conn.cursor(dictionary=True)
 
+    # Fetch existing file name
+    cursor.execute("SELECT doc_filename FROM data WHERE id=%s", (id,))
+    old_data = cursor.fetchone()
+    old_file = old_data["doc_filename"] if old_data else None
+
+    new_filename = old_file  # keep old file if no new upload
+
+    # If user selected a new file
+    if file:
+        ext = file.filename.split(".")[-1]
+        new_filename = f"invoice_{id}.{ext}"     # rename new file
+        file_path = os.path.join(app.config["UPLOAD_FOLDER"], new_filename)
+        file.save(file_path)
+
+        # delete old file
+        if old_file and old_file != new_filename:
+            old_path = os.path.join(app.config["UPLOAD_FOLDER"], old_file)
+            if os.path.exists(old_path):
+                os.remove(old_path)
+
+        # update db with new file name
+        cursor.execute("UPDATE data SET doc_filename=%s WHERE id=%s", (new_filename, id))
+
+
+    # update all text fields
     cursor.execute("""
         UPDATE data SET
             invoice_no=%s,
@@ -1073,12 +1099,12 @@ def edit_invoice(id):
             description=%s,
             warranty_details=%s,
             warranty_end=%s,
-            warr_customer_care_no=%s,   -- FIXED
+            warr_customer_care_no=%s,
             address=%s,
             pan_no=%s,
             contact_phone=%s,
             contact_email=%s,
-            bank_ac_no=%s,               -- FIXED
+            bank_ac_no=%s,
             bank_ifsc=%s,
             bank_name=%s
         WHERE id=%s
@@ -1099,12 +1125,12 @@ def edit_invoice(id):
         data.get("description"),
         data.get("warranty_details"),
         data.get("warranty_end"),
-        data.get("warr_customer_care_no"),   # FIXED
+        data.get("warr_customer_care_no"),
         data.get("address"),
         data.get("pan_no"),
         data.get("contact_phone"),
         data.get("contact_email"),
-        data.get("bank_ac_no"),              # FIXED
+        data.get("bank_ac_no"),
         data.get("bank_ifsc"),
         data.get("bank_name"),
         id
@@ -1114,7 +1140,6 @@ def edit_invoice(id):
     conn.close()
 
     return jsonify({"success": True})
-
 
 #-----------------------full exal --------------------------
 
