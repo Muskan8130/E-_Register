@@ -286,9 +286,8 @@ document.addEventListener("DOMContentLoaded", () => {
 function toInputDate(dateStr) {
     if (!dateStr) return "";
     const d = new Date(dateStr);
-    return d.toISOString().split("T")[0];  // Format → YYYY-MM-DD
+    return d.toISOString().split("T")[0];
 }
-
 
 function fillEditModal(d) {
 
@@ -317,58 +316,57 @@ function fillEditModal(d) {
     document.getElementById("e_bank_ifsc").value = d.bank_ifsc || "";
     document.getElementById("e_bank_name").value = d.bank_name || "";
 
-    // save id
     document.getElementById("editInvoiceModal").setAttribute("data-id", d.id);
 }
 
+// 🔥 UPDATE BUTTON CLICK — NOW SEND FILE & ALL FIELDS TO BACKEND
 document.getElementById("editSaveBtn").addEventListener("click", async () => {
     const id = document.getElementById("editInvoiceModal").getAttribute("data-id");
 
-   const updatedData = {
-    invoice_no: e_invoice_no.value,
-    item_name: e_item_name.value,
-    qty: e_qty.value,
-    unit_rate: e_unit_rate.value,
-    igst: e_igst.value,
-    cgst: e_cgst.value,
-    sgst: e_sgst.value,
-    total: e_total.value,
-    contact_person: e_contact_person.value,
-    company_name: e_company_name.value,
-    state: e_state.value,
-    gst_no: e_gst_no.value,
-    invoice_date: e_invoice_date.value,
-    description: e_description.value,
-    warranty_details: e_warranty_details.value,
-    warranty_end: e_warranty_end.value,
+    let formData = new FormData();
+    formData.append("invoice_no", e_invoice_no.value);
+    formData.append("item_name", e_item_name.value);
+    formData.append("qty", e_qty.value);
+    formData.append("unit_rate", e_unit_rate.value);
+    formData.append("igst", e_igst.value);
+    formData.append("cgst", e_cgst.value);
+    formData.append("sgst", e_sgst.value);
+    formData.append("total", e_total.value);
+    formData.append("contact_person", e_contact_person.value);
+    formData.append("company_name", e_company_name.value);
+    formData.append("state", e_state.value);
+    formData.append("gst_no", e_gst_no.value);
+    formData.append("invoice_date", e_invoice_date.value);
+    formData.append("description", e_description.value);
+    formData.append("warranty_details", e_warranty_details.value);
+    formData.append("warranty_end", e_warranty_end.value);
+    formData.append("warr_customer_care_no", e_warranty_cc.value);
+    formData.append("address", e_address.value);
+    formData.append("pan_no", e_pan_no.value);
+    formData.append("contact_phone", e_contact_phone.value);
+    formData.append("contact_email", e_contact_email.value);
+    formData.append("bank_ac_no", e_bank_acc.value);
+    formData.append("bank_ifsc", e_bank_ifsc.value);
+    formData.append("bank_name", e_bank_name.value);
 
-    warr_customer_care_no: e_warranty_cc.value,  // FIXED
-    address: e_address.value,
-    pan_no: e_pan_no.value,
-    contact_phone: e_contact_phone.value,
-    contact_email: e_contact_email.value,
-
-    bank_ac_no: e_bank_acc.value,                // FIXED
-    bank_ifsc: e_bank_ifsc.value,
-    bank_name: e_bank_name.value
-};
+    // 📄 FILE INPUT ADDED (ONLY IF NEW FILE CHOSEN)
+    let file = document.getElementById("e_docInput").files[0];
+    if (file) formData.append("document", file);
 
     const res = await fetch(`/edit_invoice/${id}`, {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(updatedData)
+        body: formData  // <-- FILES WORK NOW
     });
 
     const result = await res.json();
 
     if (result.success) {
-        alert("Invoice updated!");
+      
         location.reload();
     } else {
         alert("Error updating invoice");
     }
 });
-
 
 
 // Show Data Button
