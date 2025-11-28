@@ -361,4 +361,30 @@ closeBtn2.addEventListener("click", () => {
 window.addEventListener("click", (e) => {
   if (e.target === modal2) modal2.style.display = "none";
 });
+// theme modal
+// ----------------- THEME SWITCHER -----------------
+const themeMaster = document.getElementById("themeMaster");
+
+if (themeMaster) {
+  themeMaster.addEventListener("change", function () {
+    const theme = this.value;
+
+    if (theme === "light") {
+      document.body.style.background = "linear-gradient(135deg, #ffffff 0%, #e6e6e6 100%)";
+      document.body.style.color = "#000";
+      document.querySelector(".header").style.background = "#f5f5f5";
+    }
+    else if (theme === "dark") {
+      document.body.style.background = "linear-gradient(135deg, #1f1f1f 0%, #0d0d0d 100%)";
+      document.body.style.color = "white";
+      document.querySelector(".header").style.background = "#333";
+    }
+    else {
+      document.body.style.background = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
+      document.body.style.color = "#eaf2ff";
+      document.querySelector(".header").style.background = "rgb(242, 246, 246)";
+    }
+  });
+}
+
    

@@ -13,7 +13,7 @@ body {
   margin: 0;
   font-family: 'Inter', system-ui, sans-serif;
   color: #eaf2ff;
-  background: linear-gradient(135deg, #182848 0%, #4b6cb7 100%);
+ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   background-attachment: fixed;
   overflow-x: hidden;
   min-height: 100vh;
@@ -269,8 +269,10 @@ body::before {
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
-  width: 90px;
+  width: 80px;
   margin-left: 5px;
+  border-radius: 10px;
+  font-weight: bold;
 }
 
 #lockedModal .modal-dialog {
@@ -452,6 +454,31 @@ body::before {
  color: white;
  background-color: white;
 }
+/* 🎨 THEME SELECTOR (Header Button) */
+#themeMaster {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  background: rgba(233, 192, 226, 0.9);
+  color: #1a1a2e;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+  height: 38px;
+}
+
+#themeMaster:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+}
+
+#themeMaster option {
+  color: #1a1a2e;
+}
+
   </style>
   
 </head>
@@ -464,6 +491,12 @@ body::before {
     </div>
     <div style="display:flex;gap:12px;align-items:center">
        <button id="gameBtn" class="game-btn">🔠 Word Scramble Game</button>
+       <select id="themeMaster" class="form-select form-select-sm" style="width: 120px;">
+         <option value="default" selected>Default</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+
       <button class="btn btn-sm btn-outline-light" id="lockedBtn" style="background-color:#444;">🔒 Locked</button>
       <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
     </div>

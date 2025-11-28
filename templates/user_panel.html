@@ -25,7 +25,7 @@
       margin: 0;
       font-family: 'Inter', system-ui, sans-serif;
       color: #eaf2ff;
-      background: linear-gradient(135deg, #182848 0%, #4b6cb7 100%);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       background-attachment: fixed;
       overflow-x: hidden;
       min-height: 100vh;
@@ -47,8 +47,10 @@
       box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
       color: white;
       padding: 18px 24px;
-      border-radius: 14px;
+      border-radius: 10px;
       box-shadow: 0 6px 24px rgba(110,107,255,0.14);
+      height: 100px;
+      width: 100%;
     }
     .topbar .title{
       font-size: 20px;
@@ -237,7 +239,7 @@
     background-color: rgb(201, 229, 231);
     }
     #logoutBtn{
-      margin-left: 300px;
+     margin-left: 300px;
     }
     .editBtn{
       background: linear-gradient(90deg, #23449f, #7f8dff);
@@ -373,7 +375,7 @@
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
-  width: 200px;
+  width: 100px;
   margin-left: 5px;
 }
 
@@ -554,6 +556,35 @@
   small {
     margin-right: 10px;
    } 
+   #globalSearch{
+    margin-left: 5px;
+    width: 450px;
+    height: 38px;
+    border-radius: 10px;
+    border-color: #000;
+   }
+   /* 🎨 THEME BUTTON (Same as Login Page) */
+.theme-select {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  background: rgba(221, 173, 207, 0.9);
+  color: #1a1a2e;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+  height: 38px;
+}
+
+.theme-select:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+}
+.theme-select option { color: #1a1a2e; }
+
   </style>
 </head>
 <body>
@@ -569,9 +600,14 @@
     </div>
 
     <div class="d-flex align-items-center gap-3">
-      <div style="width:380px" class="d-flex align-items-center gap-2">
+      <div  class="d-flex align-items-center gap-2">
         <button id="gameBtn" class="game-btn">🔠 Word Scramble Game</button>
-        <button class="btn btn-sm btn-outline-light" id="lockedBtn" style="background-color:#444;">🔒 Locked</button>
+        <select id="themeUser" class="theme-select">
+          <option value="default" selected>Default</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+       </select>
+     <button class="btn btn-sm btn-outline-light" id="lockedBtn" style="background-color:#444;" >🔒 Locked</button>
         <a class="btn btn-sm btn-outline-light" id="logoutBtn"   style="background-color: red;" href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
       </div>
     </div>
