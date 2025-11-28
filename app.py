@@ -1018,15 +1018,33 @@ def get_locked_record():
 @app.route('/unlock_invoice/<int:id>', methods=['POST'])
 def unlock_invoice(id):
     conn = get_db_connection()
-    cursor = conn.cursor()
-    
+    cursor = conn.cursor(dictionary=True)
+
+    # Fetch user_id for logging activity
+    cursor.execute("SELECT user_id FROM data WHERE id=%s", (id,))
+    row = cursor.fetchone()
+
+    if not row:
+        return jsonify({"error": "Invoice not found"}), 404
+
+    user_id = row["user_id"]
+
+    # Unlock invoice
     cursor.execute("""
         UPDATE data
         SET locked = TRUE
         WHERE id = %s
     """, (id,))
-    
+
+    # 🔥 Save user activity log
+    cursor.execute("""
+        UPDATE users SET last_action=%s, last_used_at=NOW()
+        WHERE user_id=%s
+    """, ("invoice recovered", user_id))
+
     conn.commit()
+    conn.close()
+
     return jsonify({"success": True})
 
 #--------------user invoice edit -------------------
@@ -1051,36 +1069,39 @@ def get_invoice(id):
 def edit_invoice(id):
 
     data = request.form
-    file = request.files.get("document")   # ← input name from JS
+    file = request.files.get("document")
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Fetch existing file name
-    cursor.execute("SELECT doc_filename FROM data WHERE id=%s", (id,))
-    old_data = cursor.fetchone()
-    old_file = old_data["doc_filename"] if old_data else None
+    # Get user_id of invoice — Needed for user tracking
+    cursor.execute("SELECT user_id, doc_filename FROM data WHERE id=%s", (id,))
+    row = cursor.fetchone()
 
-    new_filename = old_file  # keep old file if no new upload
+    if not row:
+        return jsonify({"error": "Invoice not found"}), 404
 
-    # If user selected a new file
+    user_id = row["user_id"]
+    old_file = row["doc_filename"]
+    new_filename = old_file
+
+    # File handling
     if file:
         ext = file.filename.split(".")[-1]
-        new_filename = f"invoice_{id}.{ext}"     # rename new file
+        new_filename = f"invoice_{id}.{ext}"
         file_path = os.path.join(app.config["UPLOAD_FOLDER"], new_filename)
+
         file.save(file_path)
 
-        # delete old file
         if old_file and old_file != new_filename:
             old_path = os.path.join(app.config["UPLOAD_FOLDER"], old_file)
             if os.path.exists(old_path):
                 os.remove(old_path)
 
-        # update db with new file name
         cursor.execute("UPDATE data SET doc_filename=%s WHERE id=%s", (new_filename, id))
 
 
-    # update all text fields
+    # Update invoice fields
     cursor.execute("""
         UPDATE data SET
             invoice_no=%s,
@@ -1135,6 +1156,12 @@ def edit_invoice(id):
         data.get("bank_name"),
         id
     ))
+
+    # 📌 Log action to `users` table
+    cursor.execute("""
+        UPDATE users SET last_action=%s, last_used_at=NOW()
+        WHERE user_id=%s
+    """, ("invoice edited", user_id))
 
     conn.commit()
     conn.close()
