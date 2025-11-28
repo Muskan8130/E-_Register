@@ -26,18 +26,20 @@ body::before {
   z-index: -1;
 }
     .top{
-      display:flex;justify-content:space-between;align-items:center;margin-bottom:12px
+      display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;
+      background-color: rgb(246, 252, 253);
+      height: 100px;
     }
     .card{
       background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:14px; border-radius:10px; border:1px solid rgba(255,255,255,0.04)
     }
     table thead th{
-      color:#cfe3ff
+    color:  rgb(243, 247, 248);
     }
     /* Tbody background & text color change */
-.table-dark tbody tr td {
-  background-color: #ffffff !important;  /* White background */
-  color: #000000 !important;             /* Black text */
+  .table-dark tbody tr td {
+    background-color: rgb(237, 242, 243);  /* White background */
+    color: #000000 !important;             /* Black text */
 }
 
     .form-control{
@@ -140,6 +142,9 @@ table.table-dark tbody tr:hover {
   border-color: #5c7cfa;
   box-shadow: 0 0 8px rgba(92, 124, 250, 0.5);  /* soft glow */
 }
+h3{
+  color: #000000;
+}
   </style>
 </head>
 <body>
@@ -153,7 +158,7 @@ table.table-dark tbody tr:hover {
 
   <div class="card">
     <div class="table-responsive" style="height:520px; overflow:auto;">
-      <table class="table table-dark table-hover">
+      <table class="table ">
         <thead>
           <tr>
             <th>S.No</th>

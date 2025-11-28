@@ -17,14 +17,14 @@
     body {
       margin: 0;
       min-height: 100vh;
-      background: linear-gradient(135deg, #eef2ff, #e0e7ff, #c7d2fe);
+     background: linear-gradient(135deg, #182848 0%, #4b6cb7 100%);
       background-attachment: fixed;
       color: #1e1b4b;
     }
 
     /* Header */
     header {
-      background: linear-gradient(90deg, #4338ca, #3730a3);
+      background:rgb(249, 245, 245);
       color: #fff;
       padding: 1rem 2rem;
       display: flex;
@@ -36,6 +36,7 @@
     .user-info {
       font-weight: 600;
       font-size: 1.1rem;
+      color: black;
     }
 
     .search-bar input {
@@ -120,12 +121,24 @@
       border-top-right-radius: 1rem;
     }
     #Back{
-    background-color: rgb(211, 68, 68);
-   
-   } 
+    background: linear-gradient(90deg, #ff8a8a, #ff5b5b);
+    color: white !important;
+    border: none !important;
+    width: 80px;
+   }
+   #Back:hover{
+    background: linear-gradient(90deg, #ffb2b2, #ff6f6f);
+  color: black !important;
+   }
+    
    #globalSearch{
-    width: 300px;
+    width: 420px;
     margin-top: 20px;
+    border-radius:10px;
+    border-color: black;
+   }
+   .muted{
+    color: wheat;
    }
   </style>
 </head>

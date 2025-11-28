@@ -220,7 +220,7 @@ document.addEventListener('click', (e) => {
 
       if (!res.ok) return alert(result.error || "Save failed");
 
-      alert("Invoice Saved Successfully ✔");
+    
       addModal.hide();
       fetchUserRecords();     // refresh table
 

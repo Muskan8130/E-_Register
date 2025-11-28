@@ -41,7 +41,7 @@
 }
     .topbar{
       background: linear-gradient(90deg,var(--accent1),var(--accent2));
-      background: rgba(255, 255, 255, 0.05);
+      background: white;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       backdrop-filter: blur(10px);
       box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
@@ -87,7 +87,7 @@
 }
     left-controls { display:flex; gap:10px; align-items:center;}
     .box{
-    background: rgba(255, 255, 255, 0.07);
+    background: white;
     border-radius: 14px;
     padding: 26px 22px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
@@ -102,7 +102,7 @@
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
 }
 .box h3 {
-  color: #efe4e4;
+  color: #181717;
   margin-bottom: 10px;
 }
 /*
@@ -177,8 +177,9 @@
       margin-bottom:6px;
     }
    .muted {
-  color: rgba(246, 247, 252, 0.75);
+  color: rgba(21, 21, 21, 0.75);
   font-size: 20px;
+  padding: 10px;
   
 }
  
@@ -208,7 +209,7 @@
     margin-right: 400px;
     }
     h2{
-      color: #ffffff;
+      color: #100f0f;
       font-weight: 700;
       letter-spacing: 0.5px;
     }
@@ -562,7 +563,7 @@
     <div class="d-flex align-items-center gap-3">
       <div>
         <h2 style="margin: 0;">User Panel</h2>
-       <div class="me-2 muted small" style="color: hwb(120 96% 3% / 0.963);"style="font-weight:20px;">Signed in as :<span id="loggedUserName">{{ session['user_id'] }}</span>
+       <div class="me-2 muted small" style="color: hwb(0 4% 96% / 0.963);"style="font-weight:20px;">Signed in as :<span id="loggedUserName">{{ session['user_id'] }}</span>
 </div>
       </div>
     </div>
@@ -605,10 +606,10 @@
     <div class="card-ui">
       <div class="d-flex align-items-center justify-content-between mb-3">
         <div>
-         <input id="globalSearch" class="form-control form-control-sm" placeholder="search here.....">
+         <input id="globalSearch" class="form-control form-control-sm" placeholder="Search ...">
         </div>
-        <div>
-          <small  class="muted">Total records: <span id="totalCount">0</span></small>
+        <div style="background-color: white;" class="rounded">
+          <small  class=" muted">Total records: <span id="totalCount">0</span></small>
         </div>
       </div>
 
