@@ -659,28 +659,39 @@ def master_delete_user(user_id):
 # ---------- CHART count (total vs user) ----------
 @app.route('/api/user/<int:user_id>/counts')
 def api_user_counts(user_id):
-    # master sends user id (int). Convert to user_id string, then count data rows where contact_person = user_id string.
     try:
         conn = get_db_connection()
         cur = conn.cursor(dictionary=True)
+
+        # 1) Get user_id string from users table
         cur.execute("SELECT user_id FROM users WHERE id=%s", (user_id,))
         row = cur.fetchone()
         if not row:
-            cur.close()
-            conn.close()
             return jsonify({"status": "error", "message": "User not found"})
-        user_identifier = row['user_id']
 
-        cur.execute("SELECT COUNT(*) AS total FROM data WHERE LOCKED = TRUE")
-        total = cur.fetchone()['total'] or 0
+        user_identifier = row["user_id"]
 
-        cur.execute("SELECT COUNT(*) AS user_total FROM data WHERE contact_person=%s AND LOCKED = TRUE", (user_identifier,))
-        user_total = cur.fetchone()['user_total'] or 0
+        # 2) Total UNLOCKED invoices
+        cur.execute("SELECT COUNT(*) AS total FROM data WHERE locked = FALSE")
+        total = cur.fetchone()['total']
+
+        # 3) UNLOCKED invoices created by THIS user
+        cur.execute("""
+            SELECT COUNT(*) AS user_total
+            FROM data
+            WHERE user_id=%s AND locked = FALSE
+        """, (user_identifier,))
+        user_total = cur.fetchone()['user_total']
 
         cur.close()
         conn.close()
 
-        return jsonify({"status": "ok", "total_count": total, "user_count": user_total})
+        return jsonify({
+            "status": "ok",
+            "total_count": total,
+            "user_count": user_total
+        })
+
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})
 
