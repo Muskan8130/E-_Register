@@ -236,7 +236,7 @@
     }
     .btn:hover{
       color: #333;
-    background-color: rgb(201, 229, 231);
+      background-color: rgb(201, 229, 231);
     }
     #logoutBtn{
      margin-left: 300px;
@@ -665,17 +665,35 @@
   padding: 0 12px;
   
 }
-    #prvBtn{
+    #prevBtn{
+      background: linear-gradient(90deg, #5869f0, #7f8dff);
+      color: #fff;
+      box-shadow: 0 0 10px rgba(120, 145, 255, 0.4); 
+      width: 80px;
+    }
+    #prevBtn:hover{
+    background: linear-gradient(90deg, #6f7eff, #94a1ff);
+    box-shadow: 0 0 15px rgba(160, 180, 255, 0.6);
+    color: black;
+    }
+    #nextBtn{
       background: linear-gradient(90deg, #5869f0, #7f8dff);
       color: #fff;
       box-shadow: 0 0 10px rgba(120, 145, 255, 0.4);
-     }
-     #prvBtn:hover{
+       width: 80px;
+    }
+    #nextBtn:hover{
       background: linear-gradient(90deg, #6f7eff, #94a1ff);
-    box-shadow: 0 0 15px rgba(160, 180, 255, 0.6);
-    color: black;
-     }
-
+      box-shadow: 0 0 15px rgba(160, 180, 255, 0.6);
+      color: black;
+    }
+    .btn2{
+      height: 38px;
+      border: 1px solid white;
+      border-radius: 8px;
+      font-weight: 80px;
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
@@ -927,9 +945,9 @@
 
 
         <div class="modal-footer">
-             <button type="button" id="prevBtn" class="btn btn-secondary">Prev</button>
-             <button id="saveModalBtn" type="button" class="btn btn-accent" id="save">Save Invoice</button>
-             <button type="button" id="nextBtn" class="btn btn-secondary">Next</button>
+             <button type="button" id="prevBtn" class="btn2">Prev</button>
+             <button id="saveModalBtn" type="button" class="btn btn-accent" id="save" style="width: 80px;">Save</button>
+             <button type="button" id="nextBtn" class="btn2">Next</button>
         </div>
       </div>
     </div>
