@@ -82,11 +82,11 @@
       gap:12px;
     }*/
     .panel-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 22px;
-  padding: 32px;
-}
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 22px;
+    padding: 32px;
+    }
     left-controls { display:flex; gap:10px; align-items:center;}
     .box{
     background: white;
@@ -201,7 +201,7 @@
     }
     .modal-dialog{
       height: 800px;
-      width: 500px;  
+      width: 800px;  
     }
 
     .form-control{
@@ -602,6 +602,79 @@
       color: #1a1a2e;
     }
 
+/* ================================
+   FIX ADD-INVOICE MODAL LAYOUT
+   ================================ */
+
+/* Modal should be wide enough */
+#addModal .modal-dialog {
+  max-width: 1000px !important;
+}
+
+/* Modal body padding fix */
+#addModal .modal-body {
+  padding: 20px 25px;
+}
+
+/* Two column layout spacing */
+#addModal .two-col .row {
+  margin-top: 10px;
+}
+
+/* Form field uniform width */
+#addModal .form-control {
+  width: 100% !important;
+  max-width: 100%;
+  height: 42px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  padding-left: 10px;
+}
+
+/* Label improvements */
+#addModal .form-label {
+  font-weight: 600;
+  color: #222;
+  width: 750px;
+}
+
+/* Better column spacing */
+#addModal .col-md-6 {
+  padding-right: 20px;
+}
+
+/* File row spacing */
+#addModal .file-row {
+  margin-bottom: 15px;
+}
+
+/* Footer button alignment */
+#addModal .modal-footer {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  padding-top: 7px;
+}
+/* Choose Doc button adjustment */
+#addModal label[for="docInput"] {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 12px;
+  
+}
+    #prvBtn{
+      background: linear-gradient(90deg, #5869f0, #7f8dff);
+      color: #fff;
+      box-shadow: 0 0 10px rgba(120, 145, 255, 0.4);
+     }
+     #prvBtn:hover{
+      background: linear-gradient(90deg, #6f7eff, #94a1ff);
+    box-shadow: 0 0 15px rgba(160, 180, 255, 0.6);
+    color: black;
+     }
 
   </style>
 </head>
@@ -715,118 +788,148 @@
           </form>
           <div id="modalFileMsg" class="muted small ms-2"></div>
           <!-- two columns form -->
-          <div class="two-col">
-            <div>
-              <div class="mb-3">
-                <label class="form-label">Invoice No.</label>
-                <input  id="f_invoice_no" name="invoice_no" class="form-control">
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Item Name</label>
-                <input id="f_item_name" name="item_name" class="form-control" >
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Qty</label>
-                <input id="f_qty" name="qty" class="form-control" >
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Unit Rate</label>
-                <input id="f_unit_rate" name="unit_rate" class="form-control" >
-              </div>
-              <div class="mb-3">
-                <label class="form-label">IGST</label>
-                <input id="f_igst" name="igst" class="form-control">
-              </div>
-              <div class="mb-3">
-                <label class="form-label">CGST</label>
-                <input id="f_cgst" name="cgst" class="form-control">
-              </div>
-              <div class="mb-3">
-                <label class="form-label">SGST</label>
-                <input id="f_sgst" name="sgst" class="form-control">
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Total</label>
-                <input id="f_total" name="total" class="form-control" >
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Contact Person</label>
-                <input id="f_contact_person" name="contact_person" class="form-control" >
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Company Name</label>
-                <input id="f_company_name" name="company_name" class="form-control" >
-              </div>
-              <div class="mb-3">
-                <label class="form-label">State</label>
-                <input id="f_state" name="state" class="form-control" >
-              </div>
-    
-            <div>
-              <div class="mb-3">
-                <label class="form-label">GST No.</label>
-                <input id="f_gst_no" name="gst_no" class="form-control" >
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Invoice Date</label>
-                <input id="f_invoice_date" name="invoice_date" class="form-control" >
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Item Description</label>
-                <input id="f_description" name="description" class="form-control" >
-              </div></div>
-              <div class="mb-3">
-                <label class="form-label">Warranty Detail</label>
-                <input id="f_warranty_details" name="warranty_details" class="form-control">
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Warranty End</label>
-                <input id="f_warranty_end" name="warranty_end" class="form-control">
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Warranty Customer Care</label>
-                <input id="f_warranty_cc" name="warranty_cc" class="form-control">
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Address</label>
-                <input id="f_address" name="address" class="form-control">
-              </div>
-              <div class="mb-3">
-                <label class="form-label">PAN No.</label>
-                <input id="f_pan_no" name="pan_no" class="form-control">
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Contact Mobile</label>
-                <input id="f_contact_phone" name="contact_phone" class="form-control" >
-              </div>
+          <!-- two columns form -->
+<div class="two-col">
+  <div class="row g-4"> <!-- g-4 adds spacing between columns -->
 
-              <div class="mb-3">
-                <label class="form-label">Contact Email</label>
-                <input id="f_contact_email" name="contact_email" class="form-control">
-              </div>
+    <!-- LEFT COLUMN (first 12 fields) -->
+    <div class="col-md-6">
 
-              <div class="mb-3">
-                <label class="form-label">Bank A/C No</label>
-                <input id="f_bank_acc" name="bank_acc" class="form-control" >
-              </div>
+      <div class="mb-3">
+        <label class="form-label">Invoice No.</label>
+        <input id="f_invoice_no" name="invoice_no" class="form-control">
+      </div>
 
-              <div class="mb-3">
-                <label class="form-label">Bank IFSC</label>
-                <input id="f_bank_ifsc" name="bank_ifsc" class="form-control">
-              </div>
+      <div class="mb-3">
+        <label class="form-label">Item Name</label>
+        <input id="f_item_name" name="item_name" class="form-control">
+      </div>
 
-              <div class="mb-3">
-                <label class="form-label">Bank Name</label>
-                <input id="f_bank_name" name="bank_name" class="form-control" >
-              </div>
-            
-            </div>
-          </div>
-   
-        </div>
+      <div class="mb-3">
+        <label class="form-label">Qty</label>
+        <input id="f_qty" name="qty" class="form-control">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Unit Rate</label>
+        <input id="f_unit_rate" name="unit_rate" class="form-control">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">IGST</label>
+        <input id="f_igst" name="igst" class="form-control">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">CGST</label>
+        <input id="f_cgst" name="cgst" class="form-control">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">SGST</label>
+        <input id="f_sgst" name="sgst" class="form-control">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Total</label>
+        <input id="f_total" name="total" class="form-control">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Contact Person</label>
+        <input id="f_contact_person" name="contact_person" class="form-control">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Company Name</label>
+        <input id="f_company_name" name="company_name" class="form-control">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">State</label>
+        <input id="f_state" name="state" class="form-control">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">GST No.</label>
+        <input id="f_gst_no" name="gst_no" class="form-control">
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN (remaining fields) -->
+    <div class="col-md-6">
+
+      <div class="mb-3">
+        <label class="form-label">Invoice Date</label>
+        <input id="f_invoice_date" name="invoice_date" class="form-control">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Item Description</label>
+        <input id="f_description" name="description" class="form-control">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Warranty Detail</label>
+        <input id="f_warranty_details" name="warranty_details" class="form-control">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Warranty End</label>
+        <input id="f_warranty_end" name="warranty_end" class="form-control">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Warranty Customer Care</label>
+        <input id="f_warranty_cc" name="warranty_cc" class="form-control">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Address</label>
+        <input id="f_address" name="address" class="form-control">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">PAN No.</label>
+        <input id="f_pan_no" name="pan_no" class="form-control">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Contact Mobile</label>
+        <input id="f_contact_phone" name="contact_phone" class="form-control">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Contact Email</label>
+        <input id="f_contact_email" name="contact_email" class="form-control">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Bank A/C No</label>
+        <input id="f_bank_acc" name="bank_acc" class="form-control">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Bank IFSC</label>
+        <input id="f_bank_ifsc" name="bank_ifsc" class="form-control">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Bank Name</label>
+        <input id="f_bank_name" name="bank_name" class="form-control">
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
 
         <div class="modal-footer">
+             <button type="button" id="prevBtn" class="btn btn-secondary">Prev</button>
              <button id="saveModalBtn" type="button" class="btn btn-accent" id="save">Save Invoice</button>
+             <button type="button" id="nextBtn" class="btn btn-secondary">Next</button>
         </div>
       </div>
     </div>
