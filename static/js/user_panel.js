@@ -1,84 +1,147 @@
-let records = [];
+/********************************************
+ * OPEN/CLOSE MODAL
+ ********************************************/
+
+const addModalEl = document.getElementById('addModal');
+const addModal = new bootstrap.Modal(addModalEl, {
+    backdrop: 'static',
+    keyboard: true
+});
+
+// OPEN MODAL
+document.getElementById('addInvoiceBtn').addEventListener('click', () => {
+    clearFormFields();
+    document.getElementById('modalFile').value = "";
+    document.getElementById('docInput').value = "";
+    addModal.show();
+});
+
+// CLOSE MODAL WHEN NEEDED
+function closeAddModal() {
+    addModal.hide();
+}
 
 
-    // === All field keys based on your Add Modal form ===
+/********************************************
+ * GLOBAL VARIABLES
+ ********************************************/
+let excelRows = [];
+let currentIndex = 0;
+
 const FIELD_KEYS = [
-  "invoice_no",
-  "item_name",
-  "qty",
-  "unit_rate",
-  "igst",
-  "cgst",
-  "sgst",
-  "total",
-  "contact_person",
-  "company_name",
-  "state",
-  "gst_no",
-  "invoice_date",
-  "description",
-  "warranty_details",
-  "warranty_end",
-  "warranty_cc",
-  "address",
-  "pan_no",
-  "contact_phone",
-  "contact_email",
-  "bank_acc",
-  "bank_ifsc",
-  "bank_name"
+    "invoice_no","item_name","qty","unit_rate","igst","cgst","sgst","total",
+    "contact_person","company_name","state","gst_no",
+    "invoice_date","description","warranty_details","warranty_end",
+    "warranty_cc","address","pan_no","contact_phone","contact_email",
+    "bank_acc","bank_ifsc","bank_name"
 ];
 
-    /**********************
-     * Data & mapping logic
-     **********************/
-   // Upload Excel and map fields via Flask
-document.getElementById('modalUploadBtn').addEventListener('click', async () => {
-  const finput = document.getElementById('modalFile');
-  const msg = document.getElementById('modalFileMsg');
-
-  if (!finput.files || finput.files.length === 0) {
-    msg.textContent = '❌ Please choose an Excel file first.';
-    msg.style.color = 'red';
-    return;
-  }
-
-  const file = finput.files[0];
-  const formData = new FormData();
-  formData.append('file', file);
-
-  msg.textContent = '⏳ Uploading and mapping...';
-  msg.style.color = 'blue';
-
-  try {
-    const response = await fetch('/upload_excel', {
-      method: 'POST',
-      body: formData
+// fill data in modal
+function fillForm(idx) {
+    const row = excelRows[idx];
+    FIELD_KEYS.forEach(k => {
+        const el = document.getElementById("f_" + k);
+        if (el) el.value = row[k] || "";
     });
+}
 
-    const result = await response.json();
+// buttons
+document.getElementById("prevBtn").onclick = () => {
+    if (currentIndex > 0) {
+        currentIndex--;
+        fillForm(currentIndex);
+    }
+};
 
-    if (result.error) {
-      msg.textContent = '❌ ' + result.error;
-      msg.style.color = 'red';
-      return;
+document.getElementById("nextBtn").onclick = () => {
+    if (currentIndex < excelRows.length - 1) {
+        currentIndex++;
+        fillForm(currentIndex);
+    }
+};
+
+// open modal
+document.getElementById("addInvoiceBtn").onclick = () => {
+    excelRows = [];
+    currentIndex = 0;
+    clearForm();
+    new bootstrap.Modal(document.getElementById("addModal")).show();
+};
+
+// clear form
+function clearForm() {
+    FIELD_KEYS.forEach(k => {
+        const el = document.getElementById("f_" + k);
+        if (el) el.value = "";
+    });
+}
+
+// upload excel
+document.getElementById("modalUploadBtn").onclick = async () => {
+    const file = document.getElementById("modalFile").files[0];
+    if (!file) return alert("Select a file");
+
+    const fd = new FormData();
+    fd.append("file", file);
+
+    const res = await fetch("/upload_excel", { method: "POST", body: fd });
+    const data = await res.json();
+
+    if (!res.ok) return alert(data.error);
+
+    excelRows = data.rows;
+    currentIndex = 0;
+    fillForm(0);
+};
+
+// save current row
+document.getElementById("saveModalBtn").onclick = async () => {
+
+    if (excelRows.length === 0) {
+        alert("No rows to save");
+        return;
     }
 
-    // Map returned data into modal fields
-    const mapped = result.mapped || {};
-    for (const key in mapped) {
-      const el = document.querySelector(`#f_${key}`);
-      if (el) el.value = mapped[key];
+    const docFile = document.getElementById("docInput").files[0];
+
+    for (let i = 0; i < excelRows.length; i++) {
+
+        let row = excelRows[i];
+        let fd = new FormData();
+
+        // append row fields
+        FIELD_KEYS.forEach(k => {
+            fd.append(k, row[k] || "");
+        });
+
+        // add document file (same for all rows)
+        if (docFile) fd.append("doc", docFile);
+
+        // send row to backend
+        let res = await fetch("/save", {
+            method: "POST",
+            body: fd
+        });
+
+        let result = await res.json();
+
+        // if any row gives error → stop
+        if (!result.status) {
+            alert(`Error saving row ${i + 1}: ${result.error}`);
+            return;
+        }
     }
 
-    msg.textContent = `✅ ${Object.keys(mapped).length} fields mapped successfully`;
-    msg.style.color = 'green';
+    alert("✔ All invoice rows saved successfully!");
 
-  } catch (err) {
-    msg.textContent = '❌ Upload failed: ' + err.message;
-    msg.style.color = 'red';
-  }
-});
+    // close modal
+    bootstrap.Modal.getInstance(document.getElementById("addModal")).hide();
+
+    // refresh table
+    fetchUserRecords();
+};
+
+
 
     /**********************
      * Rendering
@@ -171,65 +234,7 @@ document.addEventListener('click', (e) => {
 });
 
 
-    
-    /**********************
-     * Modals and Upload / mapping
-     **********************/
-    const addModalEl = document.getElementById('addModal');
-    const addModal = new bootstrap.Modal(addModalEl);
-
-    document.getElementById('addInvoiceBtn').addEventListener('click', () => {
-      // clear form
-      clearFormFields();
-      document.getElementById('modalFile').value = '';
-      document.getElementById('modalFileMsg').textContent = '';
-      addModal.show();
-    });
-
-    function clearFormFields(){
-      FIELD_KEYS.forEach(key => {
-        const el = document.getElementById(`f_${key}`);
-        if (el) el.value = '';
-      });
-    }
-
-    /**********************
-     * Save modal form -> records
-     **********************/
-  document.getElementById('saveModalBtn').addEventListener('click', async () => {
-
-  const formData = new FormData();     // ⛳ Use FormData (not JSON)
-
-  // append all fields
-  FIELD_KEYS.forEach(k => {
-      const el = document.getElementById(`f_${k}`);
-      formData.append(k, el ? el.value : "");
-  });
-
-  // ⛳ add document file
-  const docFile = document.getElementById("docInput").files[0];
-  if (docFile) formData.append("doc", docFile);
-
-  try {
-      const res = await fetch('/save', {
-          method: "POST",
-          body: formData              // ⛳ Send multipart form data
-      });
-
-      const result = await res.json();
-
-      if (!res.ok) return alert(result.error || "Save failed");
-
-    
-      addModal.hide();
-      fetchUserRecords();     // refresh table
-
-  } catch (err) {
-      alert("❌ Upload Failed: " + err.message);
-  }
-});
-
-
+   
     /**********************
      * Table row View All
      **********************/
@@ -429,7 +434,7 @@ document.addEventListener('click', async (e) => {
       const data = await res.json();
 
       if (data.success) {
-        alert("Invoice deleted!");
+       
         fetchUserRecords(); 
       } else {
         alert("Delete failed: " + data.error);

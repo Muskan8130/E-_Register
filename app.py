@@ -10,6 +10,7 @@ from datetime import datetime
 from openpyxl.workbook import Workbook
 from dotenv import load_dotenv
 load_dotenv()  # Load .env variables
+from dateutil import parser
 
 
 
@@ -76,7 +77,7 @@ def init_database():
             user_id VARCHAR(50) NOT NULL,
             id INT AUTO_INCREMENT PRIMARY KEY,
             s_no INT,
-            invoice_no VARCHAR(100) NOT NULL UNIQUE,
+            invoice_no VARCHAR(100) NOT NULL ,
             invoice_date DATE,
             item_name VARCHAR(255) ,
             description TEXT,
@@ -89,7 +90,7 @@ def init_database():
             warranty_details TEXT,
             warranty_end DATE,
             warr_customer_care_no VARCHAR(50),
-            contact_person VARCHAR(100) NOT NULL,
+            contact_person VARCHAR(100),
             company_name VARCHAR(255),
             address TEXT,
             state VARCHAR(100),
@@ -167,42 +168,71 @@ CANONICAL_FIELDS = [
 
 # known header variants map (lowercase normalized -> canonical)
 HEADER_MAP = {
-    "s no": "s_no",
-    "invoice no": "invoice_no",
-    "invoice date": "invoice_date",
-    "item name": "item_name",
-    "description": "description",
-    "qty": "qty",
-    "unit rate": "unit_rate",
-    "gst": "igst",   # GST amount column
-    "total": "total",
-    "warranty details": "warranty_details",
-    "warranty end": "warranty_end",
-    "warranty customer care": "warranty_cc",
-    "contact person": "contact_person",
-    "company name": "company_name",
+
+    # Common fields (top part)
+    "invoice_no": "invoice_no",
+    "invoice_date": "invoice_date",
+    "company_name": "company_name",
     "address": "address",
     "state": "state",
-    "gst no": "gst_no",
-    "pan no": "pan_no",
-    "contact phone": "contact_phone",
-    "contact email": "contact_email",
-    "bank a c no": "bank_acc",
-    "bank ifsc": "bank_ifsc",
-    "bank name": "bank_name"
+    "gst_no": "gst_no",
+    "pan_no": "pan_no",
+
+    # Contact fields
+    "contact_person": "contact_person",
+    "contact_phone": "contact_phone",
+    "contact_mobile": "contact_phone",
+    "contact_phone_mobile": "contact_phone",
+    "contact_phone___mobile": "contact_phone", 
+    "contact_email": "contact_email",
+
+    # Bank fields
+    "bank_a_c_no": "bank_acc",
+    "bank_ac_no": "bank_acc",
+    "bank_ac_number": "bank_acc",
+    "bank_ifsc": "bank_ifsc",
+    "bank_name": "bank_name",
+
+    # Item table
+    "item_name": "item_name",
+    "description": "description",
+    "qty": "qty",
+
+    # rate / amount
+    "rate": "unit_rate",
+    "unit_rate": "unit_rate",
+    "amount": "total",
+    "total": "total",
+
+    # GST
+    "gst": "igst",
+    "igst": "igst",
+    "cgst": "cgst",
+    "sgst": "sgst",
+
+    # warranty
+    "warranty_details": "warranty_details",
+    "warranty_end": "warranty_end",
+    "warranty_customer_care": "warranty_cc",
+    "warranty_customer_care_no": "warranty_cc",
+    "warranty_customer_care_number": "warranty_cc",
 }
 
-
 def normalize_header(h):
-    return (
-        str(h)
-        .lower()
-        .replace(":", "")
-        .replace("/", " ")
-        .replace(".", "")
-        .replace("_", " ")
-        .strip()
-    )
+    h = str(h).lower()
+
+    # remove symbols
+    for sym in [":", "/", ".", "-", "(", ")"]:
+        h = h.replace(sym, " ")
+
+    # replace multiple spaces → one
+    h = " ".join(h.split())
+
+    # convert spaces → underscore
+    h = h.replace(" ", "_")
+
+    return h.strip()
+
 
 # -----------------------
 # ROUTES
@@ -712,72 +742,136 @@ def upload_excel():
         return jsonify({'error': 'No file uploaded'}), 400
 
     file = request.files['file']
-    if file.filename == '':
-        return jsonify({'error': 'No file selected'}), 400
 
     try:
         df = pd.read_excel(file, header=None, engine='openpyxl')
 
-        if df.shape[1] < 2:
-            return jsonify({'error': 'Invalid Excel format'}), 400
+        # Clean NaN
+        clean = lambda v: "" if pd.isna(v) else v
 
-        label_col = df.iloc[:, 0].astype(str).str.strip()
-        value_col = df.iloc[:, 1]
+        # Normalize headers
+        def norm(h):
+            h = str(h).lower()
+            for s in [":", "/", ".", "-", "(", ")"]:
+                h = h.replace(s, " ")
+            return " ".join(h.split()).replace(" ", "_")
 
-        # Normalize labels
-        norm_labels = [normalize_header(c) for c in label_col]
+        # Header mapping for frontend field ids
+        HEADER_MAP = {
+            "s_no": "s_no",
+            "invoice_no": "invoice_no",
+            "invoice_date": "invoice_date",
+            "item_name": "item_name",
+            "description": "description",
+            "qty": "qty",
+            "unit_rate": "unit_rate",
+            "gst": "igst",
+            "gst%": "igst",
+            "total": "total",
+            "warranty_details": "warranty_details",
+            "warranty_end_date": "warranty_end",
+            "warranty_customer_care_no": "warranty_cc",
 
-        # Build mapping from normalized label to value
-        excel_map = {
-            HEADER_MAP.get(lbl, lbl): val
-            for lbl, val in zip(norm_labels, value_col)}
+            # Common fields
+            "company_name": "company_name",
+            "address": "address",
+            "state": "state",
+            "gst_no": "gst_no",
+            "pan_no": "pan_no",
+            "contact_phone_mobile": "contact_phone",
+            "contact_email": "contact_email",
+            "bank_a_c_no": "bank_acc",
+            "bank_ifsc": "bank_ifsc",
+            "bank_name": "bank_name",
+            "contact_person": "contact_person",
+        }
 
-        mapped = {}
+        # ---------------------
+        # 1️⃣ COMMON FIELDS
+        # ---------------------
+        common = {}
 
-        # Fill canonical fields
-        for canon in CANONICAL_FIELDS:
-            val = excel_map.get(canon, "")
+        for i in range(0, 11):  # rows 0–10
+            key = df.iloc[i, 0]
+            val = df.iloc[i, 1]
+            canon = HEADER_MAP.get(norm(key), norm(key))
+            common[canon] = clean(val)
 
-            # Convert date fields
-            if canon in ["invoice_date", "warranty_end", "warranty_start"]:
-                val = convert_to_mysql_date(val)
+        # ---------------------
+        # 2️⃣ ITEM TABLE
+        # ---------------------
+        HEADER_ROW = 12
+        df_items = pd.read_excel(file, header=HEADER_ROW, engine='openpyxl')
 
-            mapped[canon] = val
+        # Detect correct Item Name column
+        item_col = None
+        for col in df_items.columns:
+            if "item" in norm(col):
+                item_col = col
+                break
 
-        # -------------------------------------------------------
-        #                ⭐ ADD GST LOGIC HERE ⭐
-        # -------------------------------------------------------
+        if not item_col:
+            return jsonify({"error": "Item Name column missing"}), 400
 
-        # GST LOGIC
-        state = str(mapped.get("state", "")).strip().lower()
+        # Drop empty rows
+        df_items = df_items[df_items[item_col].notna()]
 
-        gst_value = mapped.get("igst", "")
-        try:
-            gst_value = float(gst_value) if gst_value else 0
-        except:
-            gst_value = 0
+        final_rows = []
 
-        # If UP → full GST in IGST
-        if state in ["up", "uttar pradesh", "uttarpradesh"]:
-            mapped["igst"] = gst_value
-            mapped["sgst"] = 0
-            mapped["cgst"] = 0
-        else:
-            # Other states → split
-            mapped["igst"] = 0
-            mapped["sgst"] = gst_value / 2
-            mapped["cgst"] = gst_value / 2
-        # -------------------------------------------------------
-        return jsonify({
-            'mapped': mapped,
-            'sample_rows': df.head(10).to_dict(orient='records')
-        })
+        # ---------------------
+        # 3️⃣ BUILD ROWS
+        # ---------------------
+        for _, row in df_items.iterrows():
+            r = {}
+
+            # Add common fields
+            for k, v in common.items():
+                r[k] = clean(v)
+
+            # Add item fields
+            for col in df_items.columns:
+                canon = HEADER_MAP.get(norm(col), norm(col))
+                r[canon] = clean(row[col])
+
+            # Fix date
+            try:
+                r["invoice_date"] = convert_to_mysql_date(r["invoice_date"])
+            except:
+                pass
+
+            # GST split logic
+            gst = float(r.get("igst", 0) or 0)
+            state = str(r.get("state", "")).lower()
+
+            if state in ["up", "uttar pradesh", "uttarpradesh"]:
+                r["igst"] = gst
+                r["cgst"] = 0
+                r["sgst"] = 0
+            else:
+                r["igst"] = 0
+                r["cgst"] = gst / 2
+                r["sgst"] = gst / 2
+
+            final_rows.append(r)
+
+        return jsonify({"rows": final_rows, "total_rows": len(final_rows)})
 
     except Exception as e:
         traceback.print_exc()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500
 
 # ---------- SAVE invoice (user) ----------
+
+def clean_date(x):
+    if not x or str(x).strip() == "":
+        return None
+    try:
+        d = parser.parse(str(x))
+        return d.strftime("%Y-%m-%d")
+    except:
+        return None
+
+
 @app.route('/save', methods=['POST'])
 def save_data():
     try:
@@ -785,32 +879,62 @@ def save_data():
             return jsonify({'error': 'Unauthorized'}), 401
 
         user_id = session['user_id']
-
-        # ⛳ Receive normal form values (not JSON)
         data = request.form.to_dict()
 
-        # ⛳ Handle document upload — NEW (only added part)
+        # ------------------------------
+        # NUMERIC CLEANER
+        # ------------------------------
+        def num(x):
+            if not x or str(x).strip() == "":
+                return 0
+            try:
+                return float(x)
+            except:
+                return 0
+
+        qty     = num(data.get("qty"))
+        unit    = num(data.get("unit_rate"))
+        igst    = num(data.get("igst"))
+        sgst    = num(data.get("sgst"))
+        cgst    = num(data.get("cgst"))
+        total   = num(data.get("total"))
+
+        # ------------------------------
+        # DATE CLEANER
+        # ------------------------------
+        invoice_date  = clean_date(data.get("invoice_date"))
+        warranty_end  = clean_date(data.get("warranty_end"))
+
+        # ------------------------------
+        # FILE UPLOAD
+        # ------------------------------
         file = request.files.get("doc")
         filename = None
-
-        if file and file.filename.strip():
+        if file and file.filename:
             filename = f"{user_id}_{data.get('invoice_no')}_{file.filename}"
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # 🔥 Duplicate Invoice Check (untouched)
+        # ------------------------------
+        # DUPLICATE CHECK
+        # ------------------------------
         cursor.execute("""
             SELECT COUNT(*) FROM data
             WHERE invoice_no=%s AND user_id=%s
-        """, (data.get('invoice_no'), user_id))
-        (count,) = cursor.fetchone()
+        """, (data.get("invoice_no"), user_id))
+        (cnt,) = cursor.fetchone()
 
-        if count > 0:
-            return jsonify({"error": "Invoice number already exists"}), 409
+        if cnt > 0:
+            return jsonify({
+                "status": False,
+                "error": f"Invoice No '{data.get('invoice_no')}' already exists"
+            }), 409
 
-        # 🔥 Insert invoice (only doc_filename inserted additionally)
+        # ------------------------------
+        # INSERT QUERY
+        # ------------------------------
         insert_query = """
             INSERT INTO data (
                 user_id, s_no, invoice_no, invoice_date, item_name, description,
@@ -820,44 +944,46 @@ def save_data():
                 pan_no, contact_phone, contact_email,
                 bank_ac_no, bank_ifsc, bank_name, doc_filename
             )
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,
-                    %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            VALUES (%s,%s,%s,%s,%s,%s,
+                    %s,%s,%s,%s,%s,%s,
+                    %s,%s,%s,%s,%s,%s,%s,%s,
+                    %s,%s,%s,%s,%s,%s,%s)
         """
 
         values = (
             user_id,
-            data.get('s_no'), data.get('invoice_no'), data.get('invoice_date'),
-            data.get('item_name'), data.get('description'),
-            data.get('qty'), data.get('unit_rate'), data.get('igst'),
-            data.get('sgst'), data.get('cgst'), data.get('total'),
-            data.get('warranty_details'), data.get('warranty_end'),
-            data.get('warranty_cc'), data.get('contact_person'),
-            data.get('company_name'), data.get('address'), data.get('state'),
-            data.get('gst_no'), data.get('pan_no'), data.get('contact_phone'),
-            data.get('contact_email'), data.get('bank_acc'), data.get('bank_ifsc'),
-            data.get('bank_name'), filename   # ⛳ Added doc file here
+            data.get("s_no"),
+            data.get("invoice_no"),
+            invoice_date,
+            data.get("item_name"),
+            data.get("description"),
+            qty, unit, igst, sgst, cgst, total,
+            data.get("warranty_details"),
+            warranty_end,
+            data.get("warranty_cc"),
+            data.get("contact_person"),
+            data.get("company_name"),
+            data.get("address"),
+            data.get("state"),
+            data.get("gst_no"),
+            data.get("pan_no"),
+            data.get("contact_phone"),
+            data.get("contact_email"),
+            data.get("bank_acc"),
+            data.get("bank_ifsc"),
+            data.get("bank_name"),
+            filename
         )
 
         cursor.execute(insert_query, values)
         conn.commit()
 
-        # ⭐ Your activity logger — untouched
-        cursor.execute("""
-            UPDATE users
-            SET last_action = %s, last_used_at = NOW()
-            WHERE user_id = %s
-        """, ("Added new invoice", user_id))
-        conn.commit()
-
-        cursor.close()
-        conn.close()
-
-        return jsonify({"message": "Invoice + File Saved Successfully ✔"}), 200
+        return jsonify({"status": True, "message": "Saved successfully"}), 200
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        traceback.print_exc()
+        return jsonify({"status": False, "error": str(e)}), 500
 
-    
 @app.route('/get_user_records')
 def get_user_records():
     if 'user_id' not in session:
