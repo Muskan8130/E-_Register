@@ -363,28 +363,150 @@ window.addEventListener("click", (e) => {
 });
 // theme modal
 // ----------------- THEME SWITCHER -----------------
+// ----------------- FULL THEME SWITCHER -----------------
 const themeMaster = document.getElementById("themeMaster");
 
-if (themeMaster) {
-  themeMaster.addEventListener("change", function () {
-    const theme = this.value;
+function applyLightTheme() {
+    // Body + Header
+    document.body.style.background = "linear-gradient(135deg, #cfd8ffff 0%, #f2f6ffff 100%)";
+    document.body.style.color = "black";
+    document.querySelector(".header").style.background = "#e9efff";
 
-    if (theme === "light") {
-      document.body.style.background = "linear-gradient(135deg, #ffffff 0%, #e6e6e6 100%)";
-      document.body.style.color = "#000";
-      document.querySelector(".header").style.background = "#f5f5f5";
-    }
-    else if (theme === "dark") {
-      document.body.style.background = "linear-gradient(135deg, #1f1f1f 0%, #0d0d0d 100%)";
-      document.body.style.color = "white";
-      document.querySelector(".header").style.background = "#333";
-    }
-    else {
-      document.body.style.background = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
-      document.body.style.color = "#eaf2ff";
-      document.querySelector(".header").style.background = "rgb(242, 246, 246)";
-    }
-  });
+    // BOXES
+    document.querySelectorAll(".box").forEach(box => {
+        box.style.backgroundColor = "#dbd1d1ff";
+        box.style.color = "#000";
+        box.style.boxShadow = "0 10px 25px rgba(0,0,0,0.2)";
+    });
+
+    // CARDS
+    document.querySelectorAll(".card").forEach(card => {
+        card.style.background = "#ebe2e2ff";
+        card.style.color = "#000";
+    });
+
+    // TABLE HEADER
+    document.querySelectorAll(".table thead th").forEach(th => {
+        th.style.background = "#cedaf3ff";
+        th.style.color = "#000";
+    });
+
+    // TABLE ROWS
+    document.querySelectorAll(".table tbody td").forEach(td => {
+        td.style.background = "#d6ccccff";
+        td.style.color = "#000";
+    });
+
+    // MODALS
+    document.querySelectorAll(".modal-content").forEach(modal => {
+        modal.style.background = "#ffffff";
+        modal.style.color = "#000";
+    });
+
+    // INPUTS
+    document.querySelectorAll(".form-control").forEach(inp => {
+        inp.style.background = "#ffffff";
+        inp.style.color = "#000";
+        inp.style.border = "1px solid #ccc";
+    });
 }
 
-   
+function applyDarkTheme() {
+    // Body + Header
+    document.body.style.background = "linear-gradient(135deg, #756d6dff 0%, #1c1c1c 100%)";
+    document.body.style.color = "#f1f1f1";
+    document.querySelector(".header").style.background = "#807b7bff";
+
+    // BOXES
+    document.querySelectorAll(".box").forEach(box => {
+        box.style.backgroundColor = "#9c9191ff";
+        box.style.color = "#f1f1f1";
+        box.style.boxShadow = "0 10px 25px rgba(255,255,255,0.08)";
+    });
+
+    // CARDS
+    document.querySelectorAll(".card").forEach(card => {
+        card.style.background = "#292929";
+        card.style.color = "#f1f1f1";
+    });
+
+    // TABLE HEADER
+    document.querySelectorAll(".table thead th").forEach(th => {
+        th.style.background = "#7c7575ff";
+        th.style.color = "#ffffff";
+    });
+
+    // TABLE ROWS
+    document.querySelectorAll(".table tbody td").forEach(td => {
+        td.style.background = "#757070ff";
+        td.style.color = "#e5e5e5";
+    });
+
+    // MODALS
+    document.querySelectorAll(".modal-content").forEach(modal => {
+        modal.style.background = "#7d7676ff";
+        modal.style.color = "#f1f1f1";
+    });
+
+    // INPUTS
+    document.querySelectorAll(".form-control").forEach(inp => {
+        inp.style.background = "#857d7dff";
+        inp.style.color = "#f1f1f1";
+        inp.style.border = "1px solid #555";
+    });
+}
+
+function applyDefaultTheme() {
+    // Body + Header
+    document.body.style.background = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
+    document.body.style.color = "#eaf2ff";
+    document.querySelector(".header").style.background = "rgb(242, 246, 246)";
+
+    // BOXES
+    document.querySelectorAll(".box").forEach(box => {
+        box.style.backgroundColor = "rgb(241,253,255)";
+        box.style.color = "#151414";
+        box.style.boxShadow = "0 10px 25px rgba(0,0,0,0.25)";
+    });
+
+    // CARDS
+    document.querySelectorAll(".card").forEach(card => {
+        card.style.background = "rgba(82,82,181)";
+        card.style.color = "#fff";
+    });
+
+    // TABLE HEADER
+    document.querySelectorAll(".table thead th").forEach(th => {
+        th.style.background = "rgb(167,201,249)";
+        th.style.color = "#121213";
+    });
+
+    // TABLE ROWS
+    document.querySelectorAll(".table tbody td").forEach(td => {
+        td.style.background = "rgb(244,250,252)";
+        td.style.color = "#000";
+    });
+
+    // MODALS (reset to your original dark modal)
+    document.querySelectorAll(".modal-content").forEach(modal => {
+        modal.style.background = "";
+        modal.style.color = "";
+    });
+
+    // INPUTS
+    document.querySelectorAll(".form-control").forEach(inp => {
+        inp.style.background = "rgba(255,255,255,0.1)";
+        inp.style.color = "#e8efff";
+        inp.style.border = "1px solid rgba(255,255,255,0.2)";
+    });
+}
+
+if (themeMaster) {
+    themeMaster.addEventListener("change", () => {
+        const theme = themeMaster.value;
+
+        if (theme === "dark") applyDarkTheme();
+        else if (theme === "light") applyLightTheme();
+        else applyDefaultTheme();
+    });
+}

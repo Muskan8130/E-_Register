@@ -203,13 +203,17 @@ body::before {
 }
 
 .table thead th {
-  background: rgba(15, 15, 15, 0.1);
-  color: #191a1b;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    position: sticky;
+    top: 0;
+    z-index: 5;         /* Keep on top */
+    padding: 10px;
+    background: rgb(167, 201, 249);
+    color: #121213;
+    border-bottom: 1px solid rgba(253, 249, 249, 0.15);
 }
 
 .table tbody tr:hover {
-  background: rgba(228, 213, 213, 0.08);
+ background: rgba(235, 214, 214, 0.08);
 }
 
 /* MODALS */
@@ -549,7 +553,7 @@ body::before {
         <table class="table table-dark ">
           <thead>
             <tr>
-              <th>S. No</th>
+              <th>S.No</th>
               <th>User ID</th>
               <th>Role</th>
               <th>Created At</th>

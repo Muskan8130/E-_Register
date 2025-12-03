@@ -115,7 +115,15 @@
       box-shadow: 0 6px 18px rgba(27,27,27,0.04);
     }
 */
-    table thead th { background: linear-gradient(90deg,#efebeb,#e2e2e7); font-weight:600; }
+    table thead th {
+      position: sticky;
+     top: 0;
+     z-index: 5;         /* Keep on top */
+     padding: 10px;
+     background: rgb(167, 201, 249) !important;
+     color: #121213 !important;
+     border-bottom: 1px solid rgba(253, 249, 249, 0.15); 
+      }
     .highlight {
       background: #fff8d6 !important;
       animation: pulse 1.2s ease-in-out;
@@ -1216,8 +1224,6 @@
   </script>
 
   <script src="{{ url_for('static', filename='js/user_panel.js') }}">
-
-   
   </script>
 </body>
 </html>
