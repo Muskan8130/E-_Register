@@ -34,7 +34,13 @@ body::before {
       background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:14px; border-radius:10px; border:1px solid rgba(255,255,255,0.04)
     }
     table thead th{
-    color:  rgb(243, 247, 248);
+    position: sticky;
+    top: 0;
+    z-index: 5;         /* Keep on top */
+    padding: 10px;
+    background: rgb(167, 201, 249);
+    color: #121213;
+    border-bottom: 1px solid rgba(253, 249, 249, 0.15);
     }
     /* Tbody background & text color change */
   .table-dark tbody tr td {
@@ -61,8 +67,14 @@ body::before {
     background:linear-gradient(90deg,#dacc57,#b2b88b); 
    }
    table thead th {
-  background-color: rgb(215, 203, 203) !important;
-   color: rgb(18, 17, 17) !important;
+    position: sticky;
+    top: 0;
+    z-index: 5;         /* Keep on top */
+    padding: 10px;
+    background: rgb(167, 201, 249) !important;
+    color: #121213 !important;
+    border-bottom: 1px solid rgba(253, 249, 249, 0.15);
+ 
    }
 
    /* 🔹 Search Bar – Bigger & Fresh Look */
