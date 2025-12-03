@@ -195,14 +195,15 @@
       .controls { flex-direction: column; align-items:stretch; gap:12px; }
     }
     
-    .modal-body{
-      height: 800px;
-      width: 800px;    
-    }
-    .modal-dialog{
-      height: 800px;
-      width: 800px;  
-    }
+.modal-dialog {
+  max-width: 90% !important;
+}
+
+.modal-body {
+  max-height: 70vh !important;
+  overflow-y: auto !important;
+}
+
 
     .form-control{
       width: 350px;
@@ -469,10 +470,10 @@
   font-size: 16px;
   cursor: pointer;
   transition: background 0.3s ease;
-  height: 40px;                    /* SAME size as login page button */
+  height: 40px;
   display: inline-flex;
   align-items: center;
- /* 🎮 Word Scramble Game Button (Same as Login Page) */
+  justify-content: center;
   white-space: nowrap;
 }
 
@@ -1161,20 +1162,28 @@
                 <th class="text-center">Action</th>
               </tr>
             </thead>
-            <tbody id="lockedBody">
-              <!-- JS will insert rows -->
-            </tbody>
+            <tbody id="lockedBody"></tbody>
           </table>
         </div>
       </div>
-    </div>
-  </div>
-</div>
 
-<!-------------------------------Game  modal---------------------->
- <div id="gameModal2" class="modal">
-  <div class="modal-content">
-    <span class="close2">&times;</span>
+    </div> <!-- modal-content -->
+  </div> <!-- modal-dialog -->
+</div> <!-- modal -->
+
+ <!-------------------------------Game  modal---------------------->
+<div id="gameModal2" style="display:none;">
+  <div class="modal-content" style="
+      background-color:white;
+      padding:25px;
+      border-radius:10px;
+      width:90%;
+      max-width:400px;
+      text-align:center;
+      margin:100px auto;
+      position:relative;
+      ">
+    <span class="close2" style="position:absolute; right:15px; top:10px; font-size:22px; cursor:pointer;">&times;</span>
     <h3 style="color: #1e7e34;">Unscramble the Word</h3>
     <div id="scrambledWord2">---</div>
     <input type="text" id="userAnswer2" placeholder="Type your answer" style="margin-left: 30px;">
@@ -1183,6 +1192,7 @@
     <div id="progress2"></div>
   </div>
 </div>
+
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
