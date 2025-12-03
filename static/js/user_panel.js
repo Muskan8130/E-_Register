@@ -1,25 +1,31 @@
 /********************************************
- * OPEN/CLOSE MODAL
+ * PURE JS MODALS (No Bootstrap)
  ********************************************/
+const addModal = document.getElementById("addModal");
+const editModal = document.getElementById("editInvoiceModal");
+const customExportModal = document.getElementById("customExportModal");
+const lockedModal = document.getElementById("lockedModal");
 
-const addModalEl = document.getElementById('addModal');
-const addModal = new bootstrap.Modal(addModalEl, {
-    backdrop: 'static',
-    keyboard: true
+function openAddModal() { addModal.classList.add("active"); }
+function closeAddModal() { addModal.classList.remove("active"); }
+
+function openEditModal() { editModal.classList.add("active"); }
+function closeEditModal() { editModal.classList.remove("active"); }
+
+function openCustomExportModal() { customExportModal.classList.add("active"); }
+function closeCustomExportModal() { customExportModal.classList.remove("active"); }
+
+function openLockedModal() { lockedModal.classList.add("active"); }
+function closeLockedModal() { lockedModal.classList.remove("active"); }
+
+// CLICK OUTSIDE CLOSE
+window.addEventListener("click", (e) => {
+    if (e.target === addModal) closeAddModal();
+    if (e.target === editModal) closeEditModal();
+    if (e.target === customExportModal) closeCustomExportModal();
+    if (e.target === lockedModal) closeLockedModal();
 });
 
-// OPEN MODAL
-document.getElementById('addInvoiceBtn').addEventListener('click', () => {
-    clearFormFields();
-    document.getElementById('modalFile').value = "";
-    document.getElementById('docInput').value = "";
-    addModal.show();
-});
-
-// CLOSE MODAL WHEN NEEDED
-function closeAddModal() {
-    addModal.hide();
-}
 
 
 /********************************************
@@ -36,7 +42,25 @@ const FIELD_KEYS = [
     "bank_acc","bank_ifsc","bank_name"
 ];
 
-// fill data in modal
+
+
+/********************************************
+ * ADD INVOICE – OPEN MODAL
+ ********************************************/
+document.getElementById("addInvoiceBtn").onclick = () => {
+    excelRows = [];
+    currentIndex = 0;
+    clearForm();
+    document.getElementById('modalFile').value = "";
+    document.getElementById('docInput').value = "";
+    openAddModal();
+};
+
+
+
+/********************************************
+ * FILL FORM FROM EXCEL ROW
+ ********************************************/
 function fillForm(idx) {
     const row = excelRows[idx];
     FIELD_KEYS.forEach(k => {
@@ -45,7 +69,11 @@ function fillForm(idx) {
     });
 }
 
-// buttons
+
+
+/********************************************
+ * PREVIOUS / NEXT BUTTONS
+ ********************************************/
 document.getElementById("prevBtn").onclick = () => {
     if (currentIndex > 0) {
         currentIndex--;
@@ -60,15 +88,11 @@ document.getElementById("nextBtn").onclick = () => {
     }
 };
 
-// open modal
-document.getElementById("addInvoiceBtn").onclick = () => {
-    excelRows = [];
-    currentIndex = 0;
-    clearForm();
-    new bootstrap.Modal(document.getElementById("addModal")).show();
-};
 
-// clear form
+
+/********************************************
+ * CLEAR FORM
+ ********************************************/
 function clearForm() {
     FIELD_KEYS.forEach(k => {
         const el = document.getElementById("f_" + k);
@@ -76,7 +100,11 @@ function clearForm() {
     });
 }
 
-// upload excel
+
+
+/********************************************
+ * UPLOAD EXCEL FILE
+ ********************************************/
 document.getElementById("modalUploadBtn").onclick = async () => {
     const file = document.getElementById("modalFile").files[0];
     if (!file) return alert("Select a file");
@@ -94,7 +122,11 @@ document.getElementById("modalUploadBtn").onclick = async () => {
     fillForm(0);
 };
 
-// save current row
+
+
+/********************************************
+ * SAVE ALL EXCEL ROWS ONE BY ONE
+ ********************************************/
 document.getElementById("saveModalBtn").onclick = async () => {
 
     if (excelRows.length === 0) {
@@ -109,15 +141,12 @@ document.getElementById("saveModalBtn").onclick = async () => {
         let row = excelRows[i];
         let fd = new FormData();
 
-        // append row fields
         FIELD_KEYS.forEach(k => {
             fd.append(k, row[k] || "");
         });
 
-        // add document file (same for all rows)
         if (docFile) fd.append("doc", docFile);
 
-        // send row to backend
         let res = await fetch("/save", {
             method: "POST",
             body: fd
@@ -125,7 +154,6 @@ document.getElementById("saveModalBtn").onclick = async () => {
 
         let result = await res.json();
 
-        // if any row gives error → stop
         if (!result.status) {
             alert(`Error saving row ${i + 1}: ${result.error}`);
             return;
@@ -133,31 +161,24 @@ document.getElementById("saveModalBtn").onclick = async () => {
     }
 
     alert("✔ All invoice rows saved successfully!");
-
-    // close modal
-    bootstrap.Modal.getInstance(document.getElementById("addModal")).hide();
-
-    // refresh table
+    closeAddModal();
     fetchUserRecords();
 };
 
 
 
-    /**********************
-     * Rendering
-     **********************/
-
+/********************************************
+ * LOAD TABLE AFTER PAGE LOAD
+ ********************************************/
 document.addEventListener('DOMContentLoaded', fetchUserRecords);
 
 async function fetchUserRecords() {
   try {
     const res = await fetch('/get_user_records');
-    const data = await res.json();  // { total: X, rows: [...] }
+    const data = await res.json();
 
-    // ⬇ Show total count
     document.getElementById("totalCount").textContent = data.total ?? 0;
 
-    // ⬇ Send only rows to table
     records = data.rows || [];
     renderTable(records);
 
@@ -169,6 +190,10 @@ async function fetchUserRecords() {
 }
 
 
+
+/********************************************
+ * RENDER TABLE
+ ********************************************/
 function renderTable(rows = []) {
   const tbody = document.getElementById('tableBody');
   tbody.innerHTML = '';
@@ -181,11 +206,9 @@ function renderTable(rows = []) {
   rows.forEach(r => {
     const tr = document.createElement('tr');
 
-    // Detect UP state
     const st = (r.state || '').toLowerCase().trim();
     const isUP = (st === 'up' || st === 'uttar pradesh' || st === 'uttarpradesh');
 
-    // Create GST cell content
     let gstHTML = "";
     if (isUP) {
       gstHTML = `<strong>IGST:</strong> ${r.igst || 0}`;
@@ -201,10 +224,7 @@ function renderTable(rows = []) {
       <td>${r.item_name || ''}</td>
       <td>${r.qty || ''}</td>
       <td>${r.unit_rate || ''}</td>
-
-      <!-- SINGLE GST COLUMN -->
       <td>${gstHTML}</td>
-
       <td>${r.total || ''}</td>
       <td>${r.contact_person || ''}</td>
       <td>${r.company_name || ''}</td>
@@ -212,10 +232,10 @@ function renderTable(rows = []) {
       <td>${r.gst_no || ''}</td>
 
       <td class="actions-btns">
-        <button class="btn btn-sm btn-outline-primary me-1 editBtn" data-idx="${r.id}">✏ Edit</button>
-        <button class="btn btn-sm btn-outline-success me-1 showBtn" data-idx="${r.id}">📋 View Doc</button>
-        <button class="btn btn-sm btn-outline-info me-1 chartBtn" onclick="viewMore(${r.id})">📊 View All Data</button>
-        <button class="btn btn-sm btn-outline-danger deleteBtn" data-id="${r.id}">🗑 Delete</button>
+        <button class="btn btn-sm editBtn" data-idx="${r.id}">✏ Edit</button>
+        <button class="btn btn-sm showBtn" data-idx="${r.id}">📋 View Doc</button>
+        <button class="btn btn-sm chartBtn" onclick="viewMore(${r.id})">📊 View All Data</button>
+        <button class="btn btn-sm deleteBtn" data-id="${r.id}">🗑 Delete</button>
       </td>
     `;
 
@@ -223,70 +243,38 @@ function renderTable(rows = []) {
   });
 }
 
-/* -----------------view document ------------------*/
 
+
+/********************************************
+ * VIEW DOCUMENT
+ ********************************************/
 document.addEventListener('click', (e) => {
     const btn = e.target.closest('.showBtn');
     if (btn) {
         const id = btn.dataset.idx;
-        window.open(`/invoice_doc/${id}`, "_blank"); // 🔥 Opens PDF/JPG in new tab
+        window.open(`/invoice_doc/${id}`, "_blank");
     }
 });
 
 
-   
-    /**********************
-     * Table row View All
-     **********************/
-     //Make array for extracting only some filds-----------------------------------------/
-    document.addEventListener('click', (e) => {
-      const v = e.target.closest('.viewAllBtn');
-      if (v){
-        const idx = Number(v.dataset.idx);
-        const rec = records[idx];
-        if (!rec) return;
-        const viewBody = document.getElementById('viewAllBody');
-        viewBody.innerHTML = '';
-        FIELD_KEYS.forEach(k => {
-          const row = document.createElement('div');
-          row.className = 'mb-2';
-          row.innerHTML = `<strong>${toDisplay(k)}:</strong> <div class="muted small">${rec[k]||''}</div>`;
-          viewBody.appendChild(row);
-        });
-        const vm = new bootstrap.Modal(document.getElementById('viewAllModal'));
-        vm.show();
-      }
-    });
 
-    // "View Docs" button: placeholder behaviour
-    document.addEventListener('click', (e) => {
-      const v = e.target.closest('.viewDocsBtn');
-      if (v){
-        const idx = Number(v.dataset.idx);
-        alert('View Docs clicked for row ' + idx + '. Implement doc viewer as needed.');
-      }
-    });
-  
+/********************************************
+ * CLICK EDIT BUTTON → OPEN EDIT MODAL
+ ********************************************/
+document.addEventListener("click", async (e) => {
+    const btn = e.target.closest(".editBtn");
+    if (!btn) return;
 
-// Edit Button
+    const id = btn.dataset.idx;
 
-document.addEventListener("DOMContentLoaded", () => {
+    const res = await fetch(`/get_invoice/${id}`);
+    const data = await res.json();
 
-    document.addEventListener("click", async (e) => {
-        const btn = e.target.closest(".editBtn");
-        if (!btn) return;
+    fillEditModal(data);
 
-        const id = btn.dataset.idx;
-
-        const res = await fetch(`/get_invoice/${id}`);
-        const data = await res.json();
-
-        fillEditModal(data);
-
-        new bootstrap.Modal(document.getElementById("editInvoiceModal")).show();
-    });
-
+    openEditModal();
 });
+
 
 function toInputDate(dateStr) {
     if (!dateStr) return "";
@@ -321,14 +309,20 @@ function fillEditModal(d) {
     document.getElementById("e_bank_ifsc").value = d.bank_ifsc || "";
     document.getElementById("e_bank_name").value = d.bank_name || "";
 
-    document.getElementById("editInvoiceModal").setAttribute("data-id", d.id);
+    editModal.setAttribute("data-id", d.id);
 }
 
-// 🔥 UPDATE BUTTON CLICK — NOW SEND FILE & ALL FIELDS TO BACKEND
+
+
+/********************************************
+ * UPDATE INVOICE
+ ********************************************/
 document.getElementById("editSaveBtn").addEventListener("click", async () => {
-    const id = document.getElementById("editInvoiceModal").getAttribute("data-id");
+
+    const id = editModal.getAttribute("data-id");
 
     let formData = new FormData();
+
     formData.append("invoice_no", e_invoice_no.value);
     formData.append("item_name", e_item_name.value);
     formData.append("qty", e_qty.value);
@@ -354,19 +348,17 @@ document.getElementById("editSaveBtn").addEventListener("click", async () => {
     formData.append("bank_ifsc", e_bank_ifsc.value);
     formData.append("bank_name", e_bank_name.value);
 
-    // 📄 FILE INPUT ADDED (ONLY IF NEW FILE CHOSEN)
-    let file = document.getElementById("e_docInput").files[0];
+    const file = document.getElementById("e_docInput").files[0];
     if (file) formData.append("document", file);
 
     const res = await fetch(`/edit_invoice/${id}`, {
         method: "POST",
-        body: formData  // <-- FILES WORK NOW
+        body: formData
     });
 
     const result = await res.json();
 
     if (result.success) {
-      
         location.reload();
     } else {
         alert("Error updating invoice");
@@ -374,7 +366,10 @@ document.getElementById("editSaveBtn").addEventListener("click", async () => {
 });
 
 
-// Show Data Button
+
+/********************************************
+ * VIEW MORE (ALERT DETAILS)
+ ********************************************/
 async function viewMore(id) {
   const res = await fetch(`/api/invoice/${id}`);
   const j = await res.json();
@@ -419,11 +414,13 @@ CREATED AT: ${j.created_at || "—"}
 
 
 
-// Delete Button
+/********************************************
+ * DELETE BUTTON
+ ********************************************/
 document.addEventListener('click', async (e) => {
   const b = e.target.closest('.deleteBtn');
   if (b) {
-    const recordId = b.dataset.id;  // now correct
+    const recordId = b.dataset.id;
 
     if (confirm('Are you sure you want to delete this invoice?')) {
 
@@ -434,8 +431,7 @@ document.addEventListener('click', async (e) => {
       const data = await res.json();
 
       if (data.success) {
-       
-        fetchUserRecords(); 
+        fetchUserRecords();
       } else {
         alert("Delete failed: " + data.error);
       }
@@ -444,56 +440,47 @@ document.addEventListener('click', async (e) => {
 });
 
 
-    //"................................edit delete,show doc show all........................................................................."
-    function toDisplay(key){
-      return key.split('_').map(w => w[0].toUpperCase()+w.slice(1)).join(' ');
+
+/********************************************
+ * GLOBAL SEARCH
+ ********************************************/
+document.getElementById("globalSearch").addEventListener("keyup", (e) => {
+    if (e.key === "Enter") globalSearch();
+});
+
+async function globalSearch() {
+  try {
+    const q = (document.getElementById("globalSearch").value || '').trim();
+
+    if (!q) {
+      page = 1;
+      return fetchUserRecords(page);
     }
 
-    /**********************
-     * Global search + highlight
-     **********************/
-   document.getElementById("globalSearch").addEventListener("keyup", (e) => {
-      if (e.key === "Enter") globalSearch();
-    });
+    const res = await fetch(`/api/invoices/search?q=${encodeURIComponent(q)}`);
+    const json = await res.json();
 
-
-    async function globalSearch() {
-      try {
-        const q = (document.getElementById("globalSearch").value || '').trim();
-
-        // if empty, call fetchUsers() to restore full (unfiltered) table
-        if (!q) {
-          page = 1;
-          return fetchUserRecords(page);
-        }
-
-        const res = await fetch(`/api/invoices/search?q=${encodeURIComponent(q)}`);
-        const json = await res.json();
-
-        // Support both response shapes:
-        // 1) { status: "ok", rows: [...] } OR
-        // 2) { total: X, rows: [...] } OR  { total, rows } without status
-        const rows = json.rows || [];
-        if (rows.length === 0) {
-          document.getElementById("tableBody").innerHTML = "<tr><td colspan='7'>No users found</td></tr>";
-        } else {
-          renderTable(rows);
-        }
-      } catch (err) {
-        console.error("Search error:", err);
-        document.getElementById("tableBody").innerHTML = "<tr><td colspan='7'>Error searching users</td></tr>";
-      }
+    const rows = json.rows || [];
+    if (rows.length === 0) {
+      document.getElementById("tableBody").innerHTML = "<tr><td colspan='7'>No users found</td></tr>";
+    } else {
+      renderTable(rows);
     }
 
+  } catch (err) {
+    console.error("Search error:", err);
+    document.getElementById("tableBody").innerHTML = "<tr><td colspan='7'>Error searching users</td></tr>";
+  }
+}
 
-    /**********************
-     * Export (Full & Custom)
-     **********************/
-   document.getElementById('exportFullBtn').addEventListener('click', async () => {
 
-    const res = await fetch('/export_all', {
-        method: 'GET'
-    });
+
+/********************************************
+ * EXPORT FULL EXCEL
+ ********************************************/
+document.getElementById('exportFullBtn').addEventListener('click', async () => {
+
+    const res = await fetch('/export_all', { method: 'GET' });
 
     if (!res.ok) {
         alert("Failed to download Excel");
@@ -512,14 +499,20 @@ document.addEventListener('click', async (e) => {
 });
 
 
-//---------------------custom exal ------------------------------------
 
+/********************************************
+ * OPEN CUSTOM EXPORT MODAL
+ ********************************************/
 document.getElementById("exportCustomBtn").addEventListener("click", () => {
-    new bootstrap.Modal(document.getElementById("customExportModal")).show();
+    openCustomExportModal();
 });
 
 
- function filterRows(keyword, minId = 0) {
+
+/********************************************
+ * SEARCH START/END ROWS
+ ********************************************/
+function filterRows(keyword, minId = 0) {
     const key = keyword.toLowerCase();
 
     return records.filter(r =>
@@ -531,6 +524,7 @@ document.getElementById("exportCustomBtn").addEventListener("click", () => {
         && r.id > minId
     );
 }
+
 function showDropdown(inputEl, dropdownEl, rows) {
     dropdownEl.innerHTML = "";
     dropdownEl.style.display = rows.length ? "block" : "none";
@@ -546,6 +540,7 @@ function showDropdown(inputEl, dropdownEl, rows) {
         dropdownEl.appendChild(item);
     });
 }
+
 document.getElementById("startRowInput").addEventListener("input", e => {
     const keyword = e.target.value;
     const rows = filterRows(keyword);
@@ -558,6 +553,7 @@ document.getElementById("endRowInput").addEventListener("input", e => {
     const rows = filterRows(keyword, startId);
     showDropdown(e.target, document.getElementById("endDropdown"), rows);
 });
+
 document.getElementById("createCustomExcel").addEventListener("click", async () => {
 
     const startId = parseInt(document.getElementById("startRowInput").value);
@@ -591,21 +587,20 @@ document.getElementById("createCustomExcel").addEventListener("click", async () 
 });
 
 
-  
-    /************ LOCKED BUTTON + MODAL TABLE ************/
 
+/********************************************
+ * LOCKED MODAL (BIN)
+ ********************************************/
 document.getElementById("lockedBtn").addEventListener("click", () => {
-    let modal = new bootstrap.Modal(document.getElementById("lockedModal"));
     loadLockedTable();
-    modal.show();
+    openLockedModal();
 });
 
-// Load locked table rows from existing records[]
 async function loadLockedTable() {
     const body = document.getElementById("lockedBody");
     body.innerHTML = "";
 
-    const res = await fetch(`/get_locked_records/${USER_ID}`);  // you have session user_id
+    const res = await fetch(`/get_locked_records/${USER_ID}`);
     const lockedRows = await res.json();
 
     lockedRows.forEach(r => {
@@ -621,7 +616,7 @@ async function loadLockedTable() {
             <td>${r.contact_email || ""}</td>
 
             <td class="text-center">
-                <button class="btn btn-sm btn-outline-danger unlockBtn" data-id="${r.id}">
+                <button class="btn btn-sm unlockBtn" data-id="${r.id}">
                     🔓 Unlock
                 </button>
             </td>
@@ -631,8 +626,6 @@ async function loadLockedTable() {
     });
 }
 
-
-// Unlock action
 document.addEventListener("click", async (e) => {
     const btn = e.target.closest(".unlockBtn");
     if (btn) {
@@ -646,35 +639,32 @@ document.addEventListener("click", async (e) => {
 
         if (data.success) {
             alert("Unlocked!");
-
-            // reload locked modal data
             loadLockedTable();
-
-            // reload main table
             fetchUserRecords();
         }
     }
 });
 
 
-//--------------------------- game modal----------------------------------------
-/* ========= REAL LOGIN PAGE GAME LOGIC ========= */
 
+/********************************************
+ * GAME MODAL
+ ********************************************/
 const words2 = [
-    "game", "write", "cool", "app", "tree", "type", "free", "submit", "task",
-    "brave", "good", "allow", "audit", "extra", "budget", "profit", "expense",
-    "print", "flow","project", "software", "hardware", "leader", "key", "honest",
-    "search", "tracking", "reverse","manager", "report", "system", "data", 
-    "network", "security", "storage", "backup", "old", "user","password", 
-    "email", "database", "server", "website", "design", "analysis", "testing", 
-    "support", "developer","place", "joker", "update", "logic", "speed", "client", 
-    "provider", "resource","team", "meeting", "schedule", "goal", "objective", 
-    "training", "feedback", "productivity", "innovation","strategy", "planning", 
-    "execution", "leadership", "column", "communication", "market", "sales",
-    "brand", "promotion", "advertisement", "customer", "growth", "target", 
-    "competition", "product","service", "solution", "feature", "quality", "design", 
-    "experience", "review", "rating", "satisfaction","engagement", "trend", 
-    "vision", "mission", "value", "culture", "ethics", "teamwork", "creativity","winner"
+    "game","write","cool","app","tree","type","free","submit","task",
+    "brave","good","allow","audit","extra","budget","profit","expense",
+    "print","flow","project","software","hardware","leader","key","honest",
+    "search","tracking","reverse","manager","report","system","data",
+    "network","security","storage","backup","old","user","password",
+    "email","database","server","website","design","analysis","testing",
+    "support","developer","place","joker","update","logic","speed","client",
+    "provider","resource","team","meeting","schedule","goal","objective",
+    "training","feedback","productivity","innovation","strategy","planning",
+    "execution","leadership","column","communication","market","sales",
+    "brand","promotion","advertisement","customer","growth","target",
+    "competition","product","service","solution","feature","quality","design",
+    "experience","review","rating","satisfaction","engagement","trend",
+    "vision","mission","value","culture","ethics","teamwork","creativity","winner"
 ];
 
 let currentIndex2 = 0;
@@ -747,8 +737,12 @@ closeBtn2.addEventListener("click", () => {
 window.addEventListener("click", (e) => {
   if (e.target === modal2) modal2.style.display = "none";
 });
-// theme modal
-// ----------------- THEME SWITCHER -----------------
+
+
+
+/********************************************
+ * THEME SWITCHER
+ ********************************************/
 const themeMaster = document.getElementById("themeMaster");
 
 if (themeMaster) {
@@ -758,17 +752,17 @@ if (themeMaster) {
     if (theme === "light") {
       document.body.style.background = "linear-gradient(135deg, #ffffff 0%, #e6e6e6 100%)";
       document.body.style.color = "#000";
-      document.querySelector(".header").style.background = "#f5f5f5";
+      document.querySelector(".topbar").style.background = "#f5f5f5";
     }
     else if (theme === "dark") {
       document.body.style.background = "linear-gradient(135deg, #1f1f1f 0%, #0d0d0d 100%)";
       document.body.style.color = "white";
-      document.querySelector(".header").style.background = "#333";
+      document.querySelector(".topbar").style.background = "#333";
     }
     else {
       document.body.style.background = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
       document.body.style.color = "#eaf2ff";
-      document.querySelector(".header").style.background = "rgb(242, 246, 246)";
+      document.querySelector(".topbar").style.background = "rgb(242, 246, 246)";
     }
   });
 }

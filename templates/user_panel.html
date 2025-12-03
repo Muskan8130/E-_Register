@@ -674,6 +674,45 @@
       font-weight: 80px;
       font-size: 16px;
     }
+
+  /* =======================
+   PURE CSS / JS MODAL BOX
+========================*/
+.customModal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+}
+
+.customModal.active {
+  display: flex;
+}
+
+.customModalBox {
+  background: #fff;
+  width: 90%;
+  max-width: 1100px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+}
+
+.customClose {
+  position: absolute;
+  right: 15px;
+  top: 10px;
+  font-size: 22px;
+  cursor: pointer;
+  color: #000;
+}
+
   </style>
 </head>
 <body>
@@ -683,528 +722,296 @@
     <div class="d-flex align-items-center gap-3">
       <div>
         <h2 style="margin: 0;">User Panel</h2>
-       <div class="me-2 muted small" style="color: hwb(0 4% 96% / 0.963);"style="font-weight:20px;">👤Signed in as :<span id="loggedUserName">{{ session['user_id'] }}</span>
-</div>
+        <div class="me-2 muted small" style="color: hwb(0 4% 96% / 0.963);">
+          👤Signed in as : <span id="loggedUserName">{{ session['user_id'] }}</span>
+        </div>
       </div>
     </div>
 
     <div class="d-flex align-items-center gap-3">
-      <div  class="d-flex align-items-center gap-2">
+      <div class="d-flex align-items-center gap-2">
         <button id="gameBtn" class="game-btn">🔠 Word Scramble Game</button>
-        <div class="theme-container" style="background-color: #acb8dd;">
+
+        <div class="theme-container" style="background-color:#acb8dd;">
           <label for="theme">Theme:</label>
-           <select id="themeMaster" class="form-select form-select-sm" style="width: 120px;">
-           <option value="default" selected>Default</option>
-        <option value="light">Light</option>
-        <option value="dark">Dark</option>
-      </select>
-       </div>
-     <button class="btn btn-sm btn-outline-light" id="lockedBtn" style="background-color:#444;" >🗑️ Bin</button>
-        <a class="btn btn-sm btn-outline-light" id="logoutBtn"   style="background-color: red;" href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+          <select id="themeMaster" class="form-select form-select-sm" style="width:120px;">
+            <option value="default" selected>Default</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </div>
+
+        <button class="btn btn-sm btn-outline-light" id="lockedBtn" style="background-color:#444;">🗑️ Bin</button>
+        <a class="btn btn-sm btn-outline-light" id="logoutBtn" style="background-color:red;" href="{{ url_for('logout') }}">Logout</a>
       </div>
     </div>
   </div>
+
 
   <!-- Panel -->
   <div class="panel">
-
-    <!-- Controls card -->
-     <div style="padding: 22px;">
+    <div style="padding:22px;">
       <div class="panel-grid">
+
         <div class="box">
           <h3>Add new invoices</h3>
-           <p class="muted">Add and upload invoices and data in table</p>
-        <button class="btn btn-accent" id="addInvoiceBtn">➕ Add Invoice</button>
+          <p class="muted">Add and upload invoices and data in table</p>
+          <button class="btn btn-accent" id="addInvoiceBtn">➕ Add Invoice</button>
         </div>
+
         <div class="box">
-        <h3>Export all excel sheet </h3>
-         <p class="muted">Dowload excel sheet</p>
-        <button class="btn btn-outline-accent" id="exportFullBtn">⬇ Export Full Excel</button>
+          <h3>Export all excel sheet</h3>
+          <p class="muted">Download excel sheet</p>
+          <button class="btn btn-outline-accent" id="exportFullBtn">⬇ Export Full Excel</button>
         </div>
+
         <div class="box">
           <h3>Select excel data to export</h3>
           <p class="muted">Download custom excel</p>
-        <button class="btn btn-outline-accent" id="exportCustomBtn">⬇ Export Custom Excel</button>
+          <button class="btn btn-outline-accent" id="exportCustomBtn">⬇ Export Custom Excel</button>
         </div>
-      </div>
-    </div>
-    </div>
 
-    <!-- Table card -->
-    <div class="card-ui">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <div>
-         <input id="globalSearch" class="form-control form-control-sm" placeholder="Search ...">
-        </div>
-        <div style="background-color: white;" class="rounded">
-          <small  class=" muted">Total records: <span id="totalCount">0</span></small>
-        </div>
-      </div>
-
-      <div class="table-responsive">
-       <table class="table table-bordered">
-            <thead>
-              <tr>
-                <th>Invoice No</th>
-                <th>Item Name</th>
-                <th>Qty</th>
-                <th>Unit Rate</th>
-                <th>GST</th>
-                <th>Total</th>
-                <th>Contact Person</th>
-                <th>Company Name</th>
-                <th>State</th>
-                <th>GST No</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-          </table>
       </div>
     </div>
   </div>
 
-  <!-- Add Invoice Modal -->
-  <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" style="color: black;" >Upload and Save Excel Invoice</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
 
-        <div class="modal-body">
-          <!-- file chooser -->
-          <div class="mb-3 file-row">
-            <input id="modalFile" type="file" accept=".xls,.xlsx,.csv" class="form-control">
-            <button id="modalUploadBtn" class="btn btn-accent" id="Upload">Upload & Map Fields</button>
-          </div>
-          <form id="invoiceForm">
-            <!-- File choose button -->
-            <input type="file" id="docInput" accept=".jpg,.jpeg,.pdf" hidden>
-            <label for="docInput" class="btn" style="background-color: #eeebfa;">Choose Doce</label>
-          </form>
-          <div id="modalFileMsg" class="muted small ms-2"></div>
-          <!-- two columns form -->
-          <!-- two columns form -->
-<div class="two-col">
-  <div class="row g-4"> <!-- g-4 adds spacing between columns -->
-
-    <!-- LEFT COLUMN (first 12 fields) -->
-    <div class="col-md-6">
-
-      <div class="mb-3">
-        <label class="form-label">Invoice No.</label>
-        <input id="f_invoice_no" name="invoice_no" class="form-control">
+  <!-- Table card -->
+  <div class="card-ui">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <div>
+        <input id="globalSearch" class="form-control form-control-sm" placeholder="Search ...">
       </div>
-
-      <div class="mb-3">
-        <label class="form-label">Item Name</label>
-        <input id="f_item_name" name="item_name" class="form-control">
+      <div style="background:white;" class="rounded">
+        <small class="muted">Total records: <span id="totalCount">0</span></small>
       </div>
-
-      <div class="mb-3">
-        <label class="form-label">Qty</label>
-        <input id="f_qty" name="qty" class="form-control">
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Unit Rate</label>
-        <input id="f_unit_rate" name="unit_rate" class="form-control">
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">IGST</label>
-        <input id="f_igst" name="igst" class="form-control">
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">CGST</label>
-        <input id="f_cgst" name="cgst" class="form-control">
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">SGST</label>
-        <input id="f_sgst" name="sgst" class="form-control">
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Total</label>
-        <input id="f_total" name="total" class="form-control">
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Contact Person</label>
-        <input id="f_contact_person" name="contact_person" class="form-control">
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Company Name</label>
-        <input id="f_company_name" name="company_name" class="form-control">
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">State</label>
-        <input id="f_state" name="state" class="form-control">
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">GST No.</label>
-        <input id="f_gst_no" name="gst_no" class="form-control">
-      </div>
-
     </div>
 
-    <!-- RIGHT COLUMN (remaining fields) -->
-    <div class="col-md-6">
-
-      <div class="mb-3">
-        <label class="form-label">Invoice Date</label>
-        <input id="f_invoice_date" name="invoice_date" class="form-control">
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Item Description</label>
-        <input id="f_description" name="description" class="form-control">
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Warranty Detail</label>
-        <input id="f_warranty_details" name="warranty_details" class="form-control">
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Warranty End</label>
-        <input id="f_warranty_end" name="warranty_end" class="form-control">
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Warranty Customer Care</label>
-        <input id="f_warranty_cc" name="warranty_cc" class="form-control">
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Address</label>
-        <input id="f_address" name="address" class="form-control">
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">PAN No.</label>
-        <input id="f_pan_no" name="pan_no" class="form-control">
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Contact Mobile</label>
-        <input id="f_contact_phone" name="contact_phone" class="form-control">
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Contact Email</label>
-        <input id="f_contact_email" name="contact_email" class="form-control">
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Bank A/C No</label>
-        <input id="f_bank_acc" name="bank_acc" class="form-control">
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Bank IFSC</label>
-        <input id="f_bank_ifsc" name="bank_ifsc" class="form-control">
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Bank Name</label>
-        <input id="f_bank_name" name="bank_name" class="form-control">
-      </div>
-
-    </div>
-
-  </div>
-</div>
-
-
-        <div class="modal-footer">
-             <button type="button" id="prevBtn" class="btn2">Prev</button>
-             <button id="saveModalBtn" type="button" class="btn btn-accent" id="save" style="width: 80px;">Save</button>
-             <button type="button" id="nextBtn" class="btn2">Next</button>
-        </div>
-      </div>
+    <div class="table-responsive">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Invoice No</th>
+            <th>Item Name</th>
+            <th>Qty</th>
+            <th>Unit Rate</th>
+            <th>GST</th>
+            <th>Total</th>
+            <th>Contact Person</th>
+            <th>Company Name</th>
+            <th>State</th>
+            <th>GST No</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
     </div>
   </div>
 
 
   <!-- ===========================
-     EDIT INVOICE MODAL (SAFE)
-=========================== -->
-<div class="modal fade" id="editInvoiceModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" style="width: 55%;">
-    <div class="modal-content">
+       PURE JS ADD MODAL
+  ============================ -->
+  <div id="addModal" class="customModal">
+    <div class="customModalBox">
+      <span class="customClose" onclick="closeAddModal()">&times;</span>
+      <h5 class="modal-title" style="color:black;">Upload and Save Excel Invoice</h5>
 
-      <div class="modal-header">
-        <h5 class="modal-title" style="color: black;">Edit Invoice</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      <div class="mb-3 file-row">
+        <input id="modalFile" type="file" accept=".xls,.xlsx,.csv" class="form-control">
+        <button id="modalUploadBtn" class="btn btn-accent">Upload & Map Fields</button>
       </div>
 
-      <div class="modal-body">
+      <form id="invoiceForm">
+        <input type="file" id="docInput" accept=".jpg,.jpeg,.pdf" hidden>
+        <label for="docInput" class="btn" style="background-color:#eeebfa;">Choose Doc</label>
+      </form>
 
-        <!-- File Upload for Edit -->
-        <input type="file" id="e_docInput" accept=".jpg,.jpeg,.pdf" hidden>
-        <label for="e_docInput" class="btn" style="background-color:#eeebfa;">Choose Document</label>
+      <div id="modalFileMsg" class="muted small ms-2"></div>
 
-        <div class="two-col">
-          <div>
-            <div class="mb-3">
-              <label class="form-label">Invoice No.</label>
-              <input id="e_invoice_no" class="form-control">
-            </div>
+      <!-- SAME 24 FIELDS EXACTLY -->
+      <div class="two-col">
+        <div class="col-md-6">
 
-            <div class="mb-3">
-              <label class="form-label">Item Name</label>
-              <input id="e_item_name" class="form-control">
-            </div>
+          <div class="mb-3"><label class="form-label">Invoice No.</label><input id="f_invoice_no" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Item Name</label><input id="f_item_name" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Qty</label><input id="f_qty" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Unit Rate</label><input id="f_unit_rate" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">IGST</label><input id="f_igst" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">CGST</label><input id="f_cgst" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">SGST</label><input id="f_sgst" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Total</label><input id="f_total" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Contact Person</label><input id="f_contact_person" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Company Name</label><input id="f_company_name" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">State</label><input id="f_state" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">GST No.</label><input id="f_gst_no" class="form-control"></div>
 
-            <div class="mb-3">
-              <label class="form-label">Qty</label>
-              <input id="e_qty" class="form-control">
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Unit Rate</label>
-              <input id="e_unit_rate" class="form-control">
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">IGST</label>
-              <input id="e_igst" class="form-control">
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">CGST</label>
-              <input id="e_cgst" class="form-control">
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">SGST</label>
-              <input id="e_sgst" class="form-control">
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Total</label>
-              <input id="e_total" class="form-control">
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Contact Person</label>
-              <input id="e_contact_person" class="form-control">
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Company Name</label>
-              <input id="e_company_name" class="form-control">
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">State</label>
-              <input id="e_state" class="form-control">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Bank Name</label>
-              <input id="e_bank_name" class="form-control">
-            </div>
-          </div>
-
-          <div>
-            <div class="mb-3">
-              <label class="form-label">GST No.</label>
-              <input id="e_gst_no" class="form-control">
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Invoice Date</label>
-              <input id="e_invoice_date" class="form-control">
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Description</label>
-              <input id="e_description" class="form-control">
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Warranty Detail</label>
-              <input id="e_warranty_details" class="form-control">
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Warranty End</label>
-              <input id="e_warranty_end" class="form-control">
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Warranty Customer Care</label>
-              <input id="e_warranty_cc" class="form-control">
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Address</label>
-              <input id="e_address" class="form-control">
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">PAN No.</label>
-              <input id="e_pan_no" class="form-control">
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Contact Mobile</label>
-              <input id="e_contact_phone" class="form-control">
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Contact Email</label>
-              <input id="e_contact_email" class="form-control">
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Bank A/C No</label>
-              <input id="e_bank_acc" class="form-control">
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Bank IFSC</label>
-              <input id="e_bank_ifsc" class="form-control">
-            </div>
-
-            
-          </div>
         </div>
 
+        <div class="col-md-6">
+
+          <div class="mb-3"><label class="form-label">Invoice Date</label><input id="f_invoice_date" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Item Description</label><input id="f_description" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Warranty Detail</label><input id="f_warranty_details" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Warranty End</label><input id="f_warranty_end" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Warranty Customer Care</label><input id="f_warranty_cc" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Address</label><input id="f_address" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">PAN No.</label><input id="f_pan_no" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Contact Mobile</label><input id="f_contact_phone" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Contact Email</label><input id="f_contact_email" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Bank A/C No</label><input id="f_bank_acc" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Bank IFSC</label><input id="f_bank_ifsc" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Bank Name</label><input id="f_bank_name" class="form-control"></div>
+
+        </div>
       </div>
 
-      <div class="modal-footer">
-        <button id="editSaveBtn" type="button" class="btn btn-accent">Update Invoice</button>
+      <div class="modal-footer" style="display:flex;justify-content:center;gap:8px;margin-top:15px;">
+        <button type="button" id="prevBtn" class="btn2">Prev</button>
+        <button id="saveModalBtn" type="button" class="btn btn-accent" style="width:80px;">Save</button>
+        <button type="button" id="nextBtn" class="btn2">Next</button>
       </div>
 
     </div>
   </div>
-</div>
 
 
-  <!----------------------custum exal model------------------------------>
 
- <!-- Custom Export Modal -->
-<div class="modal fade" id="customExportModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content p-3 custom-modal">
+  <!-- ===========================
+        PURE JS EDIT MODAL
+  ============================ -->
+  <div id="editInvoiceModal" class="customModal">
+    <div class="customModalBox" style="max-width:900px;">
 
-      <!-- Modal Header -->
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <h4 class="m-0" style="color: #000;">Custom Excel Export</h4>
-        <button class="btn-close" data-bs-dismiss="modal"></button>
+      <span class="customClose" onclick="closeEditModal()">&times;</span>
+      <h5 class="modal-title" style="color:black;">Edit Invoice</h5>
+
+      <input type="file" id="e_docInput" accept=".jpg,.jpeg,.pdf" hidden>
+      <label for="e_docInput" class="btn" style="background:#eeebfa;">Choose Document</label>
+
+      <div class="two-col">
+        <div>
+          <div class="mb-3"><label class="form-label">Invoice No.</label><input id="e_invoice_no" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Item Name</label><input id="e_item_name" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Qty</label><input id="e_qty" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Unit Rate</label><input id="e_unit_rate" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">IGST</label><input id="e_igst" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">CGST</label><input id="e_cgst" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">SGST</label><input id="e_sgst" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Total</label><input id="e_total" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Contact Person</label><input id="e_contact_person" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Company Name</label><input id="e_company_name" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">State</label><input id="e_state" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Bank Name</label><input id="e_bank_name" class="form-control"></div>
+        </div>
+
+        <div>
+          <div class="mb-3"><label class="form-label">GST No.</label><input id="e_gst_no" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Invoice Date</label><input id="e_invoice_date" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Description</label><input id="e_description" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Warranty Detail</label><input id="e_warranty_details" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Warranty End</label><input id="e_warranty_end" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Warranty Customer Care</label><input id="e_warranty_cc" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Address</label><input id="e_address" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">PAN No.</label><input id="e_pan_no" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Contact Mobile</label><input id="e_contact_phone" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Contact Email</label><input id="e_contact_email" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Bank A/C No</label><input id="e_bank_acc" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Bank IFSC</label><input id="e_bank_ifsc" class="form-control"></div>
+        </div>
       </div>
+
+      <div class="modal-footer" style="text-align:center;margin-top:12px;">
+        <button id="editSaveBtn" class="btn btn-accent">Update Invoice</button>
+      </div>
+
+    </div>
+  </div>
+
+
+
+  <!-- ===========================
+        PURE JS CUSTOM EXPORT MODAL
+  ============================ -->
+  <div id="customExportModal" class="customModal">
+    <div class="customModalBox" style="max-width:400px;">
+
+      <span class="customClose" onclick="closeCustomExportModal()">&times;</span>
+      <h4 style="color:black;">Custom Excel Export</h4>
 
       <p class="text-muted small">Choose start and end rows to export custom Excel data.</p>
 
-      <!-- Start Row -->
-      <label class="fw-semibold" style="color: #000;">Start Row</label>
-      <div class="position-relative">
-        <input type="text" id="startRowInput" class="form-control custom-input" placeholder="Search row...">
-        <div id="startDropdown" 
-             class="dropdown-menu w-100 custom-dropdown" 
-             style="display:none;"></div>
-      </div>
+      <label class="fw-semibold">Start Row</label>
+      <input type="text" id="startRowInput" class="form-control custom-input">
 
-      <br>
+      <label class="fw-semibold mt-3">End Row</label>
+      <input type="text" id="endRowInput" class="form-control custom-input">
 
-      <!-- End Row -->
-      <label class="fw-semibold" style="color: #000;">End Row</label>
-      <div class="position-relative">
-        <input type="text" id="endRowInput" class="form-control custom-input" placeholder="Search row...">
-        <div id="endDropdown" 
-             class="dropdown-menu w-100 custom-dropdown" 
-             style="display:none;"></div>
-      </div>
+      <button id="createCustomExcel" class="btn btn-accent w-100 mt-3">Create Excel</button>
 
-      <br>
+    </div>
+  </div>
 
-      <!-- Buttons -->
-      <div class="d-flex gap-2 mt-2">
-        <button class="btn btn-accent w-50" id="createCustomExcel">Create Excel</button>
+
+
+  <!-- ===========================
+        PURE JS LOCKED MODAL
+  ============================ -->
+  <div id="lockedModal" class="customModal">
+    <div class="customModalBox">
+
+      <span class="customClose" onclick="closeLockedModal()">&times;</span>
+      <h5 class="modal-title">Locked Invoices</h5>
+
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped" id="lockedTable">
+          <thead>
+            <tr>
+              <th>Invoice No</th>
+              <th>GST</th>
+              <th>Invoice Date</th>
+              <th>Contact Person</th>
+              <th>State</th>
+              <th>Mobile</th>
+              <th>Email</th>
+              <th class="text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody id="lockedBody"></tbody>
+        </table>
       </div>
 
     </div>
   </div>
-</div>
 
 
-  <!-- 🔒 Locked Invoices Modal -->
-<div class="modal fade" id="lockedModal" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
 
-      <div class="modal-header">
-        <h5 class="modal-title">Locked Invoices</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-
-      <div class="modal-body">
-        <div class="table-responsive">
-          <table class="table table-bordered table-striped" id="lockedTable">
-            <thead>
-              <tr>
-                <th>Invoice No</th>
-                <th>GST</th>
-                <th>Invoice Date</th>
-                <th>Contact Person</th>
-                <th>State</th>
-                <th>Mobile</th>
-                <th>Email</th>
-                <th class="text-center">Action</th>
-              </tr>
-            </thead>
-            <tbody id="lockedBody"></tbody>
-          </table>
-        </div>
-      </div>
-
-    </div> <!-- modal-content -->
-  </div> <!-- modal-dialog -->
-</div> <!-- modal -->
-
- <!-------------------------------Game  modal---------------------->
-<div id="gameModal2" style="display:none;">
-  <div class="modal-content" style="
-      background-color:white;
-      padding:25px;
-      border-radius:10px;
-      width:90%;
-      max-width:400px;
-      text-align:center;
-      margin:100px auto;
-      position:relative;
-      ">
-    <span class="close2" style="position:absolute; right:15px; top:10px; font-size:22px; cursor:pointer;">&times;</span>
-    <h3 style="color: #1e7e34;">Unscramble the Word</h3>
-    <div id="scrambledWord2">---</div>
-    <input type="text" id="userAnswer2" placeholder="Type your answer" style="margin-left: 30px;">
-    <button id="submitBtn2">Submit</button>
-    <div id="message2"></div>
-    <div id="progress2"></div>
+  <!-- Game Modal (unchanged) -->
+  <div id="gameModal2">
+    <div class="modal-content" style="background:white;padding:25px;border-radius:10px;width:90%;max-width:400px;text-align:center;margin:100px auto;position:relative;">
+      <span class="close2" style="position:absolute;right:15px;top:10px;font-size:22px;cursor:pointer;">&times;</span>
+      <h3 style="color:#1e7e34;">Unscramble the Word</h3>
+      <div id="scrambledWord2">---</div>
+      <input type="text" id="userAnswer2" placeholder="Type your answer" style="margin-left:30px;">
+      <button id="submitBtn2">Submit</button>
+      <div id="message2"></div>
+      <div id="progress2"></div>
+    </div>
   </div>
-</div>
 
 
-  <!-- Bootstrap JS -->
+
+  <!-- Bootstrap JS (still allowed for dropdown etc., not modals) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- SheetJS for Excel parsing/export -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-
   <script>
-  const USER_ID = "{{ session['user_id'] }}";   // <-- Inject real user ID from Flask
+  const USER_ID = "{{ session['user_id'] }}";
   </script>
 
-  <script src="{{ url_for('static', filename='js/user_panel.js') }}">
-  </script>
+  <script src="{{ url_for('static', filename='js/user_panel.js') }}"></script>
+
 </body>
+
 </html>

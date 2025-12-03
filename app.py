@@ -1242,7 +1242,7 @@ def edit_invoice(id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Get user_id of invoice — Needed for user tracking
+    # Fetch user_id and old file name
     cursor.execute("SELECT user_id, doc_filename FROM data WHERE id=%s", (id,))
     row = cursor.fetchone()
 
@@ -1253,7 +1253,9 @@ def edit_invoice(id):
     old_file = row["doc_filename"]
     new_filename = old_file
 
-    # File handling
+    # --------------------------
+    # FILE HANDLING
+    # --------------------------
     if file:
         ext = file.filename.split(".")[-1]
         new_filename = f"invoice_{id}.{ext}"
@@ -1261,6 +1263,7 @@ def edit_invoice(id):
 
         file.save(file_path)
 
+        # remove old file
         if old_file and old_file != new_filename:
             old_path = os.path.join(app.config["UPLOAD_FOLDER"], old_file)
             if os.path.exists(old_path):
@@ -1268,8 +1271,15 @@ def edit_invoice(id):
 
         cursor.execute("UPDATE data SET doc_filename=%s WHERE id=%s", (new_filename, id))
 
+    # --------------------------
+    # DATE CLEANING
+    # --------------------------
+    invoice_date = clean_date(data.get("invoice_date"))
+    warranty_end = clean_date(data.get("warranty_end"))
 
-    # Update invoice fields
+    # --------------------------
+    # UPDATE INVOICE
+    # --------------------------
     cursor.execute("""
         UPDATE data SET
             invoice_no=%s,
@@ -1310,10 +1320,10 @@ def edit_invoice(id):
         data.get("company_name"),
         data.get("state"),
         data.get("gst_no"),
-        data.get("invoice_date"),
+        invoice_date,           # <--- NOW CLEAN DATE
         data.get("description"),
         data.get("warranty_details"),
-        data.get("warranty_end"),
+        warranty_end,           # <--- NOW CLEAN DATE
         data.get("warr_customer_care_no"),
         data.get("address"),
         data.get("pan_no"),
@@ -1325,7 +1335,7 @@ def edit_invoice(id):
         id
     ))
 
-    # 📌 Log action to `users` table
+    # Log action (optional)
     cursor.execute("""
         UPDATE users SET last_action=%s, last_used_at=NOW()
         WHERE user_id=%s
