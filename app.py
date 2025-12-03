@@ -316,7 +316,7 @@ def api_get_invoices():
     if 'user_id' not in session or session.get('role') != 'master':
         return jsonify({'error': 'unauthorized'}), 403
 
-    # pagination params
+    # pagination
     page = int(request.args.get('page', 1))
     per_page = int(request.args.get('per_page', 10))
     q = request.args.get('q', '').strip()
@@ -326,32 +326,47 @@ def api_get_invoices():
     conn = get_db_connection()
     cur = conn.cursor(dictionary=True)
 
-    # base query
-    base_query = "SELECT * FROM data WHERE LOCKED = TRUE"
+    # ---------------------------
+    # Build WHERE clause cleanly
+    # ---------------------------
+    where_clauses = ["LOCKED = TRUE"]
     params = []
 
-    # search filter
     if q:
         like = f"%{q}%"
-        base_query += """ WHERE 
-            invoice_no LIKE %s OR 
-            company_name LIKE %s OR 
-            contact_person LIKE %s OR
-            gst_no LIKE %s OR
-            state LIKE %s OR
-            item_name LIKE %s
-        """
-        params = [like, like, like, like, like, like]
+        where_clauses.append("""
+            (
+                invoice_no LIKE %s OR
+                company_name LIKE %s OR
+                contact_person LIKE %s OR
+                gst_no LIKE %s OR
+                state LIKE %s OR
+                item_name LIKE %s
+            )
+        """)
+        params.extend([like, like, like, like, like, like])
 
-    # total count
-    cur.execute(base_query.replace("SELECT *", "SELECT COUNT(*) AS c"), params)
+    where_sql = " AND ".join(where_clauses)
+
+    # ---------------------------
+    # Count query (no LIMIT)
+    # ---------------------------
+    count_sql = f"SELECT COUNT(*) AS c FROM data WHERE {where_sql}"
+    cur.execute(count_sql, tuple(params))
     total = cur.fetchone()['c']
 
-    # actual data query
-    base_query += " ORDER BY id DESC LIMIT %s OFFSET %s"
-    params.extend([per_page, offset])
-    cur.execute(base_query, params)
+    # ---------------------------
+    # Data query (with LIMIT)
+    # ---------------------------
+    data_sql = f"""
+        SELECT *
+        FROM data
+        WHERE {where_sql}
+        ORDER BY id DESC
+        LIMIT %s OFFSET %s
+    """
 
+    cur.execute(data_sql, tuple(params + [per_page, offset]))
     rows = cur.fetchall()
 
     cur.close()
@@ -1035,29 +1050,45 @@ def api_invoices():
     conn = get_db_connection()
     cur = conn.cursor(dictionary=True)
 
-    base_query = "SELECT * FROM data WHERE 1=1 AND LOCKED = TRUE"
+    # -----------------------
+    # Build base WHERE clause
+    # -----------------------
+    where = "WHERE LOCKED = TRUE"
     params = []
 
     if q:
-        base_query += " AND (invoice_no LIKE %s OR item_name LIKE %s OR company_name LIKE %s)"
-        qlike = f"%{q}%"
-        params += [qlike, qlike, qlike]
+        where += " AND (invoice_no LIKE %s OR item_name LIKE %s OR company_name LIKE %s)"
+        like = f"%{q}%"
+        params.extend([like, like, like])
 
-    # Count total
-    cur.execute(f"SELECT COUNT(*) AS cnt FROM ({base_query}) AS sub", params)
+    # -----------------------
+    # Count Query (NO LIMIT!)
+    # -----------------------
+    count_sql = f"SELECT COUNT(*) AS cnt FROM data {where}"
+    cur.execute(count_sql, tuple(params))
     total = cur.fetchone()['cnt']
 
-    # Pagination
+    # -----------------------
+    # Data Query with LIMIT
+    # -----------------------
     offset = (page - 1) * per_page
-    base_query += " ORDER BY id DESC LIMIT %s OFFSET %s"
-    params += [per_page, offset]
-    cur.execute(base_query, params)
+    data_sql = f"""
+        SELECT *
+        FROM data
+        {where}
+        ORDER BY id DESC
+        LIMIT %s OFFSET %s
+    """
+
+    data_params = params + [per_page, offset]
+    cur.execute(data_sql, tuple(data_params))
     rows = cur.fetchall()
 
     cur.close()
     conn.close()
 
     return jsonify({'total': total, 'rows': rows})
+
 
 @app.route('/api/invoice/<int:id>')
 def api_invoice(id):
