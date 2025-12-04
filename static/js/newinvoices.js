@@ -1,11 +1,9 @@
  // ===== Dummy data (you will replace with backend data) =====
-    const username = document.getElementById("username").textContent;
-    console.log("Logged in as:", username);
+   const username = document.getElementById("username").textContent;
+console.log("Logged in as:", username);
 
-
-
-    // ===== Populate table =====
-    document.addEventListener('DOMContentLoaded', fetchUserRecords);
+// ===== Populate table =====
+document.addEventListener('DOMContentLoaded', fetchUserRecords);
 
 async function fetchUserRecords() {
   try {
@@ -13,14 +11,19 @@ async function fetchUserRecords() {
     if (!res.ok) throw new Error('Failed to fetch user records');
 
     const data = await res.json();
-    records = data || [];
-    renderTable(records);
+
+    // 🔥 Update total records on top
+    document.getElementById("totalCount").textContent = data.total || 0;
+
+    // 🔥 Rows to render
+    const rows = data.rows || [];
+
+    renderTable(rows);
 
   } catch (err) {
     console.error("Error loading data:", err);
   }
 }
-
 
     document.getElementById("globalSearch").addEventListener("keyup", (e) => {
       if (e.key === "Enter") globalSearch();

@@ -400,22 +400,37 @@ def get_user_invoice(id):
     user_id = id
 
     conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)  # ✅ use dictionary cursor
+    cursor = conn.cursor(dictionary=True)
 
+    # Fetch rows
     cursor.execute("""
-        SELECT id, invoice_no, item_name, qty, unit_rate,igst,sgst, cgst, total,
+        SELECT id, invoice_no, item_name, qty, unit_rate, igst, sgst, cgst, total,
                contact_person, company_name, state, gst_no
         FROM data
         WHERE user_id = %s
-       AND locked = TRUE
+          AND locked = TRUE
     """, (user_id,))
-
+    
     rows = cursor.fetchall()
+
+    # Count rows
+    cursor.execute("""
+        SELECT COUNT(*) AS total
+        FROM data
+        WHERE user_id = %s
+          AND locked = TRUE
+    """, (user_id,))
+    
+    total_count = cursor.fetchone()['total']
 
     cursor.close()
     conn.close()
-    # ✅ rows is already a list of dictionaries — no need for dict(row)
-    return jsonify(rows)
+
+    return jsonify({
+        "total": total_count,
+        "rows": rows
+    })
+
 
 @app.route('/api/invoices/search')
 def api_invoices_search():
