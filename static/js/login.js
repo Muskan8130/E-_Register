@@ -66,17 +66,21 @@ if (value === "light") {
  //---------------------------------new them script-----------------------------------/
  //----------------------------game-------------------------------------------/
  const words = [
-      "task", "write", "cool", "app", "tree", "type", "free", "invoice", "balance",
-      "billing", "statement", "account", "audit", "finance", "budget", "profit", "expense", "ledger", "cashflow",
-      "project", "software", "hardware", "contract", "agreement", "shipment", "delivery", "tracking", "approval",
-      "manager", "report", "system", "data", "network", "security", "storage", "backup", "encryption", "user",
-      "password", "email", "database", "server", "website", "design", "analysis", "testing", "support", "developer",
-      "integration", "deployment", "update", "performance", "speed", "optimization", "client", "provider", "resource",
-      "team", "meeting", "schedule", "goal", "objective", "training", "feedback", "productivity", "innovation",
-      "strategy", "planning", "execution", "leadership", "collaboration", "communication", "marketing", "sales",
-      "brand", "promotion", "advertisement", "customer", "growth", "target", "market", "competition", "product",
-      "service", "solution", "feature", "quality", "design", "experience", "review", "rating", "satisfaction",
-      "engagement", "trend", "vision", "mission", "value", "culture", "ethics", "teamwork", "creativity"
+      "game","write","cool","app","box", "mix","task","film", "bank",
+  "sky", "gym",  "wax",  "zip", "owl", "jog",
+   "bulb", "cube", "knot", "zinc", "quiz", ,"stamp", "poker", 
+   "glove", "brick", "yield", "quartz", , "zebra", "mango", 
+   "steam","galaxy","oxygen","pocket","temple","velvet","market",
+   "dragon","simple","random","parent","plastic","pumpkin",
+   "digital","freedom","victory","blanket","journey","harvest","modesty",
+   "old","user","team","winner","email",,"developer","place","joker",
+   "update","logic","speed","client","provider","resource","team","brand",
+   "promotion","advertisement","customer","growth","target",
+   "product","service",,"solution","feature","quality","design",
+    "experience","review","rating","trend",
+    "experience","review","rating","satisfaction","engagement","trend",
+    "vision","mission","value","culture","ethics","teamwork",
+    "flow","project","software","hardware","leader"
     ];
 
     let currentIndex = 0;

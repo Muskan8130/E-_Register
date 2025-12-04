@@ -651,20 +651,21 @@ document.addEventListener("click", async (e) => {
  * GAME MODAL
  ********************************************/
 const words2 = [
-    "game","write","cool","app","tree","type","free","submit","task",
-    "brave","good","allow","audit","extra","budget","profit","expense",
-    "print","flow","project","software","hardware","leader","key","honest",
-    "search","tracking","reverse","manager","report","system","data",
-    "network","security","storage","backup","old","user","password",
-    "email","database","server","website","design","analysis","testing",
-    "support","developer","place","joker","update","logic","speed","client",
-    "provider","resource","team","meeting","schedule","goal","objective",
-    "training","feedback","productivity","innovation","strategy","planning",
-    "execution","leadership","column","communication","market","sales",
-    "brand","promotion","advertisement","customer","growth","target",
-    "competition","product","service","solution","feature","quality","design",
+  "game","write","cool","app","box", "mix","task","film", "bank",
+  "sky", "gym",  "wax",  "zip", "owl", "jog",
+   "bulb", "cube", "knot", "zinc", "quiz", ,"stamp", "poker", 
+   "glove", "brick", "yield", "quartz", , "zebra", "mango", 
+   "steam","galaxy","oxygen","pocket","temple","velvet","market",
+   "dragon","simple","random","parent","plastic","pumpkin",
+   "digital","freedom","victory","blanket","journey","harvest","modesty",
+   "old","user","team","winner","email",,"developer","place","joker",
+   "update","logic","speed","client","provider","resource","team","brand",
+   "promotion","advertisement","customer","growth","target",
+   "product","service",,"solution","feature","quality","design",
+    "experience","review","rating","trend",
     "experience","review","rating","satisfaction","engagement","trend",
-    "vision","mission","value","culture","ethics","teamwork","creativity","winner"
+    "vision","mission","value","culture","ethics","teamwork",
+    "flow","project","software","hardware","leader"
 ];
 
 let currentIndex2 = 0;
