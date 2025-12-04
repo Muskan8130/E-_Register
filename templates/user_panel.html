@@ -169,9 +169,8 @@
 
       /* ----------------edite delte show docs show all btn---------------------------------------*/
    .two-col {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
+      display: flex;
+      gap:5px;
     }
     .form-label {
       font-weight:600;
@@ -587,9 +586,9 @@
    ================================ */
 
 /* Modal should be wide enough */
-#addModal .modal-dialog {
+/* #addModal .modal-dialog {
   max-width: 1000px !important;
-}
+} */
 
 /* Modal body padding fix */
 #addModal .modal-body {
@@ -603,8 +602,8 @@
 
 /* Form field uniform width */
 #addModal .form-control {
-  width: 100% !important;
-  max-width: 100%;
+  /* width: 70% !important; */
+  /* max-width: 70%; */
   height: 42px;
   border-radius: 8px;
   border: 1px solid #ddd;
@@ -615,7 +614,7 @@
 #addModal .form-label {
   font-weight: 600;
   color: #222;
-  width: 750px;
+  width: 200px;
 }
 
 /* Better column spacing */
@@ -695,7 +694,7 @@
 
 .customModalBox {
   background: #fff;
-  width: 90%;
+  /* width: 90%; */
   max-width: 1100px;
   max-height: 90vh;
   overflow-y: auto;
@@ -712,7 +711,16 @@
   cursor: pointer;
   color: #000;
 }
+.col {
+  margin-right: 20px;
+}
 
+.col:last-child {
+  margin-right: 0;
+}
+.mb-3{
+  margin-right: 0px;
+}
   </style>
 </head>
 <body>
@@ -824,15 +832,15 @@
       </div>
 
       <form id="invoiceForm">
-        <input type="file" id="docInput" accept=".jpg,.jpeg,.pdf" hidden>
-        <label for="docInput" class="btn" style="background-color:#eeebfa;">Choose Doc</label>
+        <input type="file" id="docInput" accept=".jpg,.jpeg,.pdf" class="form-control">
+      
       </form>
-
+     
       <div id="modalFileMsg" class="muted small ms-2"></div>
 
       <!-- SAME 24 FIELDS EXACTLY -->
       <div class="two-col">
-        <div class="col-md-6">
+        <div class="col">
 
           <div class="mb-3"><label class="form-label">Invoice No.</label><input id="f_invoice_no" class="form-control"></div>
           <div class="mb-3"><label class="form-label">Item Name</label><input id="f_item_name" class="form-control"></div>
@@ -849,7 +857,7 @@
 
         </div>
 
-        <div class="col-md-6">
+        <div class="col">
 
           <div class="mb-3"><label class="form-label">Invoice Date</label><input id="f_invoice_date" class="form-control"></div>
           <div class="mb-3"><label class="form-label">Item Description</label><input id="f_description" class="form-control"></div>
