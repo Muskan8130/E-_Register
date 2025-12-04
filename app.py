@@ -399,29 +399,39 @@ def get_user_invoice(id):
 
     user_id = id
 
+    # Read pagination inputs
+    try:
+        page = int(request.args.get("page", 1))
+        per_page = int(request.args.get("per_page", 10))
+    except:
+        page = 1
+        per_page = 10
+
+    offset = (page - 1) * per_page
+
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Fetch rows
+    # ---- Total Records ----
+    cursor.execute("""
+        SELECT COUNT(*) AS total
+        FROM data
+        WHERE user_id = %s AND locked = TRUE
+    """, (user_id,))
+    
+    total_count = cursor.fetchone()['total']
+
+    # ---- Paged Records ----
     cursor.execute("""
         SELECT id, invoice_no, item_name, qty, unit_rate, igst, sgst, cgst, total,
                contact_person, company_name, state, gst_no
         FROM data
-        WHERE user_id = %s
-          AND locked = TRUE
-    """, (user_id,))
+        WHERE user_id = %s AND locked = TRUE
+        ORDER BY id DESC
+        LIMIT %s OFFSET %s
+    """, (user_id, per_page, offset))
     
     rows = cursor.fetchall()
-
-    # Count rows
-    cursor.execute("""
-        SELECT COUNT(*) AS total
-        FROM data
-        WHERE user_id = %s
-          AND locked = TRUE
-    """, (user_id,))
-    
-    total_count = cursor.fetchone()['total']
 
     cursor.close()
     conn.close()

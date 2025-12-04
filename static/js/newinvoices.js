@@ -1,132 +1,168 @@
- // ===== Dummy data (you will replace with backend data) =====
-   const username = document.getElementById("username").textContent;
+// ========= Pagination Variables =========
+let page = 1;
+let per_page = 10;
+let total = 0;
+
+// Logged in user
+const username = document.getElementById("username").textContent;
 console.log("Logged in as:", username);
 
-// ===== Populate table =====
-document.addEventListener('DOMContentLoaded', fetchUserRecords);
+// ========= Load Data on Start =========
+document.addEventListener("DOMContentLoaded", () => {
+    fetchUserRecords();
+});
 
+/*---------------------------------------------------------
+    FETCH USER RECORDS WITH PAGINATION
+----------------------------------------------------------*/
 async function fetchUserRecords() {
-  try {
-    const res = await fetch(`/get_user_invoice/${USER_ID}`);
-    if (!res.ok) throw new Error('Failed to fetch user records');
+    try {
+        const res = await fetch(`/get_user_invoice/${USER_ID}?page=${page}&per_page=${per_page}`);
+        if (!res.ok) throw new Error("Failed to fetch user records");
 
-    const data = await res.json();
+        const data = await res.json();
 
-    // 🔥 Update total records on top
-    document.getElementById("totalCount").textContent = data.total || 0;
+        total = data.total || 0;
 
-    // 🔥 Rows to render
-    const rows = data.rows || [];
+        renderTable(data.rows || []);
+        renderPager();  
 
-    renderTable(rows);
+        document.getElementById("totalCount").textContent = total;
 
-  } catch (err) {
-    console.error("Error loading data:", err);
-  }
+    } catch (err) {
+        console.error("Error loading data:", err);
+    }
 }
 
-    document.getElementById("globalSearch").addEventListener("keyup", (e) => {
-      if (e.key === "Enter") globalSearch();
-    });
+/*---------------------------------------------------------
+    RENDER PAGINATION
+----------------------------------------------------------*/
+function renderPager() {
+    const pages = Math.ceil(total / per_page) || 1;
+    const p = document.getElementById("invPager");
+
+    p.innerHTML = "";
+
+    for (let i = 1; i <= pages; i++) {
+        const li = document.createElement("li");
+        li.className = `page-item ${i === page ? "active" : ""}`;
+        li.innerHTML = `<a href="#" class="page-link" onclick="goto(${i}); return false;">${i}</a>`;
+        p.appendChild(li);
+    }
+}
+
+function goto(p) {
+    page = p;
+    fetchUserRecords();
+}
 
 
-    async function globalSearch() {
-      try {
-        const q = (document.getElementById("globalSearch").value || '').trim();
+/*---------------------------------------------------------
+    SEARCH FUNCTION (SUPPORTS PAGINATION ALSO)
+----------------------------------------------------------*/
+document.getElementById("globalSearch").addEventListener("keyup", (e) => {
+    if (e.key === "Enter") globalSearch();
+});
 
-        // if empty, call fetchUsers() to restore full (unfiltered) table
+async function globalSearch() {
+    try {
+        const q = (document.getElementById("globalSearch").value || "").trim();
+
         if (!q) {
-          page = 1;
-          return fetchUserRecords(page);
+            page = 1;
+            return fetchUserRecords();
         }
 
         const res = await fetch(`/api/invoices/search?q=${encodeURIComponent(q)}`);
         const json = await res.json();
 
-        // Support both response shapes:
-        // 1) { status: "ok", rows: [...] } OR
-        // 2) { total: X, rows: [...] } OR  { total, rows } without status
         const rows = json.rows || [];
+
         if (rows.length === 0) {
-          document.getElementById("tableBody").innerHTML = "<tr><td colspan='7'>No users found</td></tr>";
+            document.getElementById("tableBody").innerHTML =
+                "<tr><td colspan='12'>No users found</td></tr>";
         } else {
-          renderTable(rows);
+            renderTable(rows);
         }
-      } catch (err) {
+
+        // Hide pagination while search is active
+        document.getElementById("invPager").innerHTML = "";
+    } catch (err) {
         console.error("Search error:", err);
-        document.getElementById("tableBody").innerHTML = "<tr><td colspan='7'>Error searching users</td></tr>";
-      }
+        document.getElementById("tableBody").innerHTML =
+            "<tr><td colspan='12'>Error searching users</td></tr>";
     }
-
-   function renderTable(rows) {
-  const tbody = document.getElementById('tableBody');
-  tbody.innerHTML = '';
-
-  if (rows.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="12">No users found</td></tr>';
-    return;
-  }
-
-  rows.forEach(r => {
-    const tr = document.createElement('tr');
-
-    // Detect UP state
-    const st = (r.state || '').toLowerCase().trim();
-    const isUP = (st === 'up' || st === 'uttar pradesh' || st === 'uttarpradesh');
-
-    // Create GST dynamic HTML
-    let gstHTML = "";
-    if (isUP) {
-      gstHTML = `<strong>IGST:</strong> ${r.igst || 0}`;
-    } else {
-      gstHTML = `
-        <div><strong>SGST:</strong> ${r.sgst || 0}</div>
-        <div><strong>CGST:</strong> ${r.cgst || 0}</div>
-      `;
-    }
-
-    tr.innerHTML = `
-      <td>${r.invoice_no || ''}</td>
-      <td>${r.item_name || ''}</td>
-      <td>${r.qty || ''}</td>
-      <td>${r.unit_rate || ''}</td>
-
-      <!-- SINGLE GST Column (Dynamic) -->
-      <td>${gstHTML}</td>
-
-      <td>${r.total || ''}</td>
-      <td>${r.contact_person || ''}</td>
-      <td>${r.company_name || ''}</td>
-      <td>${r.state || ''}</td>
-      <td>${r.gst_no || ''}</td>
-
-      <td class="actions-btns">
-        <button class="btn btn-sm btn-info" onclick="viewMore(${r.id})">View More</button>
-        <button class="btn btn-sm btn-warning" onclick="viewDoc(${r.id})">View Doc</button>
-      </td>
-    `;
-
-    tbody.appendChild(tr);
-  });
 }
 
-    // ===== Show All =====
-    function showAll(i) {
-      alert("Show all data for invoice: " + invoiceData[i].invoiceNo);
-      // You can open a detail page or modal for complete info
+/*---------------------------------------------------------
+    RENDER TABLE
+----------------------------------------------------------*/
+function renderTable(rows) {
+    const tbody = document.getElementById("tableBody");
+    tbody.innerHTML = "";
+
+    if (rows.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='12'>No users found</td></tr>";
+        return;
     }
 
-    async function viewMore(id) {
-      console.log(id)
-      const res = await fetch(`/api/invoice/${id}`);
-      const j = await res.json();
+    rows.forEach((r) => {
+        const tr = document.createElement("tr");
 
-      if (j.error) {
+        const st = (r.state || "").toLowerCase().trim();
+        const isUP =
+            st === "up" ||
+            st === "uttar pradesh" ||
+            st === "uttarpradesh";
+
+        let gstHTML = "";
+        if (isUP) {
+            gstHTML = `<strong>IGST:</strong> ${r.igst || 0}`;
+        } else {
+            gstHTML = `
+                <div><strong>SGST:</strong> ${r.sgst || 0}</div>
+                <div><strong>CGST:</strong> ${r.cgst || 0}</div>
+            `;
+        }
+
+        tr.innerHTML = `
+            <td>${r.invoice_no || ""}</td>
+            <td>${r.item_name || ""}</td>
+            <td>${r.qty || ""}</td>
+            <td>${r.unit_rate || ""}</td>
+
+            <td>${gstHTML}</td>
+
+            <td>${r.total || ""}</td>
+            <td>${r.contact_person || ""}</td>
+            <td>${r.company_name || ""}</td>
+            <td>${r.state || ""}</td>
+            <td>${r.gst_no || ""}</td>
+
+            <td class="actions-btns">
+                <button class="btn btn-sm btn-info" onclick="viewMore(${r.id})">View More</button>
+                <button class="btn btn-sm btn-warning" onclick="viewDoc(${r.id})">View Doc</button>
+            </td>
+        `;
+
+        tbody.appendChild(tr);
+    });
+
+  }
+
+/*---------------------------------------------------------
+    VIEW MORE
+----------------------------------------------------------*/
+async function viewMore(id) {
+    const res = await fetch(`/api/invoice/${id}`);
+    const j = await res.json();
+
+    if (j.error) {
         alert("Invoice not found.");
         return;
-      }
+    }
 
-      let details = `
+    let details = `
 USER ID: ${j.user_id || "—"}
 INVOICE NO: ${j.invoice_no || "—"}
 INVOICE DATE: ${j.invoice_date || "—"}
@@ -156,11 +192,12 @@ DOCUMENT: ${j.doc_filename || "—"}
 CREATED AT: ${j.created_at || "—"}
 `;
 
-      alert(details);
-    }
+    alert(details);
+}
 
-/*-------------view document-----------------*/
-
+/*---------------------------------------------------------
+    VIEW DOCUMENT
+----------------------------------------------------------*/
 async function viewDoc(id) {
- window.open(`/invoice_doc/${id}`, "_blank");
+    window.open(`/invoice_doc/${id}`, "_blank");
 }
