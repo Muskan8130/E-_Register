@@ -42,6 +42,18 @@ const FIELD_KEYS = [
     "bank_acc","bank_ifsc","bank_name"
 ];
 
+// === UPDATE excelRows WHEN USER EDITS ANY INPUT ===
+FIELD_KEYS.forEach(k => {
+    const el = document.getElementById("f_" + k);
+    if (el) {
+        el.addEventListener("input", () => {
+            if (excelRows[currentIndex]) {
+                excelRows[currentIndex][k] = el.value;
+            }
+        });
+    }
+});
+
 
 
 /********************************************
