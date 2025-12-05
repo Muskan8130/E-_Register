@@ -106,7 +106,7 @@ document.getElementById('editForm').addEventListener('submit', async (e) => {
 
     async function deleteUser(id) {
       if (!confirm('Delete this user?')) return;
-      const res = await fetch(`/master/user/${id}/delete`, { method:'POST' });
+      const res = await fetch(`/admin/user/${id}/delete`, { method:'POST' });
       const json = await res.json();
       fetchUsers();
     }
@@ -209,7 +209,7 @@ async function globalSearch() {
   formData.append("password", password);
 
   try {
-    const res = await fetch("/master/create_user", {
+    const res = await fetch("/admin/create_user", {
       method: "POST",
       body: formData
     });
@@ -365,7 +365,7 @@ window.addEventListener("click", (e) => {
 // theme modal
 // ----------------- THEME SWITCHER -----------------
 // ----------------- FULL THEME SWITCHER -----------------
-const themeMaster = document.getElementById("themeMaster");
+const themeadmin = document.getElementById("themeadmin");
 
 function applyLightTheme() {
     // Body + Header
@@ -502,9 +502,9 @@ function applyDefaultTheme() {
     });
 }
 
-if (themeMaster) {
-    themeMaster.addEventListener("change", () => {
-        const theme = themeMaster.value;
+if (themeadmin) {
+    themeadmin.addEventListener("change", () => {
+        const theme = themeadmin.value;
 
         if (theme === "dark") applyDarkTheme();
         else if (theme === "light") applyLightTheme();

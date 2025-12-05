@@ -757,21 +757,21 @@ window.addEventListener("click", (e) => {
  * THEME SWITCHER
  ********************************************/
 /********************************************
- * THEME SYSTEM — EXACT SAME AS MASTER PAGE
+ * THEME SYSTEM — EXACT SAME AS admin PAGE
  * NO CSS REQUIRED — ONLY PURE JS
  ********************************************/
-const themeMaster = document.getElementById("themeMaster");
+const themeadmin = document.getElementById("themeadmin");
 
 // Apply saved theme when page loads
 document.addEventListener("DOMContentLoaded", () => {
     const savedTheme = localStorage.getItem("userTheme") || "default";
-    themeMaster.value = savedTheme;
+    themeadmin.value = savedTheme;
     applyTheme(savedTheme);
 });
 
 // Watch for dropdown change
-if (themeMaster) {
-    themeMaster.addEventListener("change", function () {
+if (themeadmin) {
+    themeadmin.addEventListener("change", function () {
         applyTheme(this.value);
         localStorage.setItem("userTheme", this.value);
     });
@@ -831,7 +831,7 @@ function applyTheme(theme) {
     }
 
     else {
-        // DEFAULT (same as master page)
+        // DEFAULT (same as admin page)
         document.body.style.background = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
         document.body.style.color = "#eaf2ff";
 

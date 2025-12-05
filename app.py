@@ -108,12 +108,12 @@ def init_database():
         );
     """)
 
-    # ensure master user exists
-    cur.execute("SELECT user_id FROM users WHERE role='master' LIMIT 1;")
+    # ensure admin user exists
+    cur.execute("SELECT user_id FROM users WHERE role='admin' LIMIT 1;")
     if cur.fetchone() is None:
         pw = bcrypt.hashpw(b"aditya123", bcrypt.gensalt())
         cur.execute("INSERT INTO users (user_id, password_hash, role) VALUES (%s,%s,%s)",
-                    ("adityamaster", pw.decode('utf-8'), "master"))
+                    ("adityaadmin", pw.decode('utf-8'), "admin"))
 
     conn.commit()
     cur.close()
@@ -241,8 +241,8 @@ def normalize_header(h):
 def index():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    if session.get('role') == 'master':
-        return redirect(url_for('master_panel'))
+    if session.get('role') == 'admin':
+        return redirect(url_for('admin_panel'))
     return redirect(url_for('user_panel'))
 
 
@@ -281,8 +281,8 @@ def login_post():
             conn.commit()
             cur.close()
             conn.close()
-            if user['role'] == 'master':
-                return redirect(url_for('master_panel'))
+            if user['role'] == 'admin':
+                return redirect(url_for('admin_panel'))
             else:
                 return redirect(url_for('user_panel'))
 
@@ -297,23 +297,23 @@ def logout():
     return redirect(url_for('login'))
 
 
-# ---------- MASTER PAGES ----------
-@app.route('/master')
-def master_panel():
-    if 'user_id' not in session or session.get('role') != 'master':
+# ---------- admin PAGES ----------
+@app.route('/admin')
+def admin_panel():
+    if 'user_id' not in session or session.get('role') != 'admin':
         return redirect(url_for('login'))
-    return render_template('master.html', master_user=session.get('user_id'))
+    return render_template('admin.html', admin_user=session.get('user_id'))
 
 
-@app.route('/master/invoices')
-def master_invoices_page():
-    if 'user_id' not in session or session.get('role') != 'master':
+@app.route('/admin/invoices')
+def admin_invoices_page():
+    if 'user_id' not in session or session.get('role') != 'admin':
         return redirect(url_for('login'))
     return render_template('invoices.html')
 
 @app.route('/api/invoices')
 def api_get_invoices():
-    if 'user_id' not in session or session.get('role') != 'master':
+    if 'user_id' not in session or session.get('role') != 'admin':
         return jsonify({'error': 'unauthorized'}), 403
 
     # pagination
@@ -512,8 +512,8 @@ def api_invoices_search():
 
 
 
-# ---------- MASTER: CREATE USER ----------
-@app.route('/master/create_user', methods=['POST'])
+# ---------- admin: CREATE USER ----------
+@app.route('/admin/create_user', methods=['POST'])
 def create_user():
     # Accept both form-data keys: user_id or userid and form OR JSON
     userid = request.form.get('user_id') or request.form.get('userid')
@@ -562,7 +562,7 @@ def create_user():
 @app.route('/api/users/search')
 def api_users_search():
     # --- Authorization check ---
-    if 'user_id' not in session or session.get('role') != 'master':
+    if 'user_id' not in session or session.get('role') != 'admin':
         return jsonify({'error': 'unauthorized'}), 403
 
     # --- Get search query ---
@@ -580,7 +580,7 @@ def api_users_search():
         cur.execute("""
             SELECT id, user_id, role, created_at, last_used_at, last_action
             FROM users
-            WHERE role != 'master'
+            WHERE role != 'admin'
               AND (
                     user_id LIKE %s
                  OR role LIKE %s
@@ -592,7 +592,7 @@ def api_users_search():
         cur.execute("""
             SELECT id, user_id, role, created_at, last_used_at, last_action
             FROM users
-            WHERE role != 'master'
+            WHERE role != 'admin'
             ORDER BY id DESC
         """)
 
@@ -607,7 +607,7 @@ def api_users_search():
 
 
 
-# ---------- API: list users (exclude master) ----------
+# ---------- API: list users (exclude admin) ----------
 @app.route('/api/users')
 def api_users():
     try:
@@ -616,7 +616,7 @@ def api_users():
         cur.execute("""
             SELECT id, user_id, role, created_at, last_used_at, last_action
             FROM users
-            WHERE role != 'master'
+            WHERE role != 'admin'
             ORDER BY id DESC
         """)
         rows = cur.fetchall()
@@ -629,10 +629,10 @@ def api_users():
         return jsonify({"status": "error", "message": str(e)})
 
 
-# ---------- MASTER: edit user ----------
+# ---------- admin: edit user ----------
 @app.route('/api/users/<int:user_id>', methods=['GET', 'POST'])
 def manage_user(user_id):
-    if 'user_id' not in session or session.get('role') != 'master':
+    if 'user_id' not in session or session.get('role') != 'admin':
         return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
 
     conn = get_db_connection()
@@ -681,9 +681,9 @@ def manage_user(user_id):
         return jsonify({'status': 'error', 'message': str(e)})
 
 
-# ---------- MASTER: delete user ----------
-@app.route('/master/user/<int:user_id>/delete', methods=['POST'])
-def master_delete_user(user_id):
+# ---------- admin: delete user ----------
+@app.route('/admin/user/<int:user_id>/delete', methods=['POST'])
+def admin_delete_user(user_id):
     try:
         conn = get_db_connection()
         cur = conn.cursor()
