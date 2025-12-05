@@ -535,18 +535,20 @@ body::before {
         <button id="openUsersSection" class="btn btn-success btn-lg">Open Users</button>
       </div>
 
-
-
-
-
-      
       <div class="box">
-        <h3>User Panel (All Invoices)</h3>
-        <p class="muted">View invoice data across users — search, export, view docs</p>
-        <a class="btn btn-warning btn-lg" href="{{ url_for('admin_invoices_page') }}" id="Admin">Open Admin Panel</a>
+        <h3>All User </h3>
+        <p class="muted">Data across users — search, export, view docs</p>
+        <a class="btn btn-warning btn-lg" href="{{ url_for('admin_invoices_page') }}" id="Admin">Open Panel</a>
+      </div>
+
+      <div class="box">
+        <h3>All Company </h3>
+        <p class="muted">Data across company — search, view docs</p>
+        <a class="btn btn-warning btn-lg" href="{{ url_for('admin_company_page') }}" id="Admin">Open Panel</a>
       </div>
     </div>
   </div>
+  
 
   <!-- USERS SECTION -->
   <div id="usersSection">

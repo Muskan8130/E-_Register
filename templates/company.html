@@ -116,7 +116,7 @@ th, td {
 
   <div class="header-left">
      <h2 style="margin:0;">Company Details</h2>
-     <div class="small-muted">Logged in as: {{ master_user }}</div>
+     <div class="small-muted">Logged in as:<span id="loggedUserName">{{ session['user_id'] }}</span></div>
       </div>
   <input type="text" id="companySearch" class="search-input" placeholder="Search companies…">
  
@@ -140,7 +140,7 @@ th, td {
   </table>
 </div>
 
-<script src="company.js"></script>
+<script src="{{ url_for('static', filename='js/company.js') }}"></script>
 
 </body>
 </html>

@@ -634,7 +634,7 @@ def api_users():
         cur.execute("""
             SELECT id, user_id, role, created_at, last_used_at, last_action
             FROM users
-            WHERE role != 'admin'
+            WHERE role = 'user'
             ORDER BY id DESC
         """)
         rows = cur.fetchall()
@@ -841,7 +841,7 @@ def delete_admin():
         conn = get_db_connection()
         cur = conn.cursor()
 
-        cur.execute("DELETE FROM users WHERE user_id=%s AND role='user'", (userid,))
+        cur.execute("DELETE FROM users WHERE user_id=%s AND role='admin'", (userid,))
         conn.commit()
 
         cur.close()
@@ -850,8 +850,84 @@ def delete_admin():
         return jsonify({"status": "success", "message": f"Deleted '{userid}'"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})
+    
+#------------------------------------------
+#-------------company page ----------------
+#------------------------------------------
 
+@app.route('/admin/company')
+def admin_company_page():
+    if 'user_id' not in session or session.get('role') != 'admin':
+        return redirect(url_for('login'))
+    return render_template('company.html')
+
+@app.route('/api/company_list')
+def api_company_list():
+    conn = get_db_connection()
+    cur = conn.cursor(dictionary=True)
+
+    cur.execute("""
+        SELECT 
+            company_name AS name,
+            address,
+            state,
+            contact_phone AS contact
+        FROM data
+        GROUP BY company_name, address, state, contact_phone
+    """)
+
+    rows = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return jsonify({"status": "ok", "companies": rows})
+
+
+@app.route('/api/company_search')
+def api_company_search():
+    q = request.args.get("q", "").strip().lower()
+
+    if q == "":
+        return jsonify({"status": "error", "message": "Query required"}), 400
+
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor(dictionary=True)
+
+        like = f"%{q}%"
+
+        cur.execute("""
+            SELECT 
+                company_name AS name,
+                address,
+                state,
+                contact_phone AS contact
+            FROM data
+            WHERE 
+                LOWER(company_name) LIKE %s OR
+                LOWER(address) LIKE %s OR
+                LOWER(state) LIKE %s OR
+                LOWER(contact_phone) LIKE %s
+            GROUP BY company_name, address, state, contact_phone
+            ORDER BY company_name ASC
+        """, (like, like, like, like))
+
+        rows = cur.fetchall()
+
+        cur.close()
+        conn.close()
+
+        return jsonify({"status": "ok", "companies": rows})
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
+
+
+#--------------------------------------
 # ---------- USER PANEL page ----------
+#--------------------------------------
+
 @app.route('/user_panel')
 def user_panel():
     if 'user_id' not in session:
