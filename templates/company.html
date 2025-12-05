@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Company Details</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+
+/* ---------- GLOBAL THEME (same as master) ---------- */
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #eaf2ff;
+  min-height: 100vh;
+}
+
+/* ---------- HEADER ---------- */
+.header {
+  height: 70px;
+  background: #f2f6f6;
+  padding: 18px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: black;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.header-left {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;   
+  gap: 12px;       
+}
+
+.logged-user {
+  font-size: 14px;
+  color: #444;
+}
+
+/* Search Bar */
+.search-input {
+  margin-left: 800px;
+  padding: 10px;
+  width: 300px;
+  border-radius: 8px;
+  border: 1px solid #aaa;
+  font-size: 14px;
+  color: black;
+  background: white;
+}
+.search-input:focus{
+outline: none;
+  border-color: #5c7cfa;
+  box-shadow: 0 0 8px rgba(92, 124, 250, 0.5);  /* soft glow */
+}
+/* Back Button */
+.back-btn {
+  padding: 10px 18px;
+  background: linear-gradient(90deg, #ff8a8a, #ff5b5b);
+  color: white !important;
+  border: none !important;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.back-btn:hover{
+  background: linear-gradient(90deg, #ffb2b2, #ff6f6f);
+  color: black !important;
+}
+/* ---------- TABLE SECTION ---------- */
+.table-box {
+  padding: 25px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  color: black;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+thead {
+  background: #a7c9f9;
+}
+th, td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.action-btn {
+  padding: 8px 15px;
+  background: #23449f;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.action-btn:hover {
+  background: #1a3180;
+}
+ 
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+
+  <div class="header-left">
+     <h2 style="margin:0;">Company Details</h2>
+     <div class="small-muted">Logged in as: {{ master_user }}</div>
+      </div>
+  <input type="text" id="companySearch" class="search-input" placeholder="Search companies…">
+ 
+  <button class="back-btn" onclick="goBack()">⬅ Back</button>
+
+</div>
+
+<!-- TABLE SECTION -->
+<div class="table-box">
+  <table id="companyTable">
+    <thead>
+      <tr>
+        <th>Company Name</th>
+        <th>Address</th>
+        <th>State</th>
+        <th>Contact Number</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<script src="company.js"></script>
+
+</body>
+</html>
