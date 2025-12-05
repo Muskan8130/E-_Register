@@ -4,107 +4,480 @@
 <meta charset="UTF-8">
 <title>Master Panel 2 — Admin Manager</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
 /* ---------------- GLOBAL THEME ---------------- */
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: #eaf2ff;
   min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Animated Background Circles */
+.bg-decoration {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  animation: float 20s infinite ease-in-out;
+}
+
+.circle:nth-child(1) {
+  width: 300px;
+  height: 300px;
+  top: -150px;
+  left: -150px;
+  animation-delay: 0s;
+}
+
+.circle:nth-child(2) {
+  width: 200px;
+  height: 200px;
+  top: 50%;
+  right: -100px;
+  animation-delay: 3s;
+}
+
+.circle:nth-child(3) {
+  width: 150px;
+  height: 150px;
+  bottom: -75px;
+  left: 30%;
+  animation-delay: 6s;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) translateX(0px); }
+  50% { transform: translateY(-30px) translateX(30px); }
+}
+
+/* Main Content */
+.main-content {
+  position: relative;
+  z-index: 1;
 }
 
 /* Header */
 .header {
-  background: #f2f6f6;
-  padding: 18px 30px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 20px 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: black;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  color: #1a202c;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.logo-icon {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.header-title h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .small-muted {
-  font-size: 14px;
-  color: #333;
+  font-size: 20px;
+  color: #718096;
   margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.small-muted i {
+  font-size: 11px;
+}
+
+/* Header Right */
+.header-right {
+  display: flex;
+  gap: 12px;
+  align-items: center;
 }
 
 /* Theme select */
 .theme-box {
-  background: #acb8dd;
-  padding: 6px 12px;
-  border-radius: 10px;
+  height: 45px;
+      background: rgb(214, 185, 230);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      padding: 10px 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .theme-box select {
-  border: none;
-  padding: 6px;
-  border-radius: 8px;
+    padding: 6px 12px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      background: rgba(255, 255, 255, 0.9);
+      color: #1a1a2e;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+}
+
+/* Stats Bar */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  padding: 30px 40px 20px 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 20px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.stat-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  color: white;
+}
+
+.stat-icon.blue {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.stat-icon.green {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+.stat-icon.orange {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.stat-info h4 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a202c;
+}
+
+.stat-info p {
+  margin: 4px 0 0 0;
+  font-size: 13px;
+  color: #718096;
+  font-weight: 500;
+}
+
+/* Welcome Section */
+.welcome-section {
+  padding: 20px 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.welcome-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  position: relative;
+  overflow: hidden;
+}
+
+.welcome-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 300px;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border-radius: 0 16px 16px 0;
+}
+
+.welcome-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  color: white;
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+  z-index: 1;
+}
+
+.welcome-text {
+  flex: 1;
+  z-index: 1;
+}
+
+.welcome-text h3 {
+  margin: 0 0 8px 0;
+  font-size: 24px;
+  color: #1a202c;
+}
+
+.welcome-text p {
+  margin: 0;
+  color: #718096;
+  font-size: 15px;
+  line-height: 1.6;
 }
 
 /* Panel Grid */
 .panel-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 25px;
-  padding: 25px;
+  padding: 25px 40px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .box {
-  background: #f1fdff;
-  padding: 22px;
-  border-radius: 12px;
-  color: #000;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-  transition: 0.3s;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 30px;
+  border-radius: 16px;
+  color: #1a202c;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
-.box:hover { transform: translateY(-5px); }
+
+.box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+}
+
+.box:hover { 
+  transform: translateY(-8px); 
+  box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+}
+
+.box-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+
+.box h3 {
+  margin: 0 0 10px 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.box p {
+  margin: 0 0 20px 0;
+  color: #718096;
+  font-size: 14px;
+  line-height: 1.5;
+}
 
 /* Buttons */
 .btn {
-  padding: 12px 18px;
-  border-radius: 8px;
+  padding: 12px 24px;
+  border-radius: 10px;
   font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
   border: none;
   margin-top: 10px;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  justify-content: center;
 }
 
-.btn-primary { background: #23449f; color: #fff; }
-.btn-success { background: #00a98e; color: white; }
+.btn i {
+  font-size: 16px;
+}
+
+.btn-primary { 
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-success { 
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(17, 153, 142, 0.3);
+}
+
+.btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(17, 153, 142, 0.4);
+}
 
 .btn-danger {
-  background: #d63b3b;
+  background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
   color: white;
-  padding: 10px 16px;
-  border-radius: 8px;
+  padding: 10px 20px;
+  border-radius: 10px;
   cursor: pointer;
   border: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(235, 51, 73, 0.4);
 }
 
 /* Table */
 .table-box {
-  padding: 25px;
+  padding: 25px 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.table-wrapper {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.table-header h3 {
+  margin: 0;
+  font-size: 22px;
+  color: #1a202c;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  color: black;
+  color: #1a202c;
   background: white;
   border-radius: 10px;
   overflow: hidden;
 }
 
 thead {
-  background: #a7c9f9;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
 }
+
 th, td {
-  padding: 12px;
-  border-bottom: 1px solid #eee;
+  padding: 16px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+th {
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+tbody tr {
+  transition: background 0.2s ease;
+}
+
+tbody tr:hover {
+  background: #f7fafc;
 }
 
 /* Modal */
@@ -112,143 +485,318 @@ th, td {
   display: none;
   position: fixed;
   z-index: 10000;
-  left: 0; top: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.5);
+  left: 0; 
+  top: 0;
+  width: 100%; 
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(5px);
   justify-content: center;
   align-items: center;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .modal-content {
   background: white;
-  width: 350px;
-  padding: 20px;
-  border-radius: 10px;
-  color: black;
+  width: 90%;
+  max-width: 400px;
+  padding: 30px;
+  border-radius: 16px;
+  color: #1a202c;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .close {
-  float: right;
-  font-size: 20px;
+  font-size: 28px;
   cursor: pointer;
+  color: #718096;
+  transition: color 0.2s ease;
+  line-height: 1;
+}
+
+.close:hover {
+  color: #1a202c;
 }
 
 /* Inputs */
 input {
   width: 100%;
-  padding: 10px;
-  margin-top: 8px;
-  border-radius: 8px;
-  border: 1px solid #aaa;
+  padding: 12px 15px;
+  margin-top: 12px;
+  border-radius: 10px;
+  border: 2px solid #e2e8f0;
+  font-size: 15px;
+  transition: border-color 0.3s ease;
+  outline: none;
 }
 
-/* Game Modal */
-#gameModal2 .modal-content {
-  width: 90%;
-  max-width: 400px;
-  text-align: center;
+input:focus {
+  border-color: #667eea;
+}
+
+input::placeholder {
+  color: #a0aec0;
 }
 
 /* Game Button */
 .game-btn {
   background: #007bff;
-  color: white;
-  padding: 10px 18px;
-  border-radius: 8px;
-  cursor: pointer;
+  color: #fff;
   border: none;
-  height: 40px;
+  padding: 10px 25px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  height: 40px;                    /* SAME size as login page button */
+  display: inline-flex;
+  align-items: center;
+}
+
+.game-btn:hover {
+  background: #0056b3;
+  transform: scale(1.05);
+
+  box-shadow: 0 6px 20px rgba(240, 147, 251, 0.4);
+}
+
+#createAdminSubmit {
+  margin-top: 20px;
+}
+
+#adminMsg, #message2 {
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
+}
+
+#scrambledWord2 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #667eea;
+  margin: 20px 0;
+  letter-spacing: 4px;
+}
+
+#userAnswer2 {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+#progress2 {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #718096;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 15px;
+    padding: 20px;
+  }
+  
+  .header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .panel-grid {
+    grid-template-columns: 1fr;
+    padding: 20px;
+  }
+  
+  .stats-bar {
+    grid-template-columns: 1fr;
+    padding: 20px;
+  }
+  
+  .welcome-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .table-box {
+    padding: 20px;
+  }
+  
+  table {
+    font-size: 13px;
+  }
+  
+  th, td {
+    padding: 10px;
+  }
 }
 </style>
 </head>
 
 <body>
 
+<!-- Animated Background -->
+<div class="bg-decoration">
+  <div class="circle"></div>
+  <div class="circle"></div>
+  <div class="circle"></div>
+</div>
+
+<div class="main-content">
+
+<!-- Header -->
 <div class="header">
-  <div>
-    <h2 style="margin:0;">Master Panel 2</h2>
-    <div class="small-muted">Signed in as: {{ master_user }}</div>
+  <div class="header-left">
+    <div class="logo-icon">
+      <i class="fas fa-crown"></i>
+    </div>
+    <div class="header-title">
+      <h2>Master Panel </h2>
+      <div class="small-muted">
+        <i class="fas fa-circle" style="color: #48bb78;"></i>
+        Signed in as: <strong>{{ master_user }}</strong>
+      </div>
+    </div>
   </div>
 
-  <div style="display:flex; gap:12px; align-items:center">
-
-    <!-- LOGOUT BUTTON ADDED -->
-    <button id="logoutBtn" class="btn-danger">Logout</button>
-
-    <button id="gameBtn" class="game-btn">🎮 Play Game</button>
+  <div class="header-right">
+    
+    <button id="gameBtn" class="game-btn">
+      <i class="fas fa-gamepad"></i> Play Game
+    </button>
 
     <div class="theme-box">
-      Theme:
+      <i class="fas fa-palette"></i>
       <select id="themeMaster2">
         <option value="default">Default</option>
         <option value="light">Light</option>
         <option value="dark">Dark</option>
       </select>
     </div>
+    <button id="logoutBtn" class="btn-danger">
+      <i class="fas fa-sign-out-alt"></i> Logout
+    </button>
 
   </div>
 </div>
 
-<!-- GRID BOXES -->
+
+
+<!-- Panel Grid -->
 <div class="panel-grid">
 
   <div class="box">
+    <div class="box-icon">
+      <i class="fas fa-user-plus"></i>
+    </div>
     <h3>Create Admin</h3>
-    <button id="createAdminBtn" class="btn btn-primary">Create Admin</button>
+    <p>Add new administrators to your system with secure credentials and instant activation.</p>
+    <button id="createAdminBtn" class="btn btn-primary">
+      <i class="fas fa-plus-circle"></i> Create New Admin
+    </button>
   </div>
 
-  <div class="box">
-    <h3>Show Admins</h3>
-    <button id="showAdminsBtn" class="btn btn-success">Show Admin List</button>
+  <div class="box" id="xyz">
+    <div class="box-icon">
+      <i class="fas fa-list-ul"></i>
+    </div>
+    <h3>Admin Directory</h3>
+    <p>View and manage all administrators in your system with detailed information and controls.</p>
+    <button id="showAdminsBtn" class="btn btn-success">
+      <i class="fas fa-eye"></i> View Admin List
+    </button>
   </div>
 
 </div>
 
-<!-- TABLE SECTION (HIDDEN BY DEFAULT) -->
+<!-- Table Section -->
 <div class="table-box" id="adminTableBox" style="display:none;">
-  <table id="adminTable">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Admin Username</th>
-        <th>Created At</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <div class="table-wrapper">
+    <div class="table-header">
+      <h3><i class="fas fa-users"></i> Administrator Management</h3>
+    </div>
+    <table id="adminTable">
+      <thead>
+        <tr>
+          <th>S.No</th>
+          <th>Admin Username</th>
+          <th>Created At</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 </div>
 
-<!-- CREATE ADMIN MODAL -->
+</div>
+
+<!-- Create Admin Modal -->
 <div id="createAdminModal" class="modal">
   <div class="modal-content">
-    <span class="close" id="closeAdminModal">&times;</span>
-    <h3>Create Admin</h3>
+    <div class="modal-header">
+      <h3><i class="fas fa-user-shield"></i> Create Admin</h3>
+      <span class="close" id="closeAdminModal">&times;</span>
+    </div>
 
     <input type="text" id="adminUsername" placeholder="Enter Username">
     <input type="password" id="adminPassword" placeholder="Enter Password">
 
-    <button class="btn btn-primary" id="createAdminSubmit">Create</button>
+    <button class="btn btn-primary" id="createAdminSubmit">
+      <i class="fas fa-check-circle"></i> Create Admin
+    </button>
 
-    <div id="adminMsg" style="margin-top:10px;"></div>
+    <div id="adminMsg"></div>
   </div>
 </div>
 
-<!-- GAME MODAL -->
+<!-- Game Modal -->
 <div id="gameModal2" class="modal">
   <div class="modal-content">
-    <span class="close" id="closeGameModal">&times;</span>
+    <div class="modal-header">
+      <h3><i class="fas fa-puzzle-piece"></i> Unscramble the Word</h3>
+      <span class="close" id="closeGameModal">&times;</span>
+    </div>
 
-    <h3>Unscramble the Word</h3>
     <div id="scrambledWord2"></div>
     <input type="text" id="userAnswer2" placeholder="Your Answer">
-    <button class="btn btn-success" id="submitGame2">Submit</button>
+    <button class="btn btn-success" id="submitGame2">
+      <i class="fas fa-paper-plane"></i> Submit Answer
+    </button>
     <div id="message2"></div>
     <div id="progress2"></div>
   </div>
 </div>
 
-<!-- IMPORTANT: Script loaded LAST -->
+<!-- Script -->
 <script src="{{ url_for('static', filename='js/master.js') }}"></script>
 
 </body>

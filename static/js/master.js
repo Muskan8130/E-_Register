@@ -144,7 +144,21 @@ const closeGameModal = document.getElementById("closeGameModal");
 const gameBtn = document.getElementById("gameBtn");
 const submitGame2 = document.getElementById("submitGame2");
 
-const words2 = ["apple", "oxygen", "market", "yellow", "random"];
+const words2 = ["game","write","cool","app","box", "mix","task","film", "bank",
+  "sky", "gym",  "wax",  "zip", "owl", "jog",
+   "bulb", "cube", "knot", "zinc", "quiz", ,"stamp", "poker", 
+   "glove", "brick", "yield", "quartz", , "zebra", "mango", 
+   "steam","galaxy","oxygen","pocket","temple","velvet","market",
+   "dragon","simple","random","parent","plastic","pumpkin",
+   "digital","freedom","victory","blanket","journey","harvest","modesty",
+   "old","user","team","winner","email",,"developer","place","joker",
+   "update","logic","speed","client","provider","resource","team","brand",
+   "promotion","advertisement","customer","growth","target",
+   "product","service",,"solution","feature","quality","design",
+    "experience","review","rating","trend",
+    "experience","review","rating","satisfaction","engagement","trend",
+    "vision","mission","value","culture","ethics","teamwork",
+    "flow","project","software","hardware","leader"];
 let current2 = 0;
 let scrambled2 = "";
 
@@ -202,6 +216,12 @@ document.getElementById("themeMaster2").onchange = () => {
     } else if (t === "dark") {
         document.body.style.background = "#1a1a1a";
         document.querySelector(".header").style.background = "#444";
+        document.querySelector(".box").style.background = "#5b5353ff";
+        document.querySelector("#xyz").style.background = "#5b5353ff";
+        document.querySelector("table thead ").style.background = "#5b5353ff";
+        document.querySelector("table tbody ").style.background = "#5b5353ff";
+        document.querySelector(".table-box").style.background = "#5b5353ff";
+        document.querySelector(".table-wrapper").style.background = "#c8b7b7ff";
     } else {
         document.body.style.background =
             "linear-gradient(135deg,#667eea,#764ba2)";
