@@ -756,26 +756,102 @@ window.addEventListener("click", (e) => {
 /********************************************
  * THEME SWITCHER
  ********************************************/
+/********************************************
+ * THEME SYSTEM — EXACT SAME AS MASTER PAGE
+ * NO CSS REQUIRED — ONLY PURE JS
+ ********************************************/
 const themeMaster = document.getElementById("themeMaster");
 
+// Apply saved theme when page loads
+document.addEventListener("DOMContentLoaded", () => {
+    const savedTheme = localStorage.getItem("userTheme") || "default";
+    themeMaster.value = savedTheme;
+    applyTheme(savedTheme);
+});
+
+// Watch for dropdown change
 if (themeMaster) {
-  themeMaster.addEventListener("change", function () {
-    const theme = this.value;
+    themeMaster.addEventListener("change", function () {
+        applyTheme(this.value);
+        localStorage.setItem("userTheme", this.value);
+    });
+}
+
+// Main theme function
+function applyTheme(theme) {
 
     if (theme === "light") {
-      document.body.style.background = "linear-gradient(135deg, #ffffff 0%, #e6e6e6 100%)";
-      document.body.style.color = "#000";
-      document.querySelector(".topbar").style.background = "#f5f5f5";
+
+        document.body.style.background = "#f0f0f0";
+        document.body.style.color = "#000";
+
+        document.querySelector(".topbar").style.background = "#d4eeeeff";
+        document.querySelector(".topbar").style.color = "#000";
+
+        document.querySelectorAll(".box").forEach(b => {
+            b.style.background = "#f6dcf4ff";
+            b.style.color = "#000";
+            b.style.boxShadow = "0 2px 10px rgba(0,0,0,0.15)";
+        });
+
+        document.querySelectorAll("table thead th").forEach(th => {
+            th.style.background = "#ecccecff";
+            th.style.color = "#000";
+        });
+
+        document.querySelectorAll("table tbody td").forEach(td => {
+            td.style.background = "#ffffff";
+            td.style.color = "#000";
+        });
     }
+
     else if (theme === "dark") {
-      document.body.style.background = "linear-gradient(135deg, #1f1f1f 0%, #0d0d0d 100%)";
-      document.body.style.color = "white";
-      document.querySelector(".topbar").style.background = "#333";
+
+        document.body.style.background = "#1a1a1a";
+        document.body.style.color = "#ffffff";
+
+        document.querySelector(".topbar").style.background = "#908989ff";
+        document.querySelector(".topbar").style.color = "#ffffff";
+
+        document.querySelectorAll(".box").forEach(b => {
+            b.style.background = "#655c5cff";
+            b.style.color = "#ffffff";
+            b.style.boxShadow = "0 2px 10px rgba(255,255,255,0.1)";
+        });
+
+        document.querySelectorAll("table thead th").forEach(th => {
+            th.style.background = "#444444";
+            th.style.color = "#ffffff";
+        });
+
+        document.querySelectorAll("table tbody td").forEach(td => {
+            td.style.background = "#2a2a2a";
+            td.style.color = "#f5f0f0ff";
+        });
     }
+
     else {
-      document.body.style.background = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
-      document.body.style.color = "#eaf2ff";
-      document.querySelector(".topbar").style.background = "rgb(242, 246, 246)";
+        // DEFAULT (same as master page)
+        document.body.style.background = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
+        document.body.style.color = "#eaf2ff";
+
+        document.querySelector(".topbar").style.background = "white";
+        document.querySelector(".topbar").style.color = "black";
+
+        document.querySelectorAll(".box").forEach(b => {
+            b.style.background = "#ffffff";
+            b.style.color = "#000";
+            b.style.boxShadow = "0 2px 10px rgba(0,0,0,0.2)";
+        });
+
+        document.querySelectorAll("table thead th").forEach(th => {
+            th.style.background = "rgb(167,201,249)";
+            th.style.color = "#121213";
+        });
+
+        document.querySelectorAll("table tbody td").forEach(td => {
+            td.style.background = "rgb(244,250,252)";
+            td.style.color = "#000";
+        });
     }
-  });
 }
