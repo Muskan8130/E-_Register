@@ -76,6 +76,15 @@ body {
 .btn-primary { background: #23449f; color: #fff; }
 .btn-success { background: #00a98e; color: white; }
 
+.btn-danger {
+  background: #d63b3b;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+}
+
 /* Table */
 .table-box {
   padding: 25px;
@@ -150,7 +159,6 @@ input {
   border: none;
   height: 40px;
 }
-
 </style>
 </head>
 
@@ -163,6 +171,9 @@ input {
   </div>
 
   <div style="display:flex; gap:12px; align-items:center">
+
+    <!-- LOGOUT BUTTON ADDED -->
+    <button id="logoutBtn" class="btn-danger">Logout</button>
 
     <button id="gameBtn" class="game-btn">🎮 Play Game</button>
 
@@ -193,13 +204,15 @@ input {
 
 </div>
 
-<!-- TABLE SECTION -->
-<div class="table-box">
+<!-- TABLE SECTION (HIDDEN BY DEFAULT) -->
+<div class="table-box" id="adminTableBox" style="display:none;">
   <table id="adminTable">
     <thead>
       <tr>
         <th>#</th>
         <th>Admin Username</th>
+        <th>Created At</th>
+        <th>Action</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -236,8 +249,7 @@ input {
 </div>
 
 <!-- IMPORTANT: Script loaded LAST -->
-
-<script src="{{ url_for('static', filename='js/master2.js') }}"></script>
+<script src="{{ url_for('static', filename='js/master.js') }}"></script>
 
 </body>
 </html>

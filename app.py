@@ -60,26 +60,28 @@ def init_database():
     conn = get_db_connection()
     cur = conn.cursor()
 
+    # Create users table
     cur.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            user_id VARCHAR(50)  UNIQUE NOT NULL,
+            user_id VARCHAR(50) UNIQUE NOT NULL,
             password_hash VARCHAR(200),
             role VARCHAR(20) NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             last_used_at TIMESTAMP NULL,
-            last_action varchar(50)
+            last_action VARCHAR(50)
         );
     """)
 
+    # Create data table
     cur.execute("""
         CREATE TABLE IF NOT EXISTS data(
             user_id VARCHAR(50) NOT NULL,
             id INT AUTO_INCREMENT PRIMARY KEY,
             s_no INT,
-            invoice_no VARCHAR(100) NOT NULL ,
+            invoice_no VARCHAR(100) NOT NULL,
             invoice_date DATE,
-            item_name VARCHAR(255) ,
+            item_name VARCHAR(255),
             description TEXT,
             qty INT DEFAULT 1,
             unit_rate DECIMAL(10,2),
@@ -102,18 +104,30 @@ def init_database():
             bank_ifsc VARCHAR(20),
             bank_name VARCHAR(100),
             locked BOOLEAN DEFAULT TRUE,
-            doc_filename VARCHAR(255) NULL,
+            doc_filename VARCHAR(255),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
         );
     """)
 
-    # ensure admin user exists
-    cur.execute("SELECT user_id FROM users WHERE role='admin' LIMIT 1;")
-    if cur.fetchone() is None:
-        pw = bcrypt.hashpw(b"aditya123", bcrypt.gensalt())
-        cur.execute("INSERT INTO users (user_id, password_hash, role) VALUES (%s,%s,%s)",
-                    ("adityaadmin", pw.decode('utf-8'), "admin"))
+    # -------------------------------
+    # FIX: CHECK MASTER ROLE (NOT admin)
+    # -------------------------------
+    cur.execute("SELECT user_id FROM users WHERE role = %s LIMIT 1", ("master",))
+    exists = cur.fetchone()
+
+    if exists is None:
+        print("Creating master user 'adityamater'...")
+
+        pw = bcrypt.hashpw(b"aditya123", bcrypt.gensalt()).decode('utf-8')
+
+        cur.execute("""
+            INSERT INTO users (user_id, password_hash, role)
+            VALUES (%s, %s, %s)
+        """, ("adityamaster", pw, "master"))
+
+    else:
+        print("Master user already exists. Skipping insert.")
 
     conn.commit()
     cur.close()
@@ -243,6 +257,8 @@ def index():
         return redirect(url_for('login'))
     if session.get('role') == 'admin':
         return redirect(url_for('admin_panel'))
+    elif session.get('role') == 'master':
+        return redirect(url_for('master_panel'))
     return redirect(url_for('user_panel'))
 
 
@@ -283,6 +299,8 @@ def login_post():
             conn.close()
             if user['role'] == 'admin':
                 return redirect(url_for('admin_panel'))
+            elif user['role'] == 'master':
+                return redirect(url_for('master_panel'))
             else:
                 return redirect(url_for('user_panel'))
 
@@ -734,7 +752,104 @@ def api_user_counts(user_id):
 
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})
+    
+#-----------------------------------------------    
+#---------------master panel page---------------
+#-----------------------------------------------
 
+@app.route('/master')
+def master_panel():
+    if 'user_id' not in session or session.get('role') != 'master':
+        return redirect(url_for('login'))
+    return render_template('master.html', master_user=session.get('user_id'))
+
+#-----------------create admin ----------------------
+
+@app.route('/master/create_admin', methods=['POST'])
+def create_admin():
+    data = request.get_json(silent=True) or request.form
+
+    userid = data.get("userid") or data.get("user_id")
+    password = data.get("password")
+
+    if not userid or not password:
+        return jsonify({"status": "error", "message": "User ID and password required."})
+
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor(dictionary=True)
+
+        # Check duplicate
+        cur.execute("SELECT id FROM users WHERE user_id=%s", (userid,))
+        if cur.fetchone():
+            cur.close()
+            conn.close()
+            return jsonify({"status": "error", "message": "User already exists."})
+
+        hashed_pw = bcrypt.hashpw(password.encode('utf-8'),
+                                  bcrypt.gensalt()).decode('utf-8')
+
+        cur.execute("""
+            INSERT INTO users (user_id, password_hash, role)
+            VALUES (%s, %s, %s)
+        """, (userid, hashed_pw, 'admin'))
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return jsonify({
+            "status": "success",
+            "message": f"User '{userid}' created successfully."
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
+
+
+#----------------fatch all admins-------------------------------
+
+@app.route('/master/get_admins')
+def get_admins():
+    if 'user_id' not in session or session.get('role') != 'master':
+        return jsonify({"status": "error", "message": "Unauthorized"}), 403
+
+    conn = get_db_connection()
+    cur = conn.cursor(dictionary=True)
+
+    cur.execute("SELECT user_id, created_at FROM users WHERE role='admin'")
+    rows = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return jsonify({"admins": rows})
+
+#-------------delete admin----------------
+
+@app.route('/master/delete_admin', methods=['POST'])
+def delete_admin():
+    if 'user_id' not in session or session.get('role') != 'master':
+        return jsonify({"status": "error", "message": "Unauthorized"}), 403
+
+    data = request.get_json()
+    userid = data.get("userid")
+
+    if not userid:
+        return jsonify({"status": "error", "message": "User ID required"}), 400
+
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+
+        cur.execute("DELETE FROM users WHERE user_id=%s AND role='user'", (userid,))
+        conn.commit()
+
+        cur.close()
+        conn.close()
+
+        return jsonify({"status": "success", "message": f"Deleted '{userid}'"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
 
 # ---------- USER PANEL page ----------
 @app.route('/user_panel')
