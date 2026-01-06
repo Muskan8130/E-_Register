@@ -1267,6 +1267,16 @@ def save_rows():
         row_ids.append(cursor.lastrowid)
 
     conn.commit()
+    
+     # 📝 Update user activity
+    cursor.execute("""
+        UPDATE users 
+        SET last_action = %s,
+            last_used_at = NOW()
+        WHERE user_id = %s
+    """, ("envoice added", user_id))
+    conn.commit()
+    
     cursor.close()
     conn.close()
 
