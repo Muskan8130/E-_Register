@@ -213,6 +213,61 @@ async function fetchUserRecords() {
 /********************************************
  * RENDER TABLE
  ********************************************/
+
+function getWarrantyStatus(warranty_end, warranty_details) {
+
+  // ✅ NO WARRANTY CASE
+  if (!warranty_details || warranty_details.toLowerCase() === "no") {
+    return {
+      text: "No warranty",
+      className: "warranty-none"
+    };
+  }
+
+  // If warranty end date missing
+  if (!warranty_end) {
+    return {
+      text: "No warranty",
+      className: "warranty-none"
+    };
+  }
+
+  const today = new Date();
+  const endDate = new Date(warranty_end);
+
+  today.setHours(0,0,0,0);
+  endDate.setHours(0,0,0,0);
+
+  const diffMs = endDate - today;
+  const days = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+  if (days > 10) {
+    return {
+      text: `${days} days left`,
+      className: "warranty-active"
+    };
+  }
+
+  if (days > 0 && days <= 10) {
+    return {
+      text: `${days} days left`,
+      className: "warranty-warning blink vibrate"
+    };
+  }
+
+  if (days === 0) {
+    return {
+      text: "Expires today",
+      className: "warranty-warning blink vibrate"
+    };
+  }
+
+  return {
+    text: `Expired ${Math.abs(days)} days ago`,
+    className: "warranty-expired"
+  };
+}
+
 function renderTable(rows = []) {
   const tbody = document.getElementById('tableBody');
   tbody.innerHTML = '';
@@ -238,18 +293,27 @@ function renderTable(rows = []) {
       `;
     }
 
+    const warranty = getWarrantyStatus(
+    r.warranty_end,
+    r.warranty_details
+);
+
+
     tr.innerHTML = `
-      <td>${r.invoice_no || ''}</td>
+      <td>${r.company_name || ''}</td>
       <td>${r.item_name || ''}</td>
+      <td>${r.invoice_no || ''}</td>
       <td>${r.qty || ''}</td>
       <td>${r.unit_rate || ''}</td>
       <td>${gstHTML}</td>
       <td>${r.total || ''}</td>
-      <td>${r.contact_person || ''}</td>
-      <td>${r.company_name || ''}</td>
       <td>${r.state || ''}</td>
-      <td>${r.gst_no || ''}</td>
-
+      <td>
+        <span class="warranty-badge ${warranty.className}">
+          ${warranty.text}
+        </span>
+      </td>
+      
       <td class="actions-btns">
         <button class="btn btn-sm editBtn" data-idx="${r.id}">✏ Edit</button>
         <button class="btn btn-sm showBtn" data-idx="${r.id}">📋 View Doc</button>

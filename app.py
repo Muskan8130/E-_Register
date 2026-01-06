@@ -1172,12 +1172,23 @@ def clean_date(x):
         return d.strftime("%Y-%m-%d")
     except:
         return None
+    
+    
+def safe(val):
+    if val is None:
+        return None
+    if val == "" or val == "NaN":
+        return None
+    return val
+
 
 
 @app.route('/save_rows', methods=['POST'])
 def save_rows():
     data = request.get_json()
     rows = data["rows"]
+
+    user_id = session.get("user_id")
 
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -1186,14 +1197,72 @@ def save_rows():
 
     for row in rows:
         cursor.execute("""
-            INSERT INTO data (invoice_no, item_name, qty, ...)
-            VALUES (%s, %s, %s, ...)
+            INSERT INTO data (
+                user_id,
+                s_no,
+                invoice_no,
+                invoice_date,
+                item_name,
+                description,
+                qty,
+                unit_rate,
+                igst,
+                sgst,
+                cgst,
+                total,
+                warranty_details,
+                warranty_end,
+                warr_customer_care_no,
+                contact_person,
+                company_name,
+                address,
+                state,
+                gst_no,
+                pan_no,
+                contact_phone,
+                contact_email,
+                bank_ac_no,
+                bank_ifsc,
+                bank_name,
+                locked,
+                doc_filename
+            )
+            VALUES (
+                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                %s, %s, %s, %s
+            )
         """, (
-            row["invoice_no"],
-            row["item_name"],
-            float(row["qty"]),
-            ...
+            user_id,
+            safe(row.get("s_no")),
+            safe(row.get("invoice_no")),
+            clean_date(row.get("invoice_date")),
+            safe(row.get("item_name")),
+            safe(row.get("description")),
+            int(row.get("qty") or 1),
+            float(row.get("unit_rate") or 0),
+            float(row.get("igst") or 0),
+            float(row.get("sgst") or 0),
+            float(row.get("cgst") or 0),
+            float(row.get("total") or 0),
+            safe(row.get("warranty_details")),
+            clean_date(row.get("warranty_end")),
+            safe(row.get("warr_customer_cc")),
+            safe(row.get("contact_person")),
+            safe(row.get("company_name")),
+            safe(row.get("address")),
+            safe(row.get("state")),
+            safe(row.get("gst_no")),
+            safe(row.get("pan_no")),
+            safe(row.get("contact_phone")),
+            safe(row.get("contact_email")),
+            safe(row.get("bank_acc")),
+            safe(row.get("bank_ifsc")),
+            safe(row.get("bank_name")),
+            True,          # locked by default
+            None           # doc_filename will be updated later
         ))
+
 
         row_ids.append(cursor.lastrowid)
 
@@ -1252,7 +1321,7 @@ def get_user_records():
 
     cursor.execute("""
         SELECT id, invoice_no, item_name, qty, unit_rate, igst, sgst, cgst, total,
-               contact_person, company_name, state, gst_no
+               company_name, state, warranty_end, warranty_details
         FROM data
         WHERE user_id = %s
         AND locked = TRUE

@@ -747,6 +747,53 @@
   cursor: pointer;
 }
 
+.warranty-badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 12px;
+  display: inline-block;
+}
+
+.warranty-active {
+  background: #e6f9ee;
+  color: #0f8a4b;
+}
+
+.warranty-warning {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.warranty-expired {
+  background: #fdecea;
+  color: #b71c1c;
+}
+
+.warranty-none {
+  background: #f1f3f5;
+  color: #6c757d;
+}
+
+@keyframes blink {
+  50% { opacity: 0.4; }
+}
+.blink {
+  animation: blink 1s infinite;
+}
+
+@keyframes vibrate {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  50% { transform: translateX(2px); }
+  75% { transform: translateX(-2px); }
+  100% { transform: translateX(0); }
+}
+.vibrate {
+  animation: vibrate 0.3s infinite;
+}
+
+
   </style>
 </head>
 <body>
@@ -825,16 +872,15 @@
       <table class="table table-bordered">
         <thead>
           <tr>
-            <th>Invoice No</th>
+            <th>Company Name</th>
             <th>Item Name</th>
+            <th>Invoice No</th>
             <th>Qty</th>
             <th>Unit Rate</th>
             <th>GST</th>
             <th>Total</th>
-            <th>Contact Person</th>
-            <th>Company Name</th>
             <th>State</th>
-            <th>GST No</th>
+            <th>warranty expairy</th>
             <th>Action</th>
           </tr>
         </thead>
