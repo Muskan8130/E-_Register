@@ -12,8 +12,23 @@ function closeAddModal() { addModal.classList.remove("active"); }
 function openEditModal() { editModal.classList.add("active"); }
 function closeEditModal() { editModal.classList.remove("active"); }
 
-function openCustomExportModal() { customExportModal.classList.add("active"); }
-function closeCustomExportModal() { customExportModal.classList.remove("active"); }
+function openCustomExportModal() {
+    customExportModal.classList.add("active");
+    loadInvoicesForExport();   // safe
+}
+
+function closeCustomExportModal() {
+    customExportModal.classList.remove("active");
+}
+document.addEventListener("DOMContentLoaded", function () {
+
+    const btn = document.getElementById("exportCustomBtn");
+
+    btn.addEventListener("click", function () {
+        openCustomExportModal();
+    });
+
+});
 
 function openLockedModal() { lockedModal.classList.add("active"); }
 function closeLockedModal() { lockedModal.classList.remove("active"); }
@@ -134,49 +149,41 @@ document.getElementById("modalUploadBtn").onclick = async () => {
     fillForm(0);
 };
 
+ /********************************************
+     * SAVE ALL EXCEL ROWS ONE BY ONE
+     ********************************************/
 
-
-/********************************************
- * SAVE ALL EXCEL ROWS ONE BY ONE
- ********************************************/
 document.getElementById("saveModalBtn").onclick = async () => {
 
-    if (excelRows.length === 0) {
-        alert("No rows to save");
-        return;
-    }
+   
+    let res1 = await fetch("/save_rows", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rows: excelRows })
+    });
 
-    const docFile = document.getElementById("docInput").files[0];
+    let data = await res1.json();
+    let row_ids = data.row_ids;   // server returns DB inserted IDs
 
-    for (let i = 0; i < excelRows.length; i++) {
 
-        let row = excelRows[i];
+    const files = document.getElementById("docInput").files;
+
+    for (let i = 0; i < files.length; i++) {
+
         let fd = new FormData();
+        fd.append("file", files[i]);
+        fd.append("row_id", row_ids[i]);  // match file to DB row
 
-        FIELD_KEYS.forEach(k => {
-            fd.append(k, row[k] || "");
-        });
-
-        if (docFile) fd.append("doc", docFile);
-
-        let res = await fetch("/save", {
+        await fetch("/upload_doc", {
             method: "POST",
             body: fd
         });
-
-        let result = await res.json();
-
-        if (!result.status) {
-            alert(`Error saving row ${i + 1}: ${result.error}`);
-            return;
-        }
     }
 
-    alert("✔ All invoice rows saved successfully!");
+    alert("✔ All invoices saved successfully!");
     closeAddModal();
     fetchUserRecords();
 };
-
 
 
 /********************************************
@@ -515,88 +522,74 @@ document.getElementById('exportFullBtn').addEventListener('click', async () => {
 /********************************************
  * OPEN CUSTOM EXPORT MODAL
  ********************************************/
-document.getElementById("exportCustomBtn").addEventListener("click", () => {
-    openCustomExportModal();
-});
+document.getElementById("createCustomExcel")
+  .addEventListener("click", function () {
 
-
-
-/********************************************
- * SEARCH START/END ROWS
- ********************************************/
-function filterRows(keyword, minId = 0) {
-    const key = keyword.toLowerCase();
-
-    return records.filter(r =>
-        (
-            (r.invoice_no || "").toLowerCase().includes(key) ||
-            (r.item_name || "").toLowerCase().includes(key) ||
-            (r.company_name || "").toLowerCase().includes(key)
-        )
-        && r.id > minId
+    const checked = document.querySelectorAll(
+        "#invoiceList input:checked"
     );
-}
 
-function showDropdown(inputEl, dropdownEl, rows) {
-    dropdownEl.innerHTML = "";
-    dropdownEl.style.display = rows.length ? "block" : "none";
-
-    rows.forEach(r => {
-        const item = document.createElement("a");
-        item.className = "dropdown-item";
-        item.textContent = `${r.id} - ${r.invoice_no} (${r.company_name})`;
-        item.onclick = () => {
-            inputEl.value = r.id;
-            dropdownEl.style.display = "none";
-        };
-        dropdownEl.appendChild(item);
-    });
-}
-
-document.getElementById("startRowInput").addEventListener("input", e => {
-    const keyword = e.target.value;
-    const rows = filterRows(keyword);
-    showDropdown(e.target, document.getElementById("startDropdown"), rows);
-});
-
-document.getElementById("endRowInput").addEventListener("input", e => {
-    const keyword = e.target.value;
-    const startId = parseInt(document.getElementById("startRowInput").value) || 0;
-    const rows = filterRows(keyword, startId);
-    showDropdown(e.target, document.getElementById("endDropdown"), rows);
-});
-
-document.getElementById("createCustomExcel").addEventListener("click", async () => {
-
-    const startId = parseInt(document.getElementById("startRowInput").value);
-    const endId = parseInt(document.getElementById("endRowInput").value);
-
-    if (!startId || !endId || endId <= startId) {
-        alert("Please select valid start and end rows.");
+    if (checked.length === 0) {
+        alert("Please select at least one invoice");
         return;
     }
 
-    const res = await fetch('/export_custom', {
+    const ids = Array.from(checked).map(cb => cb.value);
+
+    fetch("/export_custom", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ start: startId, end: endId })
+        body: JSON.stringify({ ids: ids })
+    })
+    .then(res => res.blob())
+    .then(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "custom_invoices.xlsx";
+        a.click();
+        URL.revokeObjectURL(url);
     });
-
-    if (!res.ok) {
-        alert("Failed to generate Excel.");
-        return;
-    }
-
-    const blob = await res.blob();
-    const url = window.URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "custom_data.xlsx";
-    a.click();
-
-    window.URL.revokeObjectURL(url);
 });
+
+
+
+function loadInvoicesForExport() {
+    fetch("/get_export_invoices")
+        .then(res => res.json())
+        .then(data => {
+
+            const list = document.getElementById("invoiceList");
+            list.innerHTML = "";
+
+            data.forEach(row => {
+
+                const div = document.createElement("div");
+                div.className = "invoice-row";
+
+                div.innerHTML = `
+                    <input type="checkbox" value="${row.id}">
+                    <span style= "color:black;">
+                      <strong>${row.invoice_no}</strong> |
+                      ${row.company_name} |
+                      ${row.item_name} |
+                      GST: ${row.gst_no}
+                    </span>
+                `;
+
+                // click anywhere to toggle checkbox
+                div.addEventListener("click", function (e) {
+                    if (e.target.tagName !== "INPUT") {
+                        const cb = div.querySelector("input");
+                        cb.checked = !cb.checked;
+                    }
+                });
+
+                list.appendChild(div);
+            });
+
+        });
+}
 
 
 

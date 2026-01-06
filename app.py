@@ -11,13 +11,21 @@ from openpyxl.workbook import Workbook
 from dotenv import load_dotenv
 load_dotenv()  # Load .env variables
 from dateutil import parser
-
+from PIL import Image
+from PyPDF2 import PdfReader, PdfWriter
+import io
 
 
 
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")  # change to a secure key in production
+app.config['MAX_CONTENT_LENGTH'] = 200 * 1024 * 1024   # 200 MB
+from werkzeug.formparser import FormDataParser
+FormDataParser.max_form_memory_size = 200 * 1024 * 1024
+FormDataParser.max_form_parts = 5000
+from werkzeug.wsgi import LimitedStream
+LimitedStream.total_content_length = 200 * 1024 * 1024
 
 # -----------------------
 # DB CONFIG (adjust pw if needed)
@@ -246,6 +254,58 @@ def normalize_header(h):
     h = h.replace(" ", "_")
 
     return h.strip()
+
+
+def compress_image(file, max_size_kb=900):
+    """Compress JPG/PNG images under target size."""
+    try:
+        image = Image.open(file.stream)
+        buffer = io.BytesIO()
+
+        quality = 85
+        image_format = image.format
+
+        while True:
+            buffer.seek(0)
+            buffer.truncate()
+            image.save(buffer, format=image_format, optimize=True, quality=quality)
+
+            size_kb = len(buffer.getvalue()) / 1024
+            if size_kb <= max_size_kb or quality < 30:
+                break
+
+            quality -= 10  # reduce quality stepwise
+
+        buffer.seek(0)
+        return buffer
+    except Exception as e:
+        print("Image compression error:", e)
+        return file.stream  # fallback original
+        
+
+def compress_pdf(file, max_size_kb=900):
+    """Compress PDF using PyPDF2 (lossless)."""
+    try:
+        reader = PdfReader(file.stream)
+        writer = PdfWriter()
+
+        for page in reader.pages:
+            writer.add_page(page)
+
+        buffer = io.BytesIO()
+        writer.write(buffer)
+
+        # If still bigger than limit → return as-is (lossless only)
+        if len(buffer.getvalue()) / 1024 > max_size_kb:
+            print("PDF still large, returning lossless result.")
+        
+        buffer.seek(0)
+        return buffer
+
+    except Exception as e:
+        print("PDF compression error:", e)
+        return file.stream  # fallback original
+
 
 
 # -----------------------
@@ -1114,117 +1174,71 @@ def clean_date(x):
         return None
 
 
-@app.route('/save', methods=['POST'])
-def save_data():
-    try:
-        if 'user_id' not in session:
-            return jsonify({'error': 'Unauthorized'}), 401
+@app.route('/save_rows', methods=['POST'])
+def save_rows():
+    data = request.get_json()
+    rows = data["rows"]
 
-        user_id = session['user_id']
-        data = request.form.to_dict()
+    conn = get_db_connection()
+    cursor = conn.cursor()
 
-        # ------------------------------
-        # NUMERIC CLEANER
-        # ------------------------------
-        def num(x):
-            if not x or str(x).strip() == "":
-                return 0
-            try:
-                return float(x)
-            except:
-                return 0
+    row_ids = []
 
-        qty     = num(data.get("qty"))
-        unit    = num(data.get("unit_rate"))
-        igst    = num(data.get("igst"))
-        sgst    = num(data.get("sgst"))
-        cgst    = num(data.get("cgst"))
-        total   = num(data.get("total"))
-
-        # ------------------------------
-        # DATE CLEANER
-        # ------------------------------
-        invoice_date  = clean_date(data.get("invoice_date"))
-        warranty_end  = clean_date(data.get("warranty_end"))
-
-        # ------------------------------
-        # FILE UPLOAD
-        # ------------------------------
-        file = request.files.get("doc")
-        filename = None
-        if file and file.filename:
-            filename = f"{user_id}_{data.get('invoice_no')}_{file.filename}"
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        # ------------------------------
-        # DUPLICATE CHECK
-        # ------------------------------
+    for row in rows:
         cursor.execute("""
-            SELECT COUNT(*) FROM data
-            WHERE invoice_no=%s AND user_id=%s
-        """, (data.get("invoice_no"), user_id))
-        (cnt,) = cursor.fetchone()
+            INSERT INTO data (invoice_no, item_name, qty, ...)
+            VALUES (%s, %s, %s, ...)
+        """, (
+            row["invoice_no"],
+            row["item_name"],
+            float(row["qty"]),
+            ...
+        ))
 
-        if cnt > 0:
-            return jsonify({
-                "status": False,
-                "error": f"Invoice No '{data.get('invoice_no')}' already exists"
-            }), 409
+        row_ids.append(cursor.lastrowid)
 
-        # ------------------------------
-        # INSERT QUERY
-        # ------------------------------
-        insert_query = """
-            INSERT INTO data (
-                user_id, s_no, invoice_no, invoice_date, item_name, description,
-                qty, unit_rate, igst, sgst, cgst, total,
-                warranty_details, warranty_end, warr_customer_care_no,
-                contact_person, company_name, address, state, gst_no,
-                pan_no, contact_phone, contact_email,
-                bank_ac_no, bank_ifsc, bank_name, doc_filename
-            )
-            VALUES (%s,%s,%s,%s,%s,%s,
-                    %s,%s,%s,%s,%s,%s,
-                    %s,%s,%s,%s,%s,%s,%s,%s,
-                    %s,%s,%s,%s,%s,%s,%s)
-        """
+    conn.commit()
+    cursor.close()
+    conn.close()
 
-        values = (
-            user_id,
-            data.get("s_no"),
-            data.get("invoice_no"),
-            invoice_date,
-            data.get("item_name"),
-            data.get("description"),
-            qty, unit, igst, sgst, cgst, total,
-            data.get("warranty_details"),
-            warranty_end,
-            data.get("warranty_cc"),
-            data.get("contact_person"),
-            data.get("company_name"),
-            data.get("address"),
-            data.get("state"),
-            data.get("gst_no"),
-            data.get("pan_no"),
-            data.get("contact_phone"),
-            data.get("contact_email"),
-            data.get("bank_acc"),
-            data.get("bank_ifsc"),
-            data.get("bank_name"),
-            filename
-        )
+    return jsonify({"row_ids": row_ids})
 
-        cursor.execute(insert_query, values)
-        conn.commit()
 
-        return jsonify({"status": True, "message": "Saved successfully"}), 200
+@app.route('/upload_doc', methods=['POST'])
+def upload_doc():
+    file = request.files["file"]
+    row_id = request.form["row_id"]
 
-    except Exception as e:
-        traceback.print_exc()
-        return jsonify({"status": False, "error": str(e)}), 500
+    ext = file.filename.lower()
+
+    # compress
+    if ext.endswith(".jpg") or ext.endswith(".jpeg") or ext.endswith(".png"):
+        stream = compress_image(file)
+    elif ext.endswith(".pdf"):
+        stream = compress_pdf(file)
+    else:
+        stream = file.stream
+
+    filename = f"{row_id}_{file.filename}"
+    path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+
+    # save compressed file
+    with open(path, "wb") as f:
+        f.write(stream.read())
+
+    # update DB
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("UPDATE data SET doc_filename=%s WHERE id=%s", (filename, row_id))
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+    return jsonify({"status": True})
+
+
 
 @app.route('/get_user_records')
 def get_user_records():
@@ -1635,17 +1649,45 @@ def export_all():
 
 #---------------costum exal -------------------------
 
+@app.route('/get_export_invoices')
+def get_export_invoices():
+    conn = get_db_connection()
+    cur = conn.cursor(dictionary=True)
+
+    cur.execute("""
+        SELECT 
+            id,
+            invoice_no,
+            company_name,
+            item_name,
+            gst_no
+        FROM data
+        WHERE locked = 1
+        ORDER BY id DESC
+    """)
+
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    return jsonify(rows)
+
+
 @app.route('/export_custom', methods=['POST'])
 def export_custom():
     try:
         data = request.json
-        start_id = data.get('start')
-        end_id = data.get('end')
+        ids = data.get('ids', [])
+
+        if not ids:
+            return "No invoices selected", 400
+
+        placeholders = ",".join(["%s"] * len(ids))
 
         conn = get_db_connection()
         cur = conn.cursor(dictionary=True)
 
-        query = """
+        query = f"""
         SELECT 
             user_id,
             invoice_no,
@@ -1674,11 +1716,12 @@ def export_custom():
             bank_name,
             doc_filename
         FROM data
-        WHERE locked = 1 AND id BETWEEN %s AND %s
+        WHERE locked = 1
+        AND id IN ({placeholders})
         ORDER BY id ASC
         """
 
-        cur.execute(query, (start_id, end_id))
+        cur.execute(query, tuple(ids))
         rows = cur.fetchall()
 
         cur.close()
@@ -1691,19 +1734,23 @@ def export_custom():
 
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            df.to_excel(writer, index=False, sheet_name="CustomData")
+            df.to_excel(writer, index=False, sheet_name="SelectedInvoices")
 
         output.seek(0)
 
         return send_file(
             output,
             as_attachment=True,
-            download_name="custom_data.xlsx",
+            download_name="custom_invoices.xlsx",
             mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
 
-    except Exception:
+    except Exception as e:
+        print(e)
         return "Error", 500
+
+
+#-----------------see daucument -----------------------
 
 @app.route('/invoice_doc/<int:id>')
 def invoice_doc(id):
