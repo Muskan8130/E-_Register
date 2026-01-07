@@ -128,6 +128,11 @@ document.getElementById('editForm').addEventListener('submit', async (e) => {
     const modal = new bootstrap.Modal(document.getElementById('chartModal'));
     modal.show();
 
+    const canvas = document.getElementById('userChart');
+    canvas.width = 400;
+    canvas.height = 400;
+
+
     const ctx = document.getElementById('userChart').getContext('2d');
     if (window._userChart) window._userChart.destroy();
 

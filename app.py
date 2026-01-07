@@ -781,25 +781,30 @@ def api_user_counts(user_id):
         conn = get_db_connection()
         cur = conn.cursor(dictionary=True)
 
-        # 1) Get user_id string from users table
+        # 1) Get user identifier (string like @aditya)
         cur.execute("SELECT user_id FROM users WHERE id=%s", (user_id,))
         row = cur.fetchone()
         if not row:
             return jsonify({"status": "error", "message": "User not found"})
 
-        user_identifier = row["user_id"]
+        user_identifier = row["user_id"].strip().lower()
 
-        # 2) Total UNLOCKED invoices
-        cur.execute("SELECT COUNT(*) AS total FROM data WHERE locked = FALSE")
-        total = cur.fetchone()['total']
+        # 2) TOTAL UNLOCKED invoices (locked = 1)
+        cur.execute("""
+            SELECT COUNT(*) AS total
+            FROM data
+            WHERE locked = 1
+        """)
+        total = cur.fetchone()["total"]
 
-        # 3) UNLOCKED invoices created by THIS user
+        # 3) UNLOCKED invoices of THIS user
         cur.execute("""
             SELECT COUNT(*) AS user_total
             FROM data
-            WHERE user_id=%s AND locked = FALSE
+            WHERE locked = 1
+              AND LOWER(TRIM(user_id)) = %s
         """, (user_identifier,))
-        user_total = cur.fetchone()['user_total']
+        user_total = cur.fetchone()["user_total"]
 
         cur.close()
         conn.close()
@@ -812,7 +817,7 @@ def api_user_counts(user_id):
 
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})
-    
+
 #-----------------------------------------------    
 #---------------master panel page---------------
 #-----------------------------------------------
