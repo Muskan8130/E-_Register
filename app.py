@@ -928,61 +928,160 @@ def api_company_list():
 
     cur.execute("""
         SELECT 
+            MIN(id) AS id,
             company_name AS name,
             address,
             state,
             contact_phone AS contact
         FROM data
+        WHERE locked = TRUE
         GROUP BY company_name, address, state, contact_phone
     """)
 
     rows = cur.fetchall()
-
     cur.close()
     conn.close()
 
     return jsonify({"status": "ok", "companies": rows})
 
 
-@app.route('/api/company_search')
-def api_company_search():
-    q = request.args.get("q", "").strip().lower()
+#-------------------------------------------------
+#-------------company data------------------------
+#---------------------------------------------------
 
-    if q == "":
-        return jsonify({"status": "error", "message": "Query required"}), 400
+@app.route("/company_data/<int:company_id>")
+def company_data_page(company_id):
+    if 'user_id' not in session:
+        return redirect("/login")
 
-    try:
-        conn = get_db_connection()
-        cur = conn.cursor(dictionary=True)
+    return render_template(
+        "companyData.html",
+        company_id=company_id,
+        user=session
+    )
+    
+@app.route("/api/company/<int:company_id>")
+def api_company_invoices(company_id):
+    page = int(request.args.get("page", 1))
+    per_page = int(request.args.get("per_page", 10))
+    offset = (page - 1) * per_page
 
-        like = f"%{q}%"
+    conn = get_db_connection()
+    cur = conn.cursor(dictionary=True)
 
-        cur.execute("""
-            SELECT 
-                company_name AS name,
-                address,
-                state,
-                contact_phone AS contact
-            FROM data
-            WHERE 
-                LOWER(company_name) LIKE %s OR
-                LOWER(address) LIKE %s OR
-                LOWER(state) LIKE %s OR
-                LOWER(contact_phone) LIKE %s
-            GROUP BY company_name, address, state, contact_phone
-            ORDER BY company_name ASC
-        """, (like, like, like, like))
+    # 1️⃣ Get company_name from companies table
+    cur.execute(
+        "SELECT company_name FROM data WHERE id = %s",
+        (company_id,)
+    )
+    company = cur.fetchone()
 
-        rows = cur.fetchall()
-
+    if not company:
         cur.close()
         conn.close()
+        return jsonify({"total": 0, "rows": []})
 
-        return jsonify({"status": "ok", "companies": rows})
+    # ✅ FIX IS HERE
+    company_name = company["company_name"]
 
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)})
+    # 2️⃣ Count all invoices of that company
+    cur.execute(
+        "SELECT COUNT(*) AS total FROM data WHERE company_name = %s",
+        (company_name,)
+    )
+    total = cur.fetchone()["total"]
 
+    # 3️⃣ Fetch all invoices of that company
+    cur.execute("""
+        SELECT *
+        FROM data
+        WHERE company_name = %s
+        ORDER BY id DESC
+        LIMIT %s OFFSET %s
+    """, (company_name, per_page, offset))
+
+    rows = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return jsonify({
+        "total": total,
+        "rows": rows
+    })
+
+
+from decimal import Decimal
+from datetime import date, datetime
+
+def serialize_row(row):
+    for k, v in row.items():
+        if isinstance(v, (Decimal, date, datetime)):
+            row[k] = str(v)
+    return row
+
+
+@app.route('/api/company/search')
+def api_company_search():
+
+    # ---- query params ----
+    q = request.args.get('q', '').strip()
+    if not q or q.lower() == 'undefined':
+        return jsonify({"total": 0, "rows": []})
+
+    page = int(request.args.get('page', 1))
+    per_page = int(request.args.get('per_page', 10))
+    offset = (page - 1) * per_page
+
+    like = f"%{q}%"
+
+    conn = get_db_connection()
+    cur = conn.cursor(dictionary=True)
+
+    # ---- TOTAL COUNT (for pagination) ----
+    cur.execute("""
+        SELECT COUNT(*) AS total
+        FROM data
+        WHERE
+            invoice_no LIKE %s
+            OR item_name LIKE %s
+            OR description LIKE %s
+            OR company_name LIKE %s
+            OR contact_person LIKE %s
+            OR state LIKE %s
+            OR gst_no LIKE %s
+            OR doc_filename LIKE %s
+    """, (like, like, like, like, like, like, like, like))
+
+    total = cur.fetchone()["total"]
+
+    # ---- PAGE DATA ----
+    cur.execute("""
+        SELECT *
+        FROM data
+        WHERE
+            invoice_no LIKE %s
+            OR item_name LIKE %s
+            OR description LIKE %s
+            OR company_name LIKE %s
+            OR contact_person LIKE %s
+            OR state LIKE %s
+            OR gst_no LIKE %s
+            OR doc_filename LIKE %s
+        ORDER BY id DESC
+        LIMIT %s OFFSET %s
+    """, (like, like, like, like, like, like, like, like, per_page, offset))
+
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    rows = [serialize_row(r) for r in rows]
+
+    return jsonify({
+        "total": total,   # 🔥 total matching records (ALL pages)
+        "rows": rows      # 🔥 only current page rows
+    })
 
 #--------------------------------------
 # ---------- USER PANEL page ----------

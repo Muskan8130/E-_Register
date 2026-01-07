@@ -36,7 +36,7 @@ function loadCompanyTable(list) {
         return;
     }
 
-    list.forEach((c, i) => {
+    list.forEach((c) => {
         let tr = document.createElement("tr");
 
         tr.innerHTML = `
@@ -45,7 +45,7 @@ function loadCompanyTable(list) {
             <td>${c.state || "-"}</td>
             <td>${c.contact || "-"}</td>
             <td>
-                <button class="action-btn" onclick="viewCompany(${i})">
+                <button class="action-btn" onclick="viewCompany(${c.id})">
                     View Data
                 </button>
             </td>
@@ -58,14 +58,8 @@ function loadCompanyTable(list) {
 /* ==========================================================
    VIEW COMPANY POPUP
 ========================================================== */
-function viewCompany(index) {
-    let c = companies[index];
-    alert(`
-Company Name: ${c.name}
-Address: ${c.address}
-State: ${c.state}
-Contact Number: ${c.contact}
-    `);
+function viewCompany(id) {
+     window.location.href = ` /company_data/${id}`;
 }
 
 /* ==========================================================
@@ -89,12 +83,6 @@ document.getElementById("companySearch").addEventListener("input", (e) => {
     loadCompanyTable(filtered);
 });
 
-/* ==========================================================
-   BACK BUTTON
-========================================================== */
-function goBack() {
-    window.history.back();
-}
 
 /* ==========================================================
    INITIAL LOAD
