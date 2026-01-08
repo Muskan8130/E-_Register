@@ -157,6 +157,54 @@ table.table-dark tbody tr:hover {
 h3{
   color: #000000;
 }
+/* =======================
+   CUSTOM MODAL SYSTEM
+======================= */
+.customModal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.customModal.active {
+  display: flex;
+}
+
+.customModalBox {
+  background: #ffffff;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 14px;
+  padding: 22px;
+  position: relative;
+}
+
+/* Close button */
+.customClose {
+  position: absolute;
+  right: 18px;
+  top: 12px;
+  font-size: 26px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #000;
+}
+
+/* Two column layout */
+.two-col {
+  display: flex;
+  gap: 20px;
+}
+
+.two-col > div {
+  flex: 1;
+}
+
   </style>
 </head>
 <body>
@@ -192,6 +240,69 @@ h3{
     </div>
 
     <nav><ul class="pagination" id="invPager"></ul></nav>
+    <!-- =========================
+ ADMIN INVOICE VIEW MODAL
+========================= -->
+<div id="adminInvoiceViewModal" class="customModal">
+  <div class="customModalBox" style="max-width:1000px;">
+
+    <span class="customClose" onclick="closeAdminInvoiceViewModal()">&times;</span>
+    <h4 style="color:black;">Invoice Full Details</h4>
+
+    <div class="two-col">
+
+      <!-- LEFT COLUMN -->
+      <div>
+        <div class="mb-3"><label class="form-label">Invoice No</label>
+          <input id="ai_invoice_no" class="form-control" readonly></div>
+
+        <div class="mb-3"><label class="form-label">Invoice Date</label>
+          <input id="ai_invoice_date" class="form-control" readonly></div>
+
+        <div class="mb-3"><label class="form-label">Item Name</label>
+          <input id="ai_item_name" class="form-control" readonly></div>
+
+        <div class="mb-3"><label class="form-label">Description</label>
+          <input id="ai_description" class="form-control" readonly></div>
+
+        <div class="mb-3"><label class="form-label">Quantity</label>
+          <input id="ai_qty" class="form-control" readonly></div>
+
+        <div class="mb-3"><label class="form-label">Unit Rate</label>
+          <input id="ai_unit_rate" class="form-control" readonly></div>
+
+        <div class="mb-3"><label class="form-label">Total</label>
+          <input id="ai_total" class="form-control" readonly></div>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div>
+        <div class="mb-3"><label class="form-label">Company Name</label>
+          <input id="ai_company_name" class="form-control" readonly></div>
+
+        <div class="mb-3"><label class="form-label">Contact Person</label>
+          <input id="ai_contact_person" class="form-control" readonly></div>
+
+        <div class="mb-3"><label class="form-label">State</label>
+          <input id="ai_state" class="form-control" readonly></div>
+
+        <div class="mb-3"><label class="form-label">GST No</label>
+          <input id="ai_gst_no" class="form-control" readonly></div>
+
+        <div class="mb-3"><label class="form-label">PAN No</label>
+          <input id="ai_pan_no" class="form-control" readonly></div>
+
+        <div class="mb-3"><label class="form-label">Contact Phone</label>
+          <input id="ai_contact_phone" class="form-control" readonly></div>
+
+        <div class="mb-3"><label class="form-label">Contact Email</label>
+          <input id="ai_contact_email" class="form-control" readonly></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
   </div>
 
   <script src="{{ url_for('static', filename='js/invoices.js') }}">

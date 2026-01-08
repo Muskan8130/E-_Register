@@ -15,54 +15,71 @@
  })();
  //---------------------------------new them script-----------------------------------/
 // Theme change feature
+// Theme change feature (NO DEFAULT APPLY)
 const themeSelect = document.getElementById("theme");
 const body = document.body;
 
 themeSelect.addEventListener("change", (e) => {
   const value = e.target.value;
-if (value === "light") {
-    body.style.background = "linear-gradient(135deg, #e7d8ff 0%, #f3d1dc 100%)";
+
+  // 🔁 RESET FIRST (HTML/CSS ko wapas lao)
+  body.style.background = "";
+  body.style.color = "";
+  document.querySelector(".card").style.background = "";
+  document.querySelector(".card").style.color = "";
+
+  document.querySelectorAll("input, textarea, select").forEach(el => {
+    el.style.backgroundColor = "";
+    el.style.color = "";
+    el.style.border = "";
+  });
+
+  document.querySelectorAll("label").forEach(el => {
+    el.style.color = "";
+  });
+
+  // 🎨 APPLY ONLY IF USER CHOOSES
+  if (value === "light") {
+    body.style.background =
+      "linear-gradient(135deg, #e7d8ff 0%, #f3d1dc 100%)";
     body.style.color = "#2c1f33";
-    document.querySelector(".card").style.background = "linear-gradient(135deg, #f8e9ff, #f5d9e5)";
+
+    document.querySelector(".card").style.background =
+      "linear-gradient(135deg, #f8e9ff, #f5d9e5)";
     document.querySelector(".card").style.color = "#2c1f33";
 
-    // Input, label aur placeholder ke colors fix
     document.querySelectorAll("input, textarea, select").forEach(el => {
-        el.style.backgroundColor = "#f7eff9";   // halki lavender background
-        el.style.color = "#2c1f33";             // dark readable text
-        el.style.border = "1px solid #c3a4d6";  // soft border
+      el.style.backgroundColor = "#f7eff9";
+      el.style.color = "#2c1f33";
+      el.style.border = "1px solid #c3a4d6";
     });
 
     document.querySelectorAll("label").forEach(el => {
-        el.style.color = "#2c1f33"; // label clearly visible
+      el.style.color = "#2c1f33";
     });
-}
+  }
 
   else if (value === "dark") {
-    body.style.background = "linear-gradient(135deg, #000000 0%, #232526 100%)";
-    body.style.background = "linear-gradient(135deg, #2a2d35 0%, #3b4252 100%)";
-    body.style.color = "#fff";
-    document.querySelector(".card").style.background = "linear-gradient(135deg, #3a3a3a, #555)";
-    document.querySelector(".card").style.color = "#fff";
-     // Input, label aur placeholder ke colors fix
+    body.style.background =
+      "linear-gradient(135deg, #2a2d35 0%, #3b4252 100%)";
+    body.style.color = "#ffffff";
+
+    document.querySelector(".card").style.background =
+      "linear-gradient(135deg, #3a3a3a, #555)";
+    document.querySelector(".card").style.color = "#ffffff";
+
     document.querySelectorAll("input, textarea, select").forEach(el => {
-        el.style.backgroundColor = "white";   // halki lavender background
-        el.style.color = "#2c1f33";             // dark readable text
-        el.style.border = "1px solid #c3a4d6";  // soft border
+      el.style.backgroundColor = "#ffffff";
+      el.style.color = "#2c1f33";
+      el.style.border = "1px solid #c3a4d6";
     });
 
     document.querySelectorAll("label").forEach(el => {
-        el.style.color = "black"; // label clearly visible
+      el.style.color = "#ffffff";
     });
-  } 
-  else {
-    // Default theme (your original one)
-    body.style.background = "linear-gradient(135deg, #182848 0%, #4b6cb7 100%)";
-    body.style.color = "#eaf2ff";
-    document.querySelector(".card").style.background = "linear-gradient(135deg, #2c4573 0%, #5384f7 100%)";
-    document.querySelector(".card").style.color = "#e0e0e0";
   }
 });
+
  //---------------------------------new them script-----------------------------------/
  //----------------------------game-------------------------------------------/
  const words = [

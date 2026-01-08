@@ -149,6 +149,55 @@
      color: #121213 !important;
      border-bottom: 1px solid rgba(253, 249, 249, 0.15); 
       }
+      /* =======================
+   CUSTOM MODAL SYSTEM
+======================= */
+.customModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.customModal.active {
+  display: flex;
+}
+
+.customModalBox {
+  background: #ffffff;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+}
+
+/* Close button */
+.customClose {
+  position: absolute;
+  right: 15px;
+  top: 10px;
+  font-size: 22px;
+  cursor: pointer;
+  color: #000;
+}
+
+/* Two column layout */
+.two-col {
+  display: flex;
+  gap: 20px;
+}
+
+.two-col > div {
+  flex: 1;
+}
+
   </style>
 </head>
 
@@ -169,37 +218,99 @@
   </header>
 
   <!-- ===== Table ===== -->
-  <div class="card-ui">
-    <small class="muted">Total records: <span id="totalCount">0</span></small>
-  </div>
-  </div>
+<div class="card-ui">
+  <small class="muted">
+    Total records: <span id="totalCount">0</span>
+  </small>
+</div>
 
-  <div class="table-responsive">
-    <table class="table table-bordered">
-      <thead>
-        <tr>
-          <th>Invoice No</th>
-          <th>Item Name</th>
-          <th>Qty</th>
-          <th>Unit Rate</th>
-          <th>GST</th>
-          <th>Total</th>
-          <th>Contact Person</th>
-          <th>Company Name</th>
-          <th>State</th>
-          <th>GST No</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
-  </div>
-  </div>
-  <ul id="invPager" class="pagination mt-3"></ul>
+<div class="table-responsive">
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+            
+            <th>Invoice No</th>
+            <th>Item Name</th>
+            <th>Qty</th>
+            <th>Unit Rate</th>
+            <th>GST</th>
+            <th>Total</th>
+            <th>Contact Person</th>
+            <th>Company Name</th>
+            <th>State</th>
+            <th>GST No</th>
+            <th>Actions</th>
+          </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</div>
 
+<ul id="invPager" class="pagination mt-3"></ul>
+
+<!-- =========================
+ NEW INVOICE VIEW MODAL
+========================= -->
+<div id="newInvoiceViewModal" class="customModal">
+  <div class="customModalBox" style="max-width:950px;">
+
+    <span class="customClose" onclick="closeNewInvoiceViewModal()">&times;</span>
+    <h4 style="color:black;">Invoice Full Details</h4>
+
+    <div class="two-col">
+
+      <!-- LEFT COLUMN -->
+      <div>
+        <div class="mb-3"><label class="form-label">Invoice No</label>
+          <input id="nv_invoice_no" class="form-control" readonly></div>
+
+        <div class="mb-3"><label class="form-label">Invoice Date</label>
+          <input id="nv_invoice_date" class="form-control" readonly></div>
+
+        <div class="mb-3"><label class="form-label">Item Name</label>
+          <input id="nv_item_name" class="form-control" readonly></div>
+
+        <div class="mb-3"><label class="form-label">Description</label>
+          <input id="nv_description" class="form-control" readonly></div>
+
+        <div class="mb-3"><label class="form-label">Quantity</label>
+          <input id="nv_qty" class="form-control" readonly></div>
+
+        <div class="mb-3"><label class="form-label">Unit Rate</label>
+          <input id="nv_unit_rate" class="form-control" readonly></div>
+
+        <div class="mb-3"><label class="form-label">Total</label>
+          <input id="nv_total" class="form-control" readonly></div>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div>
+        <div class="mb-3"><label class="form-label">Company Name</label>
+          <input id="nv_company_name" class="form-control" readonly></div>
+
+        <div class="mb-3"><label class="form-label">Contact Person</label>
+          <input id="nv_contact_person" class="form-control" readonly></div>
+
+        <div class="mb-3"><label class="form-label">State</label>
+          <input id="nv_state" class="form-control" readonly></div>
+
+        <div class="mb-3"><label class="form-label">GST No</label>
+          <input id="nv_gst_no" class="form-control" readonly></div>
+
+        <div class="mb-3"><label class="form-label">PAN No</label>
+          <input id="nv_pan_no" class="form-control" readonly></div>
+
+        <div class="mb-3"><label class="form-label">Contact Phone</label>
+          <input id="nv_contact_phone" class="form-control" readonly></div>
+
+        <div class="mb-3"><label class="form-label">Contact Email</label>
+          <input id="nv_contact_email" class="form-control" readonly></div>
+      </div>
+
+    </div>
   </div>
-
-
+</div>
+  </div>
   <script>
     const USER_ID = "{{ user.user_id }}";
 </script>

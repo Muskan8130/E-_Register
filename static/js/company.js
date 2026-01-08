@@ -62,14 +62,8 @@ function viewCompany(id) {
      window.location.href = ` /company_data/${id}`;
 }
 
-/* ==========================================================
-   REAL-TIME SEARCH
-   User can search by:
-   ✔ company name
-   ✔ address
-   ✔ state
-   ✔ contact_phone
-========================================================== */
+
+   
 document.getElementById("companySearch").addEventListener("input", (e) => {
     const text = e.target.value.toLowerCase();
 

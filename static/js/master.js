@@ -208,23 +208,80 @@ submitGame2.onclick = () => {
    ====================================== */
 
 document.getElementById("themeMaster2").onchange = () => {
-    let t = document.getElementById("themeMaster2").value;
+  const theme = document.getElementById("themeMaster2").value;
 
-    if (t === "light") {
-        document.body.style.background = "#f0f0f0";
-        document.querySelector(".header").style.background = "white";
-    } else if (t === "dark") {
-        document.body.style.background = "#1a1a1a";
-        document.querySelector(".header").style.background = "#444";
-        document.querySelector(".box").style.background = "#5b5353ff";
-        document.querySelector("#xyz").style.background = "#5b5353ff";
-        document.querySelector("table thead ").style.background = "#5b5353ff";
-        document.querySelector("table tbody ").style.background = "#5b5353ff";
-        document.querySelector(".table-box").style.background = "#5b5353ff";
-        document.querySelector(".table-wrapper").style.background = "#c8b7b7ff";
-    } else {
-        document.body.style.background =
-            "linear-gradient(135deg,#667eea,#764ba2)";
-        document.querySelector(".header").style.background = "#f2f6f6";
-    }
+  /* =====================
+     🔄 FULL RESET (IMPORTANT)
+     ===================== */
+  document.body.style.background = "";
+  document.body.style.color = "";
+
+  document.querySelector(".header").style.background = "";
+  document.querySelector(".header").style.color = "";
+
+  document.querySelectorAll(".box").forEach(b => {
+    b.style.background = "";
+    b.style.color = "";   // 🔥 text reset
+  });
+
+  document.querySelectorAll("table, thead, tbody").forEach(t => {
+    t.style.background = "";
+    t.style.color = "";
+  });
+
+  document.querySelectorAll("input").forEach(i => {
+    i.style.background = "";
+    i.style.color = "";
+    i.style.border = "";
+  });
+
+  /* =====================
+     🌙 DARK THEME
+     ===================== */
+  if (theme === "dark") {
+    document.body.style.background = "#1a1a1a";
+    document.body.style.color = "#ffffff";
+
+    document.querySelector(".header").style.background = "#2d2d2d";
+    document.querySelector(".header").style.color = "#ffffff";
+
+    document.querySelectorAll(".box").forEach(b => {
+      b.style.background = "#3a3a3a";
+      b.style.color = "#ffffff";
+    });
+
+    document.querySelectorAll("table").forEach(t => {
+      t.style.background = "#2e2e2e";
+      t.style.color = "#ffffff";
+    });
+  }
+
+  /* =====================
+     ☀️ LIGHT THEME
+     ===================== */
+  else if (theme === "light") {
+    document.body.style.background = "#f4f6fb";
+    document.body.style.color = "#1a202c";
+
+    document.querySelector(".header").style.background = "#ffffff";
+    document.querySelector(".header").style.color = "#1a202c";
+
+    document.querySelectorAll(".box").forEach(b => {
+      b.style.background = "#ffffff";
+      b.style.color = "#1a202c";
+    });
+
+    document.querySelectorAll("table").forEach(t => {
+      t.style.background = "#ffffff";
+      t.style.color = "#1a202c";
+    });
+  }
+
+  /* =====================
+     🎨 DEFAULT THEME
+     ===================== */
+  else {
+    // ❌ NOTHING HERE ON PURPOSE
+    // ✅ HTML + CSS will handle everything
+  }
 };

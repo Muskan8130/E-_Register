@@ -150,49 +150,33 @@ function renderTable(rows) {
 
   }
 
-/*---------------------------------------------------------
-    VIEW MORE
-----------------------------------------------------------*/
+
 async function viewMore(id) {
-    const res = await fetch(`/api/invoice/${id}`);
-    const j = await res.json();
+  const res = await fetch(`/api/invoice/${id}`);
+  const j = await res.json();
 
-    if (j.error) {
-        alert("Invoice not found.");
-        return;
-    }
+  if (j.error) {
+    alert("Invoice not found.");
+    return;
+  }
 
-    let details = `
-USER ID: ${j.user_id || "—"}
-INVOICE NO: ${j.invoice_no || "—"}
-INVOICE DATE: ${j.invoice_date || "—"}
-ITEM NAME: ${j.item_name || "—"}
-DESCRIPTION: ${j.description || "—"}
-QTY: ${j.qty || "—"}
-UNIT RATE: ${j.unit_rate || "—"}
-IGST: ${j.igst || "—"}
-SGST: ${j.sgst || "—"}
-CGST: ${j.cgst || "—"}
-TOTAL: ₹${j.total || "—"}
-WARRANTY DETAILS: ${j.warranty_details || "—"}
-WARRANTY END: ${j.warranty_end || "—"}
-WARRANTY CUSTOMER CARE NO: ${j.warr_customer_care_no || "—"}
-CONTACT PERSON: ${j.contact_person || "—"}
-COMPANY NAME: ${j.company_name || "—"}
-ADDRESS: ${j.address || "—"}
-STATE: ${j.state || "—"}
-GST NO: ${j.gst_no || "—"}
-PAN NO: ${j.pan_no || "—"}
-CONTACT PHONE: ${j.contact_phone || "—"}
-CONTACT EMAIL: ${j.contact_email || "—"}
-BANK AC NO: ${j.bank_ac_no || "—"}
-BANK IFSC: ${j.bank_ifsc || "—"}
-BANK NAME: ${j.bank_name || "—"}
-DOCUMENT: ${j.doc_filename || "—"}
-CREATED AT: ${j.created_at || "—"}
-`;
+  document.getElementById("nv_invoice_no").value = j.invoice_no || "";
+  document.getElementById("nv_invoice_date").value = j.invoice_date || "";
+  document.getElementById("nv_item_name").value = j.item_name || "";
+  document.getElementById("nv_description").value = j.description || "";
+  document.getElementById("nv_qty").value = j.qty || "";
+  document.getElementById("nv_unit_rate").value = j.unit_rate || "";
+  document.getElementById("nv_total").value = j.total || "";
 
-    alert(details);
+  document.getElementById("nv_company_name").value = j.company_name || "";
+  document.getElementById("nv_contact_person").value = j.contact_person || "";
+  document.getElementById("nv_state").value = j.state || "";
+  document.getElementById("nv_gst_no").value = j.gst_no || "";
+  document.getElementById("nv_pan_no").value = j.pan_no || "";
+  document.getElementById("nv_contact_phone").value = j.contact_phone || "";
+  document.getElementById("nv_contact_email").value = j.contact_email || "";
+
+  openNewInvoiceViewModal();
 }
 
 /*---------------------------------------------------------
@@ -201,3 +185,13 @@ CREATED AT: ${j.created_at || "—"}
 async function viewDoc(id) {
     window.open(`/invoice_doc/${id}`, "_blank");
 }
+const newInvoiceViewModal = document.getElementById("newInvoiceViewModal");
+
+function openNewInvoiceViewModal() {
+  newInvoiceViewModal.classList.add("active");
+}
+
+function closeNewInvoiceViewModal() {
+  newInvoiceViewModal.classList.remove("active");
+}
+

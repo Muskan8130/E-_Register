@@ -75,7 +75,7 @@ function goto(p) { page = p; fetchInv(); }
 async function viewDoc(id) {
  window.open(`/invoice_doc/${id}`, "_blank");
 }
-
+/*
 async function viewMore(id) {
   const res = await fetch(`/api/invoice/${id}`);
   const j = await res.json();
@@ -115,8 +115,36 @@ DOCUMENT: ${j.doc_filename || "—"}
 CREATED AT: ${j.created_at || "—"}
 `;
 
-  alert(details);
+  /*alert(details);
+}*/
+async function viewMore(id) {
+  const res = await fetch(`/api/invoice/${id}`);
+  const j = await res.json();
+
+  if (j.error) {
+    alert("Invoice not found.");
+    return;
+  }
+
+  document.getElementById("ai_invoice_no").value = j.invoice_no || "";
+  document.getElementById("ai_invoice_date").value = j.invoice_date || "";
+  document.getElementById("ai_item_name").value = j.item_name || "";
+  document.getElementById("ai_description").value = j.description || "";
+  document.getElementById("ai_qty").value = j.qty || "";
+  document.getElementById("ai_unit_rate").value = j.unit_rate || "";
+  document.getElementById("ai_total").value = j.total || "";
+
+  document.getElementById("ai_company_name").value = j.company_name || "";
+  document.getElementById("ai_contact_person").value = j.contact_person || "";
+  document.getElementById("ai_state").value = j.state || "";
+  document.getElementById("ai_gst_no").value = j.gst_no || "";
+  document.getElementById("ai_pan_no").value = j.pan_no || "";
+  document.getElementById("ai_contact_phone").value = j.contact_phone || "";
+  document.getElementById("ai_contact_email").value = j.contact_email || "";
+
+  openAdminInvoiceViewModal();
 }
+
 
 
 document.getElementById('globalQ').addEventListener('keypress', (e) => {
@@ -124,3 +152,15 @@ document.getElementById('globalQ').addEventListener('keypress', (e) => {
 });
 
 fetchInv();
+let adminInvoiceViewModal;
+
+document.addEventListener("DOMContentLoaded", () => {
+  adminInvoiceViewModal = document.getElementById("adminInvoiceViewModal");
+});
+function openAdminInvoiceViewModal() {
+  adminInvoiceViewModal.classList.add("active");
+}
+
+function closeAdminInvoiceViewModal() {
+  adminInvoiceViewModal.classList.remove("active");
+}

@@ -114,9 +114,6 @@ document.getElementById("nextBtn").onclick = () => {
         fillForm(currentIndex);
     }
 };
-
-
-
 /********************************************
  * CLEAR FORM
  ********************************************/
@@ -126,8 +123,6 @@ function clearForm() {
         if (el) el.value = "";
     });
 }
-
-
 
 /********************************************
  * UPLOAD EXCEL FILE
@@ -152,7 +147,6 @@ document.getElementById("modalUploadBtn").onclick = async () => {
  /********************************************
      * SAVE ALL EXCEL ROWS ONE BY ONE
      ********************************************/
-
 document.getElementById("saveModalBtn").onclick = async () => {
 
    
@@ -185,7 +179,6 @@ document.getElementById("saveModalBtn").onclick = async () => {
     fetchUserRecords();
 };
 
-
 /********************************************
  * LOAD TABLE AFTER PAGE LOAD
  ********************************************/
@@ -207,9 +200,6 @@ async function fetchUserRecords() {
     renderTable([]);
   }
 }
-
-
-
 /********************************************
  * RENDER TABLE
  ********************************************/
@@ -325,9 +315,6 @@ function renderTable(rows = []) {
     tbody.appendChild(tr);
   });
 }
-
-
-
 /********************************************
  * VIEW DOCUMENT
  ********************************************/
@@ -338,9 +325,6 @@ document.addEventListener('click', (e) => {
         window.open(`/invoice_doc/${id}`, "_blank");
     }
 });
-
-
-
 /********************************************
  * CLICK EDIT BUTTON → OPEN EDIT MODAL
  ********************************************/
@@ -357,14 +341,11 @@ document.addEventListener("click", async (e) => {
 
     openEditModal();
 });
-
-
 function toInputDate(dateStr) {
     if (!dateStr) return "";
     const d = new Date(dateStr);
     return d.toISOString().split("T")[0];
 }
-
 function fillEditModal(d) {
 
     document.getElementById("e_invoice_no").value = d.invoice_no || "";
@@ -395,8 +376,15 @@ function fillEditModal(d) {
     editModal.setAttribute("data-id", d.id);
 }
 
+const viewModal = document.getElementById("viewModal");
 
+function openViewModal(){
+    viewModal.classList.add("active");
+}
 
+function closeViewModal(){
+    viewModal.classList.remove("active");
+}
 /********************************************
  * UPDATE INVOICE
  ********************************************/
@@ -447,12 +435,6 @@ document.getElementById("editSaveBtn").addEventListener("click", async () => {
         alert("Error updating invoice");
     }
 });
-
-
-
-/********************************************
- * VIEW MORE (ALERT DETAILS)
- ********************************************/
 async function viewMore(id) {
   const res = await fetch(`/api/invoice/${id}`);
   const j = await res.json();
@@ -462,41 +444,29 @@ async function viewMore(id) {
     return;
   }
 
-  let details = `
-USER ID: ${j.user_id || "—"}
-INVOICE NO: ${j.invoice_no || "—"}
-INVOICE DATE: ${j.invoice_date || "—"}
-ITEM NAME: ${j.item_name || "—"}
-DESCRIPTION: ${j.description || "—"}
-QTY: ${j.qty || "—"}
-UNIT RATE: ${j.unit_rate || "—"}
-IGST: ${j.igst || "—"}
-SGST: ${j.sgst || "—"}
-CGST: ${j.cgst || "—"}
-TOTAL: ₹${j.total || "—"}
-WARRANTY DETAILS: ${j.warranty_details || "—"}
-WARRANTY END: ${j.warranty_end || "—"}
-WARRANTY CUSTOMER CARE NO: ${j.warr_customer_care_no || "—"}
-CONTACT PERSON: ${j.contact_person || "—"}
-COMPANY NAME: ${j.company_name || "—"}
-ADDRESS: ${j.address || "—"}
-STATE: ${j.state || "—"}
-GST NO: ${j.gst_no || "—"}
-PAN NO: ${j.pan_no || "—"}
-CONTACT PHONE: ${j.contact_phone || "—"}
-CONTACT EMAIL: ${j.contact_email || "—"}
-BANK AC NO: ${j.bank_ac_no || "—"}
-BANK IFSC: ${j.bank_ifsc || "—"}
-BANK NAME: ${j.bank_name || "—"}
-DOCUMENT: ${j.doc_filename || "—"}
-CREATED AT: ${j.created_at || "—"}
-`;
+  document.getElementById("v_invoice_no").value = j.invoice_no || "";
+  document.getElementById("v_item_name").value = j.item_name || "";
+  document.getElementById("v_qty").value = j.qty || "";
+  document.getElementById("v_unit_rate").value = j.unit_rate || "";
+  document.getElementById("v_igst").value = j.igst || "";
+  document.getElementById("v_cgst").value = j.cgst || "";
+  document.getElementById("v_sgst").value = j.sgst || "";
+  document.getElementById("v_total").value = j.total || "";
+  document.getElementById("v_company_name").value = j.company_name || "";
+  document.getElementById("v_state").value = j.state || "";
 
-  alert(details);
+  document.getElementById("v_invoice_date").value = j.invoice_date || "";
+  document.getElementById("v_description").value = j.description || "";
+  document.getElementById("v_warranty_details").value = j.warranty_details || "";
+  document.getElementById("v_warranty_end").value = j.warranty_end || "";
+  document.getElementById("v_contact_person").value = j.contact_person || "";
+  document.getElementById("v_phone").value = j.contact_phone || "";
+  document.getElementById("v_email").value = j.contact_email || "";
+  document.getElementById("v_gst").value = j.gst_no || "";
+  document.getElementById("v_pan").value = j.pan_no || "";
+
+  openViewModal();
 }
-
-
-
 /********************************************
  * DELETE BUTTON
  ********************************************/
@@ -521,9 +491,6 @@ document.addEventListener('click', async (e) => {
     }
   }
 });
-
-
-
 /********************************************
  * GLOBAL SEARCH
  ********************************************/
@@ -555,9 +522,6 @@ async function globalSearch() {
     document.getElementById("tableBody").innerHTML = "<tr><td colspan='7'>Error searching users</td></tr>";
   }
 }
-
-
-
 /********************************************
  * EXPORT FULL EXCEL
  ********************************************/
@@ -580,9 +544,6 @@ document.getElementById('exportFullBtn').addEventListener('click', async () => {
 
     window.URL.revokeObjectURL(url);
 });
-
-
-
 /********************************************
  * OPEN CUSTOM EXPORT MODAL
  ********************************************/
@@ -615,9 +576,6 @@ document.getElementById("createCustomExcel")
         URL.revokeObjectURL(url);
     });
 });
-
-
-
 function loadInvoicesForExport() {
     fetch("/get_export_invoices")
         .then(res => res.json())
@@ -654,9 +612,6 @@ function loadInvoicesForExport() {
 
         });
 }
-
-
-
 /********************************************
  * LOCKED MODAL (BIN)
  ********************************************/
@@ -713,9 +668,6 @@ document.addEventListener("click", async (e) => {
         }
     }
 });
-
-
-
 /********************************************
  * GAME MODAL
  ********************************************/
@@ -808,14 +760,8 @@ window.addEventListener("click", (e) => {
   if (e.target === modal2) modal2.style.display = "none";
 });
 
-
-
 /********************************************
  * THEME SWITCHER
- ********************************************/
-/********************************************
- * THEME SYSTEM — EXACT SAME AS admin PAGE
- * NO CSS REQUIRED — ONLY PURE JS
  ********************************************/
 const themeadmin = document.getElementById("themeadmin");
 

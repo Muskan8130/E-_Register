@@ -159,23 +159,31 @@ function renderTable(rows) {
     VIEW MORE
 ----------------------------------------------------------*/
 async function viewMore(id) {
-    const res = await fetch(`/api/company/${id}`);
-    const j = await res.json();
+  const res = await fetch(`/api/invoice/${id}`);
+  const j = await res.json();
 
-    if (j.error) {
-        alert("Invoice not found.");
-        return;
-    }
+  if (j.error) {
+    alert("Invoice not found.");
+    return;
+  }
 
-    alert(`
-INVOICE NO: ${j.invoice_no}
-ITEM: ${j.item_name}
-QTY: ${j.qty}
-TOTAL: ₹${j.total}
-COMPANY: ${j.company_name}
-STATE: ${j.state}
-GST NO: ${j.gst_no}
-    `);
+  document.getElementById("ai_invoice_no").value = j.invoice_no || "";
+  document.getElementById("ai_invoice_date").value = j.invoice_date || "";
+  document.getElementById("ai_item_name").value = j.item_name || "";
+  document.getElementById("ai_description").value = j.description || "";
+  document.getElementById("ai_qty").value = j.qty || "";
+  document.getElementById("ai_unit_rate").value = j.unit_rate || "";
+  document.getElementById("ai_total").value = j.total || "";
+
+  document.getElementById("ai_company_name").value = j.company_name || "";
+  document.getElementById("ai_contact_person").value = j.contact_person || "";
+  document.getElementById("ai_state").value = j.state || "";
+  document.getElementById("ai_gst_no").value = j.gst_no || "";
+  document.getElementById("ai_pan_no").value = j.pan_no || "";
+  document.getElementById("ai_contact_phone").value = j.contact_phone || "";
+  document.getElementById("ai_contact_email").value = j.contact_email || "";
+
+  openAdminInvoiceViewModal();
 }
 
 /*---------------------------------------------------------
@@ -183,4 +191,17 @@ GST NO: ${j.gst_no}
 ----------------------------------------------------------*/
 function viewDoc(id) {
     window.open(`/invoice_doc/${id}`, "_blank");
+}
+let companyInvoiceViewModal;
+
+document.addEventListener("DOMContentLoaded", () => {
+  companyInvoiceViewModal = document.getElementById("companyInvoiceViewModal");
+});
+
+function openAdminInvoiceViewModal() {
+  adminInvoiceViewModal.classList.add("active");
+}
+
+function closeAdminInvoiceViewModal() {
+  adminInvoiceViewModal.classList.remove("active");
 }
