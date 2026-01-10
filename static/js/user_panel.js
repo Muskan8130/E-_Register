@@ -634,9 +634,8 @@ async function loadLockedTable() {
             <td>${r.invoice_no || ""}</td>
             <td>${r.gst_no || ""}</td>
             <td>${r.invoice_date || ""}</td>
-            <td>${r.contact_person || ""}</td>
+            <td>${r.company_name || ""}</td>
             <td>${r.state || ""}</td>
-            <td>${r.contact_mobile || ""}</td>
             <td>${r.contact_email || ""}</td>
 
             <td class="text-center">

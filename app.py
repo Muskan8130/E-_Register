@@ -77,7 +77,8 @@ def init_database():
             role VARCHAR(20) NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             last_used_at TIMESTAMP NULL,
-            last_action VARCHAR(50)
+            last_action VARCHAR(50),
+            created_by varchar(100)
         );
     """)
 
@@ -606,6 +607,9 @@ def create_user():
     else:
         password = request.form.get('password')
 
+
+    created_by = session.get('user_id')
+
     # fallback - if JSON with keys 'userid' & 'password' sent
     if not userid:
         jd = request.get_json(silent=True)
@@ -626,8 +630,8 @@ def create_user():
             return jsonify({"status": "error", "message": "User already exists."})
 
         hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-        cur.execute("INSERT INTO users (user_id, password_hash, role) VALUES (%s,%s,%s)",
-                    (userid, hashed_pw, 'user'))
+        cur.execute("INSERT INTO users (user_id, password_hash, role, created_by) VALUES (%s,%s,%s,%s)",
+                    (userid, hashed_pw, 'user', created_by))
         conn.commit()
         cur.close()
         conn.close()
@@ -688,15 +692,18 @@ def api_users_search():
 # ---------- API: list users (exclude admin) ----------
 @app.route('/api/users')
 def api_users():
+
+    created_by = session.get('user_id')
+
     try:
         conn = get_db_connection()
         cur = conn.cursor(dictionary=True)
         cur.execute("""
             SELECT id, user_id, role, created_at, last_used_at, last_action
             FROM users
-            WHERE role = 'user'
+            WHERE role = 'user' AND CREATED_BY = %s
             ORDER BY id DESC
-        """)
+        """, (created_by,))
         rows = cur.fetchall()
         cur.close()
         conn.close()
@@ -837,6 +844,8 @@ def create_admin():
     userid = data.get("userid") or data.get("user_id")
     password = data.get("password")
 
+    created_by = session.get('user_id')
+
     if not userid or not password:
         return jsonify({"status": "error", "message": "User ID and password required."})
 
@@ -855,9 +864,9 @@ def create_admin():
                                   bcrypt.gensalt()).decode('utf-8')
 
         cur.execute("""
-            INSERT INTO users (user_id, password_hash, role)
-            VALUES (%s, %s, %s)
-        """, (userid, hashed_pw, 'admin'))
+            INSERT INTO users (user_id, password_hash, role, created_by)
+            VALUES (%s, %s, %s, %s)
+        """, (userid, hashed_pw, 'admin', created_by))
 
         conn.commit()
         cur.close()
@@ -1499,7 +1508,7 @@ def api_invoices():
 
     cur.close()
     conn.close()
-
+    
     return jsonify({'total': total, 'rows': rows})
 
 
@@ -1570,8 +1579,8 @@ def get_locked_records(user_id):
     cursor = conn.cursor(dictionary=True)
 
     cursor.execute("""
-        SELECT id, invoice_no, gst_no, invoice_date, contact_person,
-               state, contact_phone, contact_email
+        SELECT id,user_id, invoice_no, gst_no, invoice_date, company_name,
+               state, contact_email
         FROM data
         WHERE user_id = %s
         AND locked = FALSE
@@ -1583,17 +1592,36 @@ def get_locked_records(user_id):
 @app.route('/get_locked_record')
 def get_locked_record():
 
+    admin_id = session.get('user_id')
+
+    if not admin_id:
+        return jsonify({"error": "Unauthorized"}), 401
+
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
     cursor.execute("""
-        SELECT id, invoice_no, gst_no, invoice_date, contact_person,
-               state, contact_phone, contact_email
-        FROM data
-        where locked = FALSE
-    """)
+        SELECT 
+            d.id,
+            d.user_id,
+            d.invoice_no,
+            d.gst_no,
+            d.invoice_date,
+            d.company_name,
+            d.state,
+            d.contact_email
+        FROM data d
+        INNER JOIN users u ON d.USER_ID = u.user_id
+        WHERE 
+            d.locked = FALSE
+            AND u.created_by = %s
+        ORDER BY d.id DESC
+    """, (admin_id,))
 
     rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
     return jsonify(rows)
 
 @app.route('/unlock_invoice/<int:id>', methods=['POST'])
@@ -1837,6 +1865,8 @@ def get_export_invoices():
     conn = get_db_connection()
     cur = conn.cursor(dictionary=True)
 
+    USER = session.get('user_id')
+
     cur.execute("""
         SELECT 
             id,
@@ -1845,9 +1875,9 @@ def get_export_invoices():
             item_name,
             gst_no
         FROM data
-        WHERE locked = 1
+        WHERE locked = 1 AND USER_ID = %s
         ORDER BY id DESC
-    """)
+    """ ,(USER,))
 
     rows = cur.fetchall()
     cur.close()

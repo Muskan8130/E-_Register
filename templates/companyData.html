@@ -31,6 +31,9 @@
       align-items: center;
       justify-content: space-between;
       box-shadow: 0 4px 10px rgba(0, 0, 0, .15);
+      position: sticky;   /* ✅ FIX */
+  top: 0;             /* ✅ FIX */
+  z-index: 1000; 
     }
 
     .user-info {
@@ -69,7 +72,7 @@
     table {
       background: #fff;
       border-radius: 1rem;
-      overflow: hidden;
+     
       box-shadow: 0 6px 15px rgba(67, 56, 202, 0.15);
     }
 
@@ -196,6 +199,12 @@
 .two-col > div {
   flex: 1;
 }
+.table-responsive {
+  max-height: calc(100vh - 160px); /* header + spacing */
+  overflow-y: auto;
+  overflow-x: auto;
+  position: relative; /* REQUIRED for sticky thead */
+}
 
   </style>
 </head>
@@ -209,7 +218,7 @@
 
     <div class="d-flex align-items-center gap-3">
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <input id="globalSearch" placeholder="Global search..." class="form-control" style="max-width:500px"
+        <input id="globalSearch" placeholder="Search ...." class="form-control" style="max-width:500px"
           style="border-radius: 2px rgb(201, 197, 197);">
       </div>
       <a id = "Back" class="btn btn-outline-light" href="/admin/company">Back</a>

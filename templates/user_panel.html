@@ -179,9 +179,15 @@
  
 
     .file-row { display:flex; gap:8px; align-items:center; }
-    .table-responsive { max-height: 52vh; overflow:auto; }
+    .table-responsive { max-height: 52vh; overflow:auto;   position: relative; }
+     .table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: linear-gradient(90deg, #efebeb, #e2e2e7);
+  color: #000;
+}
 
-  
     @media (max-width: 800px){
       .two-col { grid-template-columns: 1fr; }
       .controls { flex-direction: column; align-items:stretch; gap:12px; }
@@ -1078,9 +1084,8 @@
               <th>Invoice No</th>
               <th>GST</th>
               <th>Invoice Date</th>
-              <th>Contact Person</th>
+              <th>Company Name</th>
               <th>State</th>
-              <th>Mobile</th>
               <th>Email</th>
               <th class="text-center">Action</th>
             </tr>

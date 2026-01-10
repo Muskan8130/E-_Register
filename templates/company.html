@@ -92,6 +92,30 @@ th, td {
   padding: 12px;
   border-bottom: 1px solid #eee;
 }
+/* ---------- TABLE HEADER ALIGNMENT FIX ---------- */
+thead th {
+  text-align: left;          /* 👈 left side */
+  padding-left: 22px;        /* 👈 thoda andar se spacing */
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+/* ---------- TABLE BODY ALIGNMENT ---------- */
+tbody td {
+  vertical-align: middle;
+}
+
+/* Specific columns slightly right aligned (optional but classy) */
+tbody td:nth-child(4),  /* Contact Number */
+thead th:nth-child(4) {
+  text-align: right;
+  padding-right: 20px;
+}
+
+tbody td:nth-child(5),  /* Action */
+thead th:nth-child(5) {
+  text-align: center;
+}
 
 .action-btn {
   padding: 8px 15px;
@@ -118,9 +142,9 @@ th, td {
      <h2 style="margin:0;">Company Details</h2>
      <div class="small-muted">Logged in as:<span id="loggedUserName">{{ session['user_id'] }}</span></div>
       </div>
-  <input type="text" id="companySearch" class="search-input" placeholder="Search companies…">
+  <input type="text" id="companySearch" class="search-input" placeholder="Search ....">
 
-   <a class="back-btn" href="/admin"> ⬅ Back</a>
+   <a class="back-btn" href="/admin">Back</a>
 </div>
 
 <!-- TABLE SECTION -->
