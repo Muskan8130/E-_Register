@@ -30,7 +30,6 @@ async function fetchInv() {
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${r.s_no || ''}</td>
       <td>${r.invoice_no || ''}</td>
       <td>${r.item_name || ''}</td>
       <td>${r.qty || ''}</td>

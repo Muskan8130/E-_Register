@@ -390,68 +390,6 @@ def admin_invoices_page():
         return redirect(url_for('login'))
     return render_template('invoices.html')
 
-@app.route('/api/invoices')
-def api_get_invoices():
-    if 'user_id' not in session or session.get('role') != 'admin':
-        return jsonify({'error': 'unauthorized'}), 403
-
-    # pagination
-    page = int(request.args.get('page', 1))
-    per_page = int(request.args.get('per_page', 10))
-    q = request.args.get('q', '').strip()
-
-    offset = (page - 1) * per_page
-
-    conn = get_db_connection()
-    cur = conn.cursor(dictionary=True)
-
-    # ---------------------------
-    # Build WHERE clause cleanly
-    # ---------------------------
-    where_clauses = ["LOCKED = TRUE"]
-    params = []
-
-    if q:
-        like = f"%{q}%"
-        where_clauses.append("""
-            (
-                invoice_no LIKE %s OR
-                company_name LIKE %s OR
-                contact_person LIKE %s OR
-                gst_no LIKE %s OR
-                state LIKE %s OR
-                item_name LIKE %s
-            )
-        """)
-        params.extend([like, like, like, like, like, like])
-
-    where_sql = " AND ".join(where_clauses)
-
-    # ---------------------------
-    # Count query (no LIMIT)
-    # ---------------------------
-    count_sql = f"SELECT COUNT(*) AS c FROM data WHERE {where_sql}"
-    cur.execute(count_sql, tuple(params))
-    total = cur.fetchone()['c']
-
-    # ---------------------------
-    # Data query (with LIMIT)
-    # ---------------------------
-    data_sql = f"""
-        SELECT *
-        FROM data
-        WHERE {where_sql}
-        ORDER BY id DESC
-        LIMIT %s OFFSET %s
-    """
-
-    cur.execute(data_sql, tuple(params + [per_page, offset]))
-    rows = cur.fetchall()
-
-    cur.close()
-    conn.close()
-
-    return jsonify({'total': total, 'rows': rows})
 
 @app.route('/user/<int:id>')
 def user_page(id):
@@ -937,27 +875,34 @@ def admin_company_page():
 
 @app.route('/api/company_list')
 def api_company_list():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    admin_user_id = session.get("user_id")  # current admin
+
     conn = get_db_connection()
     cur = conn.cursor(dictionary=True)
 
     cur.execute("""
         SELECT 
-            MIN(id) AS id,
-            company_name AS name,
-            address,
-            state,
-            contact_phone AS contact
-        FROM data
-        WHERE locked = TRUE
-        GROUP BY company_name, address, state, contact_phone
-    """)
+            MIN(d.id) AS id,
+            d.company_name AS name,
+            d.address,
+            d.state,
+            d.contact_phone AS contact
+        FROM data d
+        JOIN users u ON u.user_id = d.user_id
+        WHERE d.locked = TRUE
+          AND u.created_by = %s
+        GROUP BY d.company_name, d.address, d.state, d.contact_phone
+        ORDER BY d.company_name ASC
+    """, (admin_user_id,))
 
     rows = cur.fetchall()
     cur.close()
     conn.close()
 
     return jsonify({"status": "ok", "companies": rows})
-
 
 #-------------------------------------------------
 #-------------company data------------------------
@@ -976,6 +921,11 @@ def company_data_page(company_id):
     
 @app.route("/api/company/<int:company_id>")
 def api_company_invoices(company_id):
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    admin_user_id = session.get("user_id")
+
     page = int(request.args.get("page", 1))
     per_page = int(request.args.get("per_page", 10))
     offset = (page - 1) * per_page
@@ -983,9 +933,13 @@ def api_company_invoices(company_id):
     conn = get_db_connection()
     cur = conn.cursor(dictionary=True)
 
-    # 1️⃣ Get company_name from companies table
+    # 1️⃣ Get company_name by company_id (from data)
     cur.execute(
-        "SELECT company_name FROM data WHERE id = %s",
+        """
+        SELECT company_name
+        FROM data
+        WHERE id = %s
+        """,
         (company_id,)
     )
     company = cur.fetchone()
@@ -995,25 +949,41 @@ def api_company_invoices(company_id):
         conn.close()
         return jsonify({"total": 0, "rows": []})
 
-    # ✅ FIX IS HERE
     company_name = company["company_name"]
 
-    # 2️⃣ Count all invoices of that company
+    # ✅ Admin + Locked filter (common)
+    where = """
+        WHERE d.locked = TRUE
+          AND d.company_name = %s
+          AND d.user_id IN (
+              SELECT u.user_id
+              FROM users u
+              WHERE u.created_by = %s
+          )
+    """
+
+    # 2️⃣ Count invoices (admin filtered)
     cur.execute(
-        "SELECT COUNT(*) AS total FROM data WHERE company_name = %s",
-        (company_name,)
+        f"""
+        SELECT COUNT(*) AS total
+        FROM data d
+        {where}
+        """,
+        (company_name, admin_user_id)
     )
     total = cur.fetchone()["total"]
 
-    # 3️⃣ Fetch all invoices of that company
-    cur.execute("""
-        SELECT *
-        FROM data
-        WHERE company_name = %s
-        ORDER BY id DESC
+    # 3️⃣ Fetch invoices (admin filtered + pagination)
+    cur.execute(
+        f"""
+        SELECT d.*
+        FROM data d
+        {where}
+        ORDER BY d.id DESC
         LIMIT %s OFFSET %s
-    """, (company_name, per_page, offset))
-
+        """,
+        (company_name, admin_user_id, per_page, offset)
+    )
     rows = cur.fetchall()
 
     cur.close()
@@ -1023,7 +993,6 @@ def api_company_invoices(company_id):
         "total": total,
         "rows": rows
     })
-
 
 from decimal import Decimal
 from datetime import date, datetime
@@ -1465,52 +1434,58 @@ def api_invoices():
     if 'user_id' not in session:
         return jsonify({'error': 'Unauthorized'}), 403
 
+    admin_user_id = session.get("user_id")  # current admin
     page = int(request.args.get('page', 1))
     per_page = int(request.args.get('per_page', 10))
     q = request.args.get('q', '').strip()
+    offset = (page - 1) * per_page
 
     conn = get_db_connection()
     cur = conn.cursor(dictionary=True)
 
-    # -----------------------
-    # Build base WHERE clause
-    # -----------------------
-    where = "WHERE LOCKED = TRUE"
-    params = []
+    # ✅ Base condition
+    where = """
+        WHERE d.locked = TRUE
+          AND d.user_id IN (
+                SELECT u.user_id
+                FROM users u
+                WHERE u.created_by = %s
+          )
+    """
+    params = [admin_user_id]
 
+    # ✅ Search filter (optional)
     if q:
-        where += " AND (invoice_no LIKE %s OR item_name LIKE %s OR company_name LIKE %s)"
+        where += """
+            AND (
+                d.invoice_no LIKE %s
+                OR d.item_name LIKE %s
+                OR d.company_name LIKE %s
+            )
+        """
         like = f"%{q}%"
         params.extend([like, like, like])
 
-    # -----------------------
-    # Count Query (NO LIMIT!)
-    # -----------------------
-    count_sql = f"SELECT COUNT(*) AS cnt FROM data {where}"
+    # ✅ Count
+    count_sql = f"SELECT COUNT(*) AS cnt FROM data d {where}"
     cur.execute(count_sql, tuple(params))
     total = cur.fetchone()['cnt']
 
-    # -----------------------
-    # Data Query with LIMIT
-    # -----------------------
-    offset = (page - 1) * per_page
+    # ✅ Rows
     data_sql = f"""
-        SELECT *
-        FROM data
+        SELECT d.*
+        FROM data d
         {where}
-        ORDER BY id DESC
+        ORDER BY d.id DESC
         LIMIT %s OFFSET %s
     """
-
-    data_params = params + [per_page, offset]
-    cur.execute(data_sql, tuple(data_params))
+    cur.execute(data_sql, tuple(params + [per_page, offset]))
     rows = cur.fetchall()
 
     cur.close()
     conn.close()
-    
+    print(admin_user_id)
     return jsonify({'total': total, 'rows': rows})
-
 
 @app.route('/api/invoice/<int:id>')
 def api_invoice(id):
