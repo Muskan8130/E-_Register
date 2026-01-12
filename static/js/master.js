@@ -11,6 +11,11 @@ const showAdminsBtn = document.getElementById("showAdminsBtn");
 /* ----- Open Modal ----- */
 createBtn.onclick = () => {
     modalAdmin.style.display = "flex";
+
+    // 🔄 REFRESH MODAL CONTENT
+    document.getElementById("adminMsg").innerHTML = "";
+    document.getElementById("adminUsername").value = "";
+    document.getElementById("adminPassword").value = "";
 };
 
 /* ----- Close Modal ----- */
